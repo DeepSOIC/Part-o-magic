@@ -1,0 +1,2 @@
+import pomObserver
+pomObserver.start()
