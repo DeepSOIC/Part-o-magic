@@ -71,6 +71,7 @@ class Observer(FrozenClass):
     def defineAttributes(self):
         self.activeObjects = {} # store for remembering active containers, to detect that active container was changed. Key is document name, value is container object.
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
+        self.delayed_slot_calls_queue = [] # queue of lambdas
         
         self._freeze()
         
@@ -78,17 +79,26 @@ class Observer(FrozenClass):
         self.defineAttributes()
     
     #slots
-    
     def slotCreatedObject(self, feature):
+        ac = activeContainer()
+        self.delayed_slot_calls_queue.append(
+          lambda self=self, feature=feature, ac=ac:
+            self.slotCreatedObject_delayed(feature, ac)
+          )
+    
+    def slotCreatedObject_delayed(self, feature, active_container): 
+        # active_container is remembered at the time the object was actually created. 
+        # This is a hack to make nesting Parts possible.
         if test_exclude(feature):
             return #PartDesign manages itself
-        if activeContainer() is None: #shouldn't happen
+        if active_container is None: #shouldn't happen
             return
-        if activeContainer().isDerivedFrom("PartDesign::Body"):
+        if active_container.isDerivedFrom("PartDesign::Body"):
             msgbox("Part-o-magic","Cannot add the new object to body, because bodies accept only PartDesign features. ActiveBody is deactivated, and feature added to active part.")
             setActiveContainer(getPartOf(activeContainer()))
-        if not activeContainer().isDerivedFrom("App::Document"):
-            activeContainer().addObject(feature)
+            active_container = activeContainer()
+        if not active_container.isDerivedFrom("App::Document"):
+            active_container.addObject(feature)
 
     def slotDeletedObject(self, feature):
         pass
@@ -129,6 +139,12 @@ class Observer(FrozenClass):
     
     def activeObjectWatcher(self):
         'Called by timer to poll for container changes'
+        try:
+            for lmd in self.delayed_slot_calls_queue:
+                lmd()
+        finally:
+            self.delayed_slot_calls_queue = []
+        
         if App.ActiveDocument is None:
             return
         ac = activeContainer()
