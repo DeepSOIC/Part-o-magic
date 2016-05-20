@@ -57,14 +57,35 @@ def isContainer(obj):
         return True
     if obj.isDerivedFrom('App::Document'):
         return True
+    return False
+
+def getDirectChildren(container):
+    if container.isDerivedFrom("App::Document"):
+        # find all objects not contained by any Part or Body
+        result = set(container.Objects)
+        for obj in container.Objects:
+            if isContainer(obj):
+                children = set(getDirectChildren(obj))
+                result = result - children
+        return result
+    elif container.isDerivedFrom("App::DocumentObjectGroup"):
+        result = container.Group
+        if container.isDerivedFrom("App::GeoFeatureGroup"):
+            result.append(container.Origin)
+        return result
+    elif container.isDerivedFrom("App::Origin"):
+        return container.OriginFeatures
+    elif container.isDerivedFrom("PartDesign::Body"):
+        return container.Model + [container.Origin]
 
 def getContainer(feat):
     cnt = None
     for dep in feat.InList:
         if isContainer(dep):
-            if not cnt is None:
-                raise ValueError("Container tree is not a tree")
-            cnt = dep
+            if feat in getDirectChildren(dep):
+                if not cnt is None:
+                    raise ValueError("Container tree is not a tree")
+                cnt = dep
     if cnt is None: 
         return feat.Document
     return cnt
@@ -112,9 +133,12 @@ def getContainerRelativePath(container_from, container_to):
     
     #find common leading sequence, and chop it off
     i = 0
-    for i in range(min(len(chain_from), len(chain_to))):
+    min_path_length = min(len(chain_from), len(chain_to))
+    for i in range(min_path_length + 1):
+        if i == min_path_length:
+            break
         if chain_from[i] is not chain_to[i]:
-            break;
+            break
     # now i points to first level where container chains differ
     chain_from = chain_from[i:]
     chain_to = chain_to[i:]
@@ -132,7 +156,9 @@ def getCommonContainer(feat_list):
     min_path_length = min([len(chain) for chain in list_of_chains])
 
     i = 0
-    for i in range(min_path_length):
+    for i in range(min_path_length + 1):
+        if i == min_path_length:
+            break
         cnt0 = list_of_chains[0][i]
         for l in list_of_chains:
             if l[i] is not cnt0:
@@ -161,3 +187,4 @@ def getTransformation(container_from, container_to):
         if hasattr(cnt, "Placement"):
             trf = cnt.Placement.inverse().multiply(trf)
     return trf
+    
