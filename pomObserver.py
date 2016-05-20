@@ -54,7 +54,7 @@ def test_exclude(feature, active_workbench):
     '''exclusions to disable automatic container management'''
     exclude_types = ["PartDesign::Feature", 
                      "PartDesign::ShapeBinder",
-                     "PartDesign::Datum", 
+                     "Part::Datum", 
                      "PartDesign::Body", 
                      'PartDesign::CoordinateSystem',
                      "App::Origin", 
