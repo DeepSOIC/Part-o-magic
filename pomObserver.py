@@ -50,17 +50,17 @@ def msgbox(title, text):
     mb.setWindowTitle(title)
     mb.exec_()
     
-def test_exclude(feature):
+def test_exclude(feature, active_workbench):
     '''exclusions to disable automatic container management'''
     exclude_types = ["PartDesign::Feature", 
-                     "PartDesign::ShapeBinder"
+                     "PartDesign::ShapeBinder",
                      "PartDesign::Datum", 
                      "PartDesign::Body", 
                      'PartDesign::CoordinateSystem',
                      "App::Origin", 
                      "App::Plane", 
                      "App::Line"]
-    if Gui.activeWorkbench().GetClassName() == "PartDesignGui::Workbench":
+    if active_workbench == "PartDesignGui::Workbench":
         exclude_types.append("Sketcher::SketchObject")
     for typ in exclude_types:
         if feature.isDerivedFrom(typ):
@@ -81,15 +81,16 @@ class Observer(FrozenClass):
     #slots
     def slotCreatedObject(self, feature):
         ac = activeContainer()
+        aw = Gui.activeWorkbench().GetClassName()
         self.delayed_slot_calls_queue.append(
-          lambda self=self, feature=feature, ac=ac:
-            self.slotCreatedObject_delayed(feature, ac)
+          lambda self=self, feature=feature, ac=ac, aw=aw:
+            self.slotCreatedObject_delayed(feature, ac, aw)
           )
     
-    def slotCreatedObject_delayed(self, feature, active_container): 
+    def slotCreatedObject_delayed(self, feature, active_container, active_workbench): 
         # active_container is remembered at the time the object was actually created. 
         # This is a hack to make nesting Parts possible.
-        if test_exclude(feature):
+        if test_exclude(feature, active_workbench):
             return #PartDesign manages itself
         if active_container is None: #shouldn't happen
             return
