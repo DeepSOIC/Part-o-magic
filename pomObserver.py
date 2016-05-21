@@ -114,7 +114,7 @@ class Observer(FrozenClass):
             return #PartDesign manages itself
         if active_container is None: #shouldn't happen
             return
-        if active_container.isDerivedFrom("PartDesign::Body"):
+        if active_container.isDerivedFrom("PartDesign::Body") and False:
             msgbox("Part-o-magic","Cannot add the new object to body, because bodies accept only PartDesign features. ActiveBody is deactivated, and feature added to active part.")
             setActiveContainer(getPartOf(activeContainer()))
             active_container = activeContainer()
