@@ -66,6 +66,26 @@ def test_exclude(feature, active_workbench):
         if feature.isDerivedFrom(typ):
             return True
     return False
+    
+def addObjectTo(container, feature):
+    if container.isDerivedFrom("App::Document"):
+        return #already there!
+    elif container.isDerivedFrom("App::DocumentObjectGroup"):
+        container.addObject(feature)
+    elif container.isDerivedFrom("Part::BodyBase"):
+        container.Model = container.Model + [feature]
+        
+        # a bit of "smartness" here =) . Setting Tip!
+        if feature.isDerivedFrom("Part::Feature"):
+            if container.Tip is not None: 
+                if container.Tip in feature.OutList:
+                    # something was created that immediately derives from shape of current tip. Probably it's time to replace the Tip!
+                    container.Tip = feature
+            else:
+                #first suitable thing added to the body will be made Tip.
+                container.Tip = feature
+    else:
+        raise TypeError("Don't know how to add a feature to a container of type {typ}".format(typ= container.TypeId))
 
 class Observer(FrozenClass):
     def defineAttributes(self):
@@ -99,7 +119,7 @@ class Observer(FrozenClass):
             setActiveContainer(getPartOf(activeContainer()))
             active_container = activeContainer()
         if not active_container.isDerivedFrom("App::Document"):
-            active_container.addObject(feature)
+            addObjectTo(active_container, feature)
 
     def slotDeletedObject(self, feature):
         pass
