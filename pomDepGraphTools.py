@@ -51,7 +51,7 @@ def isContainer(obj):
     
     if obj.isDerivedFrom("App::DocumentObjectGroup"):
         return True
-    if obj.isDerivedFrom("PartDesign::Body"):
+    if obj.isDerivedFrom("Part::BodyBase"):
         return True
     if obj.isDerivedFrom("App::Origin"):
         return True
@@ -75,7 +75,7 @@ def getDirectChildren(container):
         return result
     elif container.isDerivedFrom("App::Origin"):
         return container.OriginFeatures
-    elif container.isDerivedFrom("PartDesign::Body"):
+    elif container.isDerivedFrom("Part::BodyBase"):
         return container.Model + [container.Origin]
 
 def getContainer(feat):

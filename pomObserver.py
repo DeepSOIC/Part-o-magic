@@ -217,7 +217,7 @@ class Observer(FrozenClass):
                 o.ViewObject.Selectable = False
         
         active_chain = GT.getContainerChain(ac) + [ac]
-        for o in App.ActiveDocument.findObjects("PartDesign::Body"):
+        for o in App.ActiveDocument.findObjects("Part::BodyBase"):
             dm = "Through" if o in active_chain else "Tip"
             if o.ViewObject.DisplayModeBody != dm: # check if actual change needed, to avoid potential slowdown
                 o.ViewObject.DisplayModeBody = dm
