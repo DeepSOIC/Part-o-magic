@@ -70,7 +70,12 @@ def test_exclude(feature, active_workbench):
 def addObjectTo(container, feature):
     if container.isDerivedFrom("App::Document"):
         return #already there!
-    elif container.isDerivedFrom("App::DocumentObjectGroup"):
+    if GT.isContainer(feature):
+        #make sure we are not creating a container dependency loop, as doing so crashes FreeCAD. see http://forum.freecadweb.org/viewtopic.php?f=10&t=15936
+        if feature in (GT.getContainerChain(container) + [container]):
+            raise ValueError("Attempting to add {feat} to {cont} failed: doing so will cause container dependency loop."
+                            .format(feat= feature.Name, cont= container.Name))
+    if container.isDerivedFrom("App::DocumentObjectGroup"):
         container.addObject(feature)
     elif container.isDerivedFrom("Part::BodyBase"):
         container.Model = container.Model + [feature]
