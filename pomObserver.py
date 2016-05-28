@@ -56,7 +56,7 @@ def test_exclude(feature, active_workbench):
     exclude_types = ["PartDesign::Feature", 
                      "PartDesign::ShapeBinder",
                      "Part::Datum", 
-                     "PartDesign::Body", 
+                     # "PartDesign::Body", # since active part was made none when body is active - part-o-magic is now busy sorting new Bodies to Parts
                      'PartDesign::CoordinateSystem',
                      "App::Origin", 
                      "App::Plane", 
@@ -71,6 +71,12 @@ def test_exclude(feature, active_workbench):
 def addObjectTo(container, feature):
     if container.isDerivedFrom("App::Document"):
         return #already there!
+    if container.isDerivedFrom("PartDesign::Body"):
+        #Part-o-magic is not supposed add stuff to PartDesign bodies, as it is managed by PartDesign.
+        tmp = container
+        container = getPartOf(container)
+        msgbox("Part-o-magic","Cannot add the new object of type {typ} to {body}, because bodies accept only PartDesign features. Feature added to {cnt} instead."
+                              .format(body= tmp.Label, cnt= container.Label, typ= feature.TypeId))
     if GT.isContainer(feature):
         #make sure we are not creating a container dependency loop, as doing so crashes FreeCAD. see http://forum.freecadweb.org/viewtopic.php?f=10&t=15936
         if feature in (GT.getContainerChain(container) + [container]):
@@ -126,12 +132,9 @@ class Observer(FrozenClass):
             return #PartDesign manages itself
         if active_container is None: #shouldn't happen
             return
-        if active_container.isDerivedFrom("PartDesign::Body"):
-            msgbox("Part-o-magic","Cannot add the new object to body, because bodies accept only PartDesign features. ActiveBody is deactivated, and feature added to active part.")
-            setActiveContainer(getPartOf(activeContainer()))
-            active_container = activeContainer()
         if not active_container.isDerivedFrom("App::Document"):
             addObjectTo(active_container, feature)
+        
 
     def slotDeletedObject(self, feature):
         pass
