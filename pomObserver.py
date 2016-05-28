@@ -111,6 +111,9 @@ class Observer(FrozenClass):
           lambda self=self, feature=feature, ac=ac, aw=aw:
             self.slotCreatedObject_delayed(feature, ac, aw)
           )
+        if feature.isDerivedFrom("Sketcher::SketchObject"):
+            # workaround: add it to container immediately, otherwise edit mode is exited, which is annoying
+            self.activeObjectWatcher()
     
     def slotCreatedObject_delayed(self, feature, active_container, active_workbench): 
         # active_container is remembered at the time the object was actually created. 
