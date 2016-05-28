@@ -23,10 +23,11 @@ def activeContainer():
         return App.ActiveDocument
 
 def setActiveContainer(cnt):
+    '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
     assert(GT.isContainer(cnt))
-    if cnt.isDerivedFrom("PartDesign::Feature"):
+    if cnt.isDerivedFrom("Part::BodyBase"):
         Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", cnt)
-        part = getPartOf(cnt)
+        part = None
     else:
         part = cnt
         Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", None)
@@ -94,7 +95,10 @@ def addObjectTo(container, feature):
 
 class Observer(FrozenClass):
     def defineAttributes(self):
-        self.activeObjects = {} # store for remembering active containers, to detect that active container was changed. Key is document name, value is container object.
+        self.activeObjects = {} # store for remembering active containers, to detect that 
+        # active container was changed. Key is document name, value is 
+        # tuple(last_seen_container, last_seen_activepart, last_seen_activebody). 
+        
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
         self.delayed_slot_calls_queue = [] # queue of lambdas
         
@@ -176,14 +180,41 @@ class Observer(FrozenClass):
         
         if App.ActiveDocument is None:
             return
+
+        activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
+        activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
         ac = activeContainer()
         if not App.ActiveDocument.Name in self.activeObjects:
-            self.activeObjects[App.ActiveDocument.Name] = None
-        if self.activeObjects[App.ActiveDocument.Name] is not ac:
+            self.activeObjects[App.ActiveDocument.Name] = (None, None, None)
+        last_ac, last_ap, last_ab = self.activeObjects[App.ActiveDocument.Name]
+        if (ac, activePart, activeBody) != (last_ac, last_ap, last_ab): #we are tracking activeContainer() too, because it changes when documents are created and deleted
+            new_ac = last_ac
+            if activeBody != last_ab and activePart != last_ap:
+                #both active container fields have changed. Set active whatever is not none, but body has priority
+                if activeBody is not None:
+                    new_ac = activeBody
+                else:
+                    new_ac = activePart
+            elif activeBody != last_ab:
+                #only body field changed
+                new_ac = activeBody
+            elif activePart != last_ap:
+                #only part field changed
+                new_ac = activePart
+            if new_ac is None:
+                new_ac = App.ActiveDocument
+            if new_ac is not last_ac: #unlikely it is false, since we have detected a change....
+                setActiveContainer(new_ac)
+
+            ac = activeContainer()
+            assert(ac is new_ac)
             try:
-                self.activeContainerChanged(self.activeObjects[App.ActiveDocument.Name], ac)
+                self.activeContainerChanged(last_ac, ac)
             finally:
-                self.activeObjects[App.ActiveDocument.Name] = ac
+                # re-query the ative containers, as they might have been altered by setActiveContainer.
+                activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
+                activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
+                self.activeObjects[App.ActiveDocument.Name] = (ac, activePart, activeBody)
     
     # functions
     
