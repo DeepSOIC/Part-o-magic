@@ -137,7 +137,14 @@ class Observer(FrozenClass):
         
 
     def slotDeletedObject(self, feature):
-        pass
+        print ("deleted {feat}. container chain: {chain}"
+                .format(feat= feature.Name, chain= ".".join([cnt.Name for cnt in GT.getContainerChain(feature)])))
+        ac = activeContainer()
+        if feature in GT.getContainerChain(ac)+[ac]:
+            # active container was deleted. Need to leave it ASAP, as long as we can access the chain
+            setActiveContainer(GT.getContainer(feature))
+            self.activeObjectWatcher()
+        
     #def slotChangedObject(self, feature, prop_name):
     #    pass
     def slotRedoDocument(self,doc):
