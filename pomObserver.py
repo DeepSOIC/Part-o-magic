@@ -82,6 +82,15 @@ def addObjectTo(container, feature):
         if feature in (GT.getContainerChain(container) + [container]):
             raise ValueError("Attempting to add {feat} to {cont} failed: doing so will cause container dependency loop."
                             .format(feat= feature.Name, cont= container.Name))
+    if not GT.getContainer(feature).isDerivedFrom("App::Document"):
+        # prevent adding objects to a container if the object is already in a container. 
+        # This should partially fix unexpected behavior on undoing deletion, duplication, 
+        # and the like.
+        App.Console.PrintWarning("Part-o-magic: attempted to add {feat} to container {cnt_to}, but the feature already belongs to {cnt_feat}. Aborted.\n"
+                                 .format(feat= feature.Label,
+                                         cnt_to= container.Label,
+                                         cnt_feat= GT.getContainer(feature).Label))
+        raise ValueError("Feature already in (another) container.")
     if container.isDerivedFrom("App::DocumentObjectGroup"):
         container.addObject(feature)
     elif container.isDerivedFrom("Part::BodyBase"):
