@@ -1,7 +1,7 @@
 import pomDepGraphTools as GT
 import FreeCAD as App
 import FreeCADGui as Gui
-from AttachmentEditor.TempoVis import TempoVis
+from pomTempoVis import TempoVis
 from AttachmentEditor.FrozenClass import FrozenClass
 
 def activeContainer():
