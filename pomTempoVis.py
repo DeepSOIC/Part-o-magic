@@ -59,11 +59,15 @@ class TempoVis(FrozenClass):
             if type(doc_obj_or_list) is not list:
                 doc_obj_or_list = [doc_obj_or_list]
             for doc_obj in doc_obj_or_list:
+                if not hasattr(doc_obj.ViewObject, prop_name):
+                    App.Console.PrintWarning("TempoVis: object {obj} has no attribute {attr}. Skipped.\n"
+                                             .format(obj= doc_obj.Name, attr= prop_name))
+                    continue # silently ignore if object doesn't have the property... 
+                    
                 if doc_obj.Document is not self.document:  #ignore objects from other documents
                     raise ValueError("Document object to be modified does not belong to document TempoVis was made for.")
                 oldval = getattr(doc_obj.ViewObject, prop_name)
                 setattr(doc_obj.ViewObject, prop_name, new_value)
-                #assert(getattr(doc_obj.ViewObject, prop_name)==new_value)
                 if not self.data.has_key((doc_obj.Name,prop_name)):
                     self.data[(doc_obj.Name,prop_name)] = oldval
                     self.restore_on_delete = True
@@ -95,7 +99,13 @@ class TempoVis(FrozenClass):
     def restore(self):
         '''restore(): restore all ViewProvider properties modified via TempoVis to their original values. Called automatically when instance is destroyed, unless it was called explicitly.'''
         for obj_name, prop_name in self.data:
-            setattr(self.document.getObject(obj_name).ViewObject, prop_name, self.data[(obj_name, prop_name)])
+            try:
+                setattr(self.document.getObject(obj_name).ViewObject, prop_name, self.data[(obj_name, prop_name)])
+            except Exception as err:
+                App.Console.PrintWarning("TempoVis: failed to restore {obj}.{prop}. {err}\n"
+                                         .format(err= err.message,
+                                                 obj= obj_name, 
+                                                 prop= prop_name))
         self.restore_on_delete = False
     
     def forget(self):
