@@ -105,6 +105,9 @@ class Observer(FrozenClass):
         # active container was changed. Key is document name, value is 
         # tuple(last_seen_container, last_seen_activepart, last_seen_activebody). 
         
+        self.lastMD = {} # last seen date-time of last modification. Dict: key is document
+        # name, value is the string returned by Document.LastModifiedDate.
+        
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
         self.delayed_slot_calls_queue = [] # queue of lambdas
         
@@ -159,6 +162,29 @@ class Observer(FrozenClass):
         pass
     def slotCreatedDocument(self,doc):
         pass
+        
+    def slotSavedDocument(self, doc): #emulated - called by polling timer when LastModifiedDate of document changes
+        if activeContainer().isDerivedFrom("App::Document"):
+            return
+        from PySide import QtGui
+        mb = QtGui.QMessageBox()
+        mb.setIcon(mb.Icon.Warning)
+        mb.setText("It looks like you've just saved your project, but didn't deactivate active container. \n\n"
+                   "As of now, Part-o-magic doesn't remember visibilities of features outside of active container through save-restore. So this may cause unexpected visibility behavior when you open the document later.\n\n"
+                   "It is suggested to deactivate active container before saving projects.\n\n"
+                   "If you click 'Fix and Resave' button, Part-o-magic will deactivate active container, resave the document, and activate the container back.")
+        mb.setWindowTitle("Part-o-magic")
+        btnClose = mb.addButton(QtGui.QMessageBox.Close)
+        btnResave = mb.addButton("Fix and Resave", QtGui.QMessageBox.ButtonRole.ActionRole)
+        mb.setDefaultButton(btnClose)
+        mb.exec_()
+        if mb.clickedButton() is btnResave:
+            cnt = activeContainer()
+            setActiveContainer(cnt.Document)
+            self.activeObjectWatcher() #explicit call to poller, to update all visibilities
+            cnt.Document.save()
+            self.lastMD[App.ActiveDocument.Name] = cnt.Document.LastModifiedDate #to avoid triggering this dialog again
+            setActiveContainer(cnt)
     
     def activeContainerChanged(self, oldContainer, newContainer):
         n1 = "None"
@@ -182,6 +208,7 @@ class Observer(FrozenClass):
     
     def activeObjectWatcher(self):
         'Called by timer to poll for container changes'
+        # execute delayed onChange
         try:
             for lmd in self.delayed_slot_calls_queue:
                 lmd()
@@ -191,6 +218,7 @@ class Observer(FrozenClass):
         if App.ActiveDocument is None:
             return
 
+        #watch for changes in active object
         activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
         activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
         ac = activeContainer()
@@ -225,7 +253,16 @@ class Observer(FrozenClass):
                 activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
                 activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
                 self.activeObjects[App.ActiveDocument.Name] = (ac, activePart, activeBody)
-    
+        
+        # detect document saves
+        cur_lmd = App.ActiveDocument.LastModifiedDate
+        last_lmd = self.lastMD.get(App.ActiveDocument.Name, None)
+        if cur_lmd != last_lmd:
+            # LastModifiedDate has changed - document was just saved!
+            self.lastMD[App.ActiveDocument.Name] = cur_lmd
+            if last_lmd is not None: #filter out the apparent change that happens when there was no last-seen value
+                self.slotSavedDocument(App.ActiveDocument)
+        
     # functions
     
     def enterContainer(self, cnt):
