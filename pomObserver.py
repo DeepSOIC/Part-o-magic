@@ -302,8 +302,13 @@ class Observer(FrozenClass):
     def updateVPs(self):
         '''updates many viewprovider properties (except visibility, which is handled by TempoVis objets)'''
         ac = activeContainer()
-        objects_in = set(  GT.getDirectChildren(ac)  )
+        
+        if ac.isDerivedFrom("App::Document"):
+            objects_in = set(App.ActiveDocument.Objects)
+        else:
+            objects_in = set(  GT.getDirectChildren(ac)  )
         objects_out = set(App.ActiveDocument.Objects) - objects_in
+        
         for o in objects_in:
             if hasattr(o.ViewObject, "Selectable"):
                 o.ViewObject.Selectable = True
