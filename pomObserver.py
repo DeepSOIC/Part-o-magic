@@ -226,7 +226,9 @@ class Observer(FrozenClass):
         
         if App.ActiveDocument is None:
             return
-
+        if Gui.ActiveDocument.ActiveView is None:
+            return # happens when editing a spreadsheet
+        
         #watch for changes in active object
         activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
         activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
