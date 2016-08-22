@@ -49,7 +49,7 @@ def isContainer(obj):
     Part::Compound is not a group, because it does not affect visibility 
     of originals. Documents are considered containers, too.'''
     
-    if obj.isDerivedFrom("App::DocumentObjectGroup"):
+    if obj.isDerivedFrom("App::Part"):
         return True
     if obj.isDerivedFrom("Part::BodyBase"):
         return True
