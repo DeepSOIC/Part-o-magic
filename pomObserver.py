@@ -91,6 +91,18 @@ def addObjectTo(container, feature):
                                          cnt_to= container.Label,
                                          cnt_feat= GT.getContainer(feature).Label))
         raise ValueError("Feature already in (another) container.")
+    
+    # close editing before addition.
+    #  Adding to container while editing causes editing to close anyway. But we want do do 
+    #  that ourself, so that we know that we need to re-open it.
+    bool_editingclosed = False
+    if hasattr(Gui.ActiveDocument,"getInEdit"):
+        if Gui.ActiveDocument.getInEdit():
+            if Gui.ActiveDocument.getInEdit().Object is feature:
+                Gui.ActiveDocument.resetEdit()
+                bool_editingclosed = True
+    
+    #actual addition
     if container.isDerivedFrom("App::DocumentObjectGroup"):
         container.addObject(feature)
     elif container.isDerivedFrom("Part::BodyBase"):
@@ -107,6 +119,10 @@ def addObjectTo(container, feature):
                 container.Tip = feature
     else:
         raise TypeError("Don't know how to add a feature to a container of type {typ}".format(typ= container.TypeId))
+    
+    # re-open editing that we had closed...
+    if bool_editingclosed:
+        Gui.ActiveDocument.setEdit(feature)
 
 class Observer(FrozenClass):
     def defineAttributes(self):
@@ -133,9 +149,6 @@ class Observer(FrozenClass):
           lambda self=self, feature=feature, ac=ac, aw=aw:
             self.slotCreatedObject_delayed(feature, ac, aw)
           )
-        if feature.isDerivedFrom("Sketcher::SketchObject"):
-            # workaround: add it to container immediately, otherwise edit mode is exited, which is annoying
-            self.activeObjectWatcher()
     
     def slotCreatedObject_delayed(self, feature, active_container, active_workbench): 
         # active_container is remembered at the time the object was actually created. 
