@@ -168,7 +168,7 @@ class Observer(FrozenClass):
     def slotRelabelDocument(self,doc):
         pass
     def slotDeletedDocument(self,doc):
-        pass
+        self.activeObjects.pop(doc.Name, None)
     def slotCreatedDocument(self,doc):
         pass
         
@@ -254,9 +254,10 @@ class Observer(FrozenClass):
                 new_ac = App.ActiveDocument
             if new_ac is not last_ac: #unlikely it is false, since we have detected a change....
                 setActiveContainer(new_ac)
+                ac = activeContainer()
+                assert(ac is new_ac)
 
             ac = activeContainer()
-            assert(ac is new_ac)
             try:
                 self.activeContainerChanged(last_ac, ac)
             finally:
