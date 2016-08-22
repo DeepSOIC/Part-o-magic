@@ -109,7 +109,7 @@ def addObjectTo(container, feature):
         container.Model = container.Model + [feature]
         
         # a bit of "smartness" here =) . Setting Tip!
-        if feature.isDerivedFrom("Part::Feature"):
+        if feature.isDerivedFrom("Part::Feature") and not feature.Name.startswith("Clone"): #specifically avoid clones, as I use them as shapebinders, and they steal the Tip of modules and lock up the automation   --DeepSOIC
             if container.Tip is not None: 
                 if container.Tip in feature.OutList:
                     # something was created that immediately derives from shape of current tip. Probably it's time to replace the Tip!
