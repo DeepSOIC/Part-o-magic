@@ -134,7 +134,7 @@ class Observer(FrozenClass):
         # name, value is the string returned by Document.LastModifiedDate.
         
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
-        self.delayed_slot_calls_queue = [] # queue of lambdas
+        self.delayed_slot_calls_queue = [] # queue of lambdas/functions to execute upon next firing of the timer.
         
         self._freeze()
         
