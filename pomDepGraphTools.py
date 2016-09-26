@@ -83,7 +83,7 @@ def getContainer(feat):
     for dep in feat.InList:
         if isContainer(dep):
             if feat in getDirectChildren(dep):
-                if not cnt is None:
+                if cnt is not None and dep is not cnt:
                     raise ValueError("Container tree is not a tree")
                 cnt = dep
     if cnt is None: 
