@@ -21,13 +21,15 @@
 # *                                                                         *
 # ***************************************************************************/
 
+print("loading TempoVis")
+
 import FreeCAD as App
 if App.GuiUp:
     import FreeCADGui as Gui
 
-from FrozenClass import FrozenClass
+from FrozenClass import FrozenClass # from 'Show' module
 
-from DepGraphTools import getAllDependencies, getAllDependent, isContainer
+from PartOMagic.Base.Containers import getAllDependencies, getAllDependent, isContainer
 
 class TempoVis(FrozenClass):
     '''TempoVis - helper object to save visibilities of objects before doing 

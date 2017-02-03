@@ -1,8 +1,10 @@
-import pomDepGraphTools as GT
+from PartOMagic.Base import Containers as GT
 import FreeCAD as App
 import FreeCADGui as Gui
-from pomTempoVis import TempoVis
+from PartOMagic.Gui.TempoVis import TempoVis
 from AttachmentEditor.FrozenClass import FrozenClass
+
+print("loading Observer")
 
 def activeContainer():
     '''activeContainer(): returns active container.
@@ -341,8 +343,14 @@ class Observer(FrozenClass):
                 
         for o in App.ActiveDocument.findObjects("App::Origin"):
             o.ViewObject.Visibility = GT.getContainer(o) is ac
-observerInstance = None
-timer = None
+if not "observerInstance" in globals():
+    observerInstance = None
+    timer = None
+else:
+    print("observerInstance already present (module reloading...)")
+    if isRunning():
+        stop()
+        start()
 
 def start():
     global observerInstance
@@ -369,3 +377,6 @@ def stop():
     timer.stop()
     timer = None
     
+def isRunning():
+    global observerInstance
+    return observerInstance is not None

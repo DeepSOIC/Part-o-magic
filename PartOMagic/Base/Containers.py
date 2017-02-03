@@ -1,5 +1,7 @@
 import FreeCAD as App
 
+print("loading Containers")
+
 def getAllDependencies(feat):
     '''getAllDependencies(feat): gets all features feat depends on, directly or indirectly. 
     Returns a list, with deepest dependencies last. feat is not included in the list, except 
