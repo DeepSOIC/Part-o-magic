@@ -71,28 +71,15 @@ def test_exclude(feature, active_workbench):
     return False
     
 def addObjectTo(container, feature):
-    if container.isDerivedFrom("App::Document"):
-        return #already there!
     if container.isDerivedFrom("PartDesign::Body"):
         #Part-o-magic is not supposed add stuff to PartDesign bodies, as it is managed by PartDesign.
         tmp = container
         container = getPartOf(container)
         msgbox("Part-o-magic","Cannot add the new object of type {typ} to {body}, because bodies accept only PartDesign features. Feature added to {cnt} instead."
                               .format(body= tmp.Label, cnt= container.Label, typ= feature.TypeId))
-    if GT.isContainer(feature):
-        #make sure we are not creating a container dependency loop, as doing so crashes FreeCAD. see http://forum.freecadweb.org/viewtopic.php?f=10&t=15936
-        if feature in (GT.getContainerChain(container) + [container]):
-            raise ValueError("Attempting to add {feat} to {cont} failed: doing so will cause container dependency loop."
-                            .format(feat= feature.Name, cont= container.Name))
-    if not GT.getContainer(feature).isDerivedFrom("App::Document"):
-        # prevent adding objects to a container if the object is already in a container. 
-        # This should partially fix unexpected behavior on undoing deletion, duplication, 
-        # and the like.
-        App.Console.PrintWarning("Part-o-magic: attempted to add {feat} to container {cnt_to}, but the feature already belongs to {cnt_feat}. Aborted.\n"
-                                 .format(feat= feature.Label,
-                                         cnt_to= container.Label,
-                                         cnt_feat= GT.getContainer(feature).Label))
-        raise ValueError("Feature already in (another) container.")
+
+    if container.isDerivedFrom("App::Document"):
+        return #nothing to do... This is to avoid reopening edit.
     
     # close editing before addition.
     #  Adding to container while editing causes editing to close anyway. But we want do do 
@@ -105,11 +92,9 @@ def addObjectTo(container, feature):
                 bool_editingclosed = True
     
     #actual addition
-    if container.isDerivedFrom("App::DocumentObjectGroup"):
-        container.addObject(feature)
-    elif container.isDerivedFrom("Part::BodyBase"):
-        container.Model = container.Model + [feature]
-        
+    GT.addObjectTo(container, feature)
+    
+    if container.isDerivedFrom("Part::BodyBase"):
         # a bit of "smartness" here =) . Setting Tip!
         if feature.isDerivedFrom("Part::Feature") and not feature.Name.startswith("Clone"): #specifically avoid clones, as I use them as shapebinders, and they steal the Tip of modules and lock up the automation   --DeepSOIC
             if container.Tip is not None: 
@@ -119,8 +104,6 @@ def addObjectTo(container, feature):
             else:
                 #first suitable thing added to the body will be made Tip.
                 container.Tip = feature
-    else:
-        raise TypeError("Don't know how to add a feature to a container of type {typ}".format(typ= container.TypeId))
     
     # re-open editing that we had closed...
     if bool_editingclosed:

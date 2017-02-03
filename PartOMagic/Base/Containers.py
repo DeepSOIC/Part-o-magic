@@ -47,21 +47,31 @@ def getAllDependent(feat):
 def isContainer(obj):
     '''isContainer(obj): returns True if obj is an object container, such as 
     Group, Part, Body. The important characterisic of an object being a 
-    container is its action on visibility of linked objects. E.g. a 
-    Part::Compound is not a group, because it does not affect visibility 
-    of originals. Documents are considered containers, too.'''
+    container is that it can be activated to receive new objects. Documents 
+    are considered containers, too.'''
     
-    if obj.isDerivedFrom("App::Part"):
-        return True
-    if obj.isDerivedFrom("Part::BodyBase"):
-        return True
-    if obj.isDerivedFrom("App::Origin"):
-        return True
     if obj.isDerivedFrom('App::Document'):
+        return True
+    if obj.hasExtension('App::OriginGroupExtension'):
+        return True
+    #if obj.hasExtension('App::GroupExtension'):
+    #    return True  # as of now, groups cannot be treated like containers.
+    if obj.isDerivedFrom('App::Origin'):
+        return True
+    return False
+
+def isMovableContainer(obj):
+    '''isMovableContainer(obj): reuturns if obj is a movable container, that 
+    forms a local coordinate system.'''
+    if obj.isDerivedFrom('App::Document'):
+        return False
+    if obj.hasExtension('App::OriginGroupExtension'):
         return True
     return False
 
 def getDirectChildren(container):
+    if not isContainer(container): 
+        raise NotAContainerError("getDirectChildren: supplied object is not a contianer. It must be a container.")
     if container.isDerivedFrom("App::Document"):
         # find all objects not contained by any Part or Body
         result = set(container.Objects)
@@ -70,15 +80,32 @@ def getDirectChildren(container):
                 children = set(getDirectChildren(obj))
                 result = result - children
         return result
-    elif container.isDerivedFrom("App::DocumentObjectGroup"):
+    elif container.hasExtension("App::GroupExtension"):
         result = container.Group
-        if container.isDerivedFrom("App::GeoFeatureGroup"):
+        if container.hasExtension("App::OriginGroupExtension"):
             result.append(container.Origin)
         return result
     elif container.isDerivedFrom("App::Origin"):
         return container.OriginFeatures
-    elif container.isDerivedFrom("Part::BodyBase"):
-        return container.Model + [container.Origin]
+    raise ContainerUnsupportedError("getDirectChildren: unexpected container type!")
+    
+def addObjectTo(container, feature):
+    cnt_old = getContainer(feature)
+    if not cnt_old.isDerivedFrom('App::Document') and cnt_old is not container:
+        raise AlreadyInContainerError("Object '{obj}' is already in '{cnt_old}'. Cannot add it to '{cnt_new}'"
+                        .format(obj= feature.Label, cnt_old= cnt_old.Label, cnt_new= container.Label))
+        
+    if cnt_old is container:
+        return #nothing to do
+        
+    if feature is container :
+        raise ContainerError("Attempting to add {feat} to itself. Feature can't contain itself.".format(feat= feature.Label))
+
+    if container.hasExtension("App::GroupExtension"):
+        container.addObject(feature)
+        return
+    
+    raise ContainerUnsupportedError("No idea how to add objects to containers of type {typ}".format(typ= container.TypeId))
 
 def getContainer(feat):
     cnt = None
@@ -86,7 +113,7 @@ def getContainer(feat):
         if isContainer(dep):
             if feat in getDirectChildren(dep):
                 if cnt is not None and dep is not cnt:
-                    raise ValueError("Container tree is not a tree")
+                    raise ContainerTreeError("Container tree is not a tree")
                 cnt = dep
     if cnt is None: 
         return feat.Document
@@ -114,7 +141,7 @@ def getContainerChain(feat):
                         list_of_deps.append(dep)
                         list_to_be_traversed_next.append(dep)
         if len(list_to_be_traversed_next) > 1:
-            raise ValueError("Container tree is not a tree")
+            raise ContainerTreeError("Container tree is not a tree")
         list_traversing_now = list_to_be_traversed_next
     
     return [feat.Document] + list_of_deps[::-1]
@@ -126,9 +153,9 @@ def getContainerRelativePath(container_from, container_to):
     the highest-level container (the ones directly after getCommonContainer).'''
 
     if not isContainer(container_from):
-        raise TypeError("container_from is not a container!")
+        raise NotAContainerError("container_from is not a container!")
     if not isContainer(container_to):
-        raise TypeError("container_to is not a container!")
+        raise NotAContainerError("container_to is not a container!")
     
     chain_from = getContainerChain(container_from) + [container_from]
     chain_to = getContainerChain(container_to) + [container_to]
@@ -176,9 +203,9 @@ def getTransformation(container_from, container_to):
     transform a vector in local coordinates of container_from to local coordinates 
     of container_to.'''
     if not isContainer(container_from):
-        raise TypeError("container_from is not a container!")
+        raise NotAContainerError("container_from is not a container!")
     if not isContainer(container_to):
-        raise TypeError("container_to is not a container!")
+        raise NotAContainerError("container_to is not a container!")
     (list_leave, list_enter) = getContainerRelativePath(container_from, container_to)
 
     trf = App.Placement()
@@ -189,4 +216,19 @@ def getTransformation(container_from, container_to):
         if hasattr(cnt, "Placement"):
             trf = cnt.Placement.inverse().multiply(trf)
     return trf
+    
+#def inSameCS(object1, object2):
+#    (list_leave, list_enter) = getContainerRelativePath(getContainer(object1), getContainer(object2))
+
+# Errors
+class ContainerError(ValueError):
+    pass
+class ContainerTreeError(ContainerError):
+    pass
+class AlreadyInContainerError(ContainerError):
+    pass
+class ContainerUnsupportedError(ContainerError):
+    pass
+class NotAContainerError(ContainerError):
+    pass
     
