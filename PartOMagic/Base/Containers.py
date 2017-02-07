@@ -83,7 +83,8 @@ def getDirectChildren(container):
     elif container.hasExtension("App::GroupExtension"):
         result = container.Group
         if container.hasExtension("App::OriginGroupExtension"):
-            result.append(container.Origin)
+            if container.Origin is not None:
+                result.append(container.Origin)
         return result
     elif container.isDerivedFrom("App::Origin"):
         return container.OriginFeatures
