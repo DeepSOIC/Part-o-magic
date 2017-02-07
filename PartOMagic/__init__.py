@@ -5,12 +5,14 @@ __doc__ = """Experimental container automation for FreeCAD"""
 __all__ = [
 "Base",
 "Gui",
+"Features",
 ]
 
 def importAll():
     "importAll(): imports all modules of Part-o-magic"
     from . import Base
     from . import Gui
+    from . import Features
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, "importAll"):
