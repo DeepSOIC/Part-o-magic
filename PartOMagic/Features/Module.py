@@ -8,9 +8,6 @@ __url__ = ""
 
 print("loading Module")
 
-def getIconPath(icon_dot_svg):
-    return ":/icons/" + icon_dot_svg
-
 def transformCopy(shape, extra_placement = None):
     """transformCopy(shape, extra_placement = None): creates a deep copy shape with shape's placement applied to 
     the subelements (the placement of returned shape is zero)."""
@@ -31,15 +28,14 @@ def makeModule(name):
     '''makeModule(name): makes a Module object.'''
     obj = App.ActiveDocument.addObject("App::GeometryPython",name) # to be updated to Part::FeaturePython, once I figure out how to deal with viewproviders
     proxy = _Module(obj)
-    obj.addExtension("App::OriginGroupExtensionPython", proxy)
     vp_proxy = _ViewProviderModule(obj.ViewObject)
-    obj.ViewObject.addExtension("Gui::ViewProviderGeoFeatureGroupExtensionPython", vp_proxy)
     return obj
 
 class _Module:
     "The Module object"
     def __init__(self,obj):
         self.Type = "Module"
+        obj.addExtension("App::OriginGroupExtensionPython", self)
         obj.addProperty("App::PropertyLink","Tip","Module","Object to be exposed to the outside")
         
         obj.Proxy = self
@@ -55,6 +51,7 @@ class _ViewProviderModule:
     "A View Provider for the Module object"
 
     def __init__(self,vobj):
+        vobj.addExtension("Gui::ViewProviderGeoFeatureGroupExtensionPython", self)
         vobj.Proxy = self
         
     def getIcon(self):
@@ -111,6 +108,7 @@ def CreateModule(name):
 class _CommandModule:
     "Command to create Module feature"
     def GetResources(self):
+        from PartOMagic.Gui.Utils import getIconPath
         return {'Pixmap'  : getIconPath("PartOMagic_Module.svg"),
                 'MenuText': "New Module container",
                 'Accel': "",
@@ -125,7 +123,8 @@ class _CommandModule:
         else:
             return False
 
-Gui.addCommand('PartOMagic_Module',  _CommandModule())
+if App.GuiUp:
+    Gui.addCommand('PartOMagic_Module',  _CommandModule())
 
 exportedCommands = ['PartOMagic_Module']
 
