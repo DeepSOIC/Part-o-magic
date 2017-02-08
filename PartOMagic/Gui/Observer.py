@@ -1,58 +1,21 @@
 from PartOMagic.Base import Containers as GT
+from PartOMagic.Base.Containers import activeContainer, setActiveContainer
 import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Gui.TempoVis import TempoVis
 from AttachmentEditor.FrozenClass import FrozenClass
+from Utils import msgbox
 
 print("loading Observer")
 
-def activeContainer():
-    '''activeContainer(): returns active container.
-    If there is an active body, it is returned as active container. ActivePart is ignored.
-    If there is no active body, active Part is returned.
-    If there is no active Part either, active Document is returned.
-    If no active document, None is returned.'''
-    
-    if Gui.ActiveDocument is None:
-        return None
-    activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
-    activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
-    if activeBody:
-        return activeBody
-    elif activePart:
-        return activePart
-    else:
-        return App.ActiveDocument
-
-def setActiveContainer(cnt):
-    '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
-    assert(GT.isContainer(cnt))
-    if cnt.isDerivedFrom("Part::BodyBase"):
-        Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", cnt)
-        part = None
-    else:
-        part = cnt
-        Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", None)
-    if part:
-        if part.isDerivedFrom("App::Document"):
-            part = None
-    Gui.ActiveDocument.ActiveView.setActiveObject("part", part)
-        
 def getPartOf(feature):
     chain = GT.getContainerChain(feature)
     for cnt in chain[::-1]:
         if not cnt.isDerivedFrom("PartDesign::Body"):
             return cnt
     assert(False)
+        
 
-def msgbox(title, text):
-    from PySide import QtGui
-    mb = QtGui.QMessageBox()
-    mb.setIcon(mb.Icon.Information)
-    mb.setText(text)
-    mb.setWindowTitle(title)
-    mb.exec_()
-    
 def test_exclude(feature, active_workbench):
     '''exclusions to disable automatic container management'''
     exclude_types = ["PartDesign::Feature", 

@@ -2,6 +2,48 @@ import FreeCAD as App
 
 print("loading Containers")
 
+def activeContainer():
+    '''activeContainer(): returns active container.
+    If there is an active body, it is returned as active container. ActivePart is ignored.
+    If there is no active body, active Part is returned.
+    If there is no active Part either, active Document is returned.
+    If no active document, None is returned.'''
+    
+    import FreeCAD as App
+    import FreeCADGui as Gui
+    
+    if Gui.ActiveDocument is None:
+        return None
+    activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
+    activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
+    if activeBody:
+        return activeBody
+    elif activePart:
+        return activePart
+    else:
+        return App.ActiveDocument
+
+def setActiveContainer(cnt):
+    '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
+    
+    import FreeCAD as App
+    import FreeCADGui as Gui
+
+    if not isContainer(cnt):
+        raise NotAContainerError("Can't make '{feat}' active as container, because it's not a container (or an unknown type of container)."
+                                 .format(feat= cnt.Label))
+    if cnt.isDerivedFrom("Part::BodyBase"):
+        Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", cnt)
+        part = None
+    else:
+        part = cnt
+        Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", None)
+    if part:
+        if part.isDerivedFrom("App::Document"):
+            part = None
+    Gui.ActiveDocument.ActiveView.setActiveObject("part", part)
+
+
 def getAllDependencies(feat):
     '''getAllDependencies(feat): gets all features feat depends on, directly or indirectly. 
     Returns a list, with deepest dependencies last. feat is not included in the list, except 

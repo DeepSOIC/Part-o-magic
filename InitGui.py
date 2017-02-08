@@ -27,10 +27,18 @@ class PartOMagicWorkbench (Workbench):
         POM.importAll()
         
         cmdsNewContainers = ([]
+            + ["PartDesign_Part"]            
+            + ["PartDesign_Body"]            
             + POM.Features.Module.exportedCommands
         )
         self.appendToolbar('POMContainers', cmdsNewContainers)
         self.appendMenu('Part-o-Magic', cmdsNewContainers)
+
+        cmdsTools = ([]
+            + POM.Gui.Tools.exportedCommands()
+        )
+        self.appendToolbar('POMTools', cmdsTools)
+        self.appendMenu('Part-o-Magic', cmdsTools)
         
     def Activated(self):
         pass
