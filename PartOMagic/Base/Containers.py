@@ -133,6 +133,7 @@ def getDirectChildren(container):
     raise ContainerUnsupportedError("getDirectChildren: unexpected container type!")
     
 def addObjectTo(container, feature, b_advance_tip = True):
+    print("adding {feat} to {container}".format(feat= feature.Label, container= container.Label))
     cnt_old = getContainer(feature)
     if not cnt_old.isDerivedFrom('App::Document') and cnt_old is not container:
         raise AlreadyInContainerError("Object '{obj}' is already in '{cnt_old}'. Cannot add it to '{cnt_new}'"

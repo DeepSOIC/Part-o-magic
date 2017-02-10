@@ -48,6 +48,7 @@ class _Module:
             selfobj.Shape = Part.Shape()
             
     def advanceTip(self, selfobj, new_object):
+        print("advanceTip")
         old_tip = selfobj.Tip
         new_tip = old_tip
         if old_tip is None:
@@ -122,7 +123,7 @@ def CreateModule(name):
     App.ActiveDocument.openTransaction("Create Module")
     Gui.addModule("PartOMagic.Features.Module")
     Gui.doCommand("f = PartOMagic.Features.Module.makeModule(name = '"+name+"')")
-    Gui.doCommand("PartOMagic.Gui.Observer.setActiveContainer(f)")
+    Gui.doCommand("PartOMagic.Base.Containers.setActiveContainer(f)")
     App.ActiveDocument.commitTransaction()
 
 
