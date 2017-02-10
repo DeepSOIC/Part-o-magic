@@ -132,7 +132,7 @@ def getDirectChildren(container):
         return container.OriginFeatures
     raise ContainerUnsupportedError("getDirectChildren: unexpected container type!")
     
-def addObjectTo(container, feature):
+def addObjectTo(container, feature, b_advance_tip = True):
     cnt_old = getContainer(feature)
     if not cnt_old.isDerivedFrom('App::Document') and cnt_old is not container:
         raise AlreadyInContainerError("Object '{obj}' is already in '{cnt_old}'. Cannot add it to '{cnt_new}'"
@@ -146,6 +146,16 @@ def addObjectTo(container, feature):
 
     if container.hasExtension("App::GroupExtension"):
         container.addObject(feature)
+        if b_advance_tip:
+            try:
+                container.Proxy.advanceTip(container, feature)
+            except AttributeError:
+                pass
+            except Exception as err:
+                App.Console.printError("Tip advancement routine failed with an error when adding {feat} to {cnt}. {err}"
+                                       .format(feat= feature.Label, 
+                                               cnt= container.Label,
+                                               err= err.message))
         return
     
     raise ContainerUnsupportedError("No idea how to add objects to containers of type {typ}".format(typ= container.TypeId))

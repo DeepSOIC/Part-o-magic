@@ -170,8 +170,20 @@ class Observer(FrozenClass):
             
         chain_from, chain_to = GT.getContainerRelativePath(oldContainer, newContainer)
         for cnt in chain_from[::-1]:
+            try:
+                cnt.ViewObject.Proxy.activationChanged(cnt.ViewObject, oldContainer, newContainer, event= -1)
+            except AttributeError:
+                pass
+            except Exception as err:
+                App.Console.PrintError("Error deactivating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
             self.leaveContainer(cnt)
         for cnt in chain_to:
+            try:
+                cnt.ViewObject.Proxy.activationChanged(cnt.ViewObject, oldContainer, newContainer, event= +1)
+            except AttributeError:
+                pass
+            except Exception as err:
+                App.Console.PrintError("Error activating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
             self.enterContainer(cnt)
         
         self.updateVPs()
