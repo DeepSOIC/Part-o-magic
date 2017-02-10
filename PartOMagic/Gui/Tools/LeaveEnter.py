@@ -41,6 +41,8 @@ class CommandEnter:
             msgError(err)
             
     def IsActive(self):
+        return True #temporarily disabled. Fixes mysterious Module tip changes
+        
         if not App.ActiveDocument: return False
         try:
             self.RunOrTest(b_run= False)
