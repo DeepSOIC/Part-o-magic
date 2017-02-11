@@ -28,7 +28,7 @@ class CommandEnter:
             else:
                 cnt = Containers.getContainer(sel)
                 if ac is cnt:
-                    if b_run: sel.ViewObject.startEditing()
+                    if b_run: Gui.ActiveDocument.setEdit(sel)
                 else:
                     if b_run: Containers.setActiveContainer(cnt)
         else:
