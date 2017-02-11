@@ -42,14 +42,16 @@ class _Module:
         
 
     def execute(self,selfobj):
+        from PartOMagic.Gui.Utils import screen
         if selfobj.Tip is not None:
-            selfobj.Shape = transformCopy(selfobj.Tip.Shape)
+            selfobj.Shape = transformCopy(screen(selfobj.Tip).Shape)
         else:
             selfobj.Shape = Part.Shape()
             
     def advanceTip(self, selfobj, new_object):
         print("advanceTip")
-        old_tip = selfobj.Tip
+        from PartOMagic.Gui.Utils import screen
+        old_tip = screen(selfobj.Tip)
         new_tip = old_tip
         if old_tip is None:
             new_tip = new_object

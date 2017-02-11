@@ -1,5 +1,7 @@
 import FreeCAD as App
 
+from PartOMagic.Gui.Utils import screen
+
 print("loading Containers")
 
 def activeContainer():
@@ -17,14 +19,16 @@ def activeContainer():
     activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
     activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
     if activeBody:
-        return activeBody
+        return screen(activeBody)
     elif activePart:
-        return activePart
+        return screen(activePart)
     else:
         return App.ActiveDocument
 
 def setActiveContainer(cnt):
     '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
+    
+    cnt = screen(cnt)
     
     import FreeCAD as App
     import FreeCADGui as Gui
@@ -58,7 +62,7 @@ def getAllDependencies(feat):
             for dep in feat.OutList:
                 if not (dep in set_of_deps):
                     set_of_deps.add(dep)
-                    list_of_deps.append(dep)
+                    list_of_deps.append(screen(dep))
                     list_to_be_traversed_next.append(dep)
         
         list_traversing_now = list_to_be_traversed_next
@@ -79,7 +83,7 @@ def getAllDependent(feat):
             for dep in feat.InList:
                 if not (dep in set_of_deps):
                     set_of_deps.add(dep)
-                    list_of_deps.append(dep)
+                    list_of_deps.append(screen(dep))
                     list_to_be_traversed_next.append(dep)
         
         list_traversing_now = list_to_be_traversed_next
@@ -91,6 +95,8 @@ def isContainer(obj):
     Group, Part, Body. The important characterisic of an object being a 
     container is that it can be activated to receive new objects. Documents 
     are considered containers, too.'''
+    
+    obj = screen(obj)
     
     if obj.isDerivedFrom('App::Document'):
         return True
@@ -105,6 +111,9 @@ def isContainer(obj):
 def isMovableContainer(obj):
     '''isMovableContainer(obj): reuturns if obj is a movable container, that 
     forms a local coordinate system.'''
+    
+    obj = screen(obj)
+    
     if obj.isDerivedFrom('App::Document'):
         return False
     if obj.hasExtension('App::OriginGroupExtension'):
@@ -112,6 +121,9 @@ def isMovableContainer(obj):
     return False
 
 def getDirectChildren(container):
+    
+    container = screen(container)
+    
     if not isContainer(container): 
         raise NotAContainerError("getDirectChildren: supplied object is not a contianer. It must be a container.")
     if container.isDerivedFrom("App::Document"):
@@ -133,6 +145,10 @@ def getDirectChildren(container):
     raise ContainerUnsupportedError("getDirectChildren: unexpected container type!")
     
 def addObjectTo(container, feature, b_advance_tip = True):
+    
+    container = screen(container)
+    feature = screen(feature)
+    
     print("adding {feat} to {container}".format(feat= feature.Label, container= container.Label))
     cnt_old = getContainer(feature)
     if not cnt_old.isDerivedFrom('App::Document') and cnt_old is not container:
@@ -162,6 +178,9 @@ def addObjectTo(container, feature, b_advance_tip = True):
     raise ContainerUnsupportedError("No idea how to add objects to containers of type {typ}".format(typ= container.TypeId))
 
 def getContainer(feat):
+    
+    feat = screen(feat)
+    
     cnt = None
     for dep in feat.InList:
         if isContainer(dep):
@@ -171,7 +190,7 @@ def getContainer(feat):
                 cnt = dep
     if cnt is None: 
         return feat.Document
-    return cnt
+    return screen(cnt)
 
 def getContainerChain(feat):
     '''getContainerChain(feat): return a list of containers feat is in. 
@@ -192,7 +211,7 @@ def getContainerChain(feat):
                 if isContainer(dep):
                     if not (dep in set_of_deps):
                         set_of_deps.add(dep)
-                        list_of_deps.append(dep)
+                        list_of_deps.append(screen(dep))
                         list_to_be_traversed_next.append(dep)
         if len(list_to_be_traversed_next) > 1:
             raise ContainerTreeError("Container tree is not a tree")

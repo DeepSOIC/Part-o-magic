@@ -19,7 +19,7 @@ class CommandEnter:
         if len(sel)==0 :
             raise CommandError("Enter Object", "Enter Object command. Please select an object to enter, first. It can be a container, or a sketch")
         elif len(sel)==1:
-            sel = sel[0]
+            sel = screen(sel[0])
             ac = Containers.activeContainer()
             if Containers.isContainer(sel):
                 if sel in Containers.getContainerChain(ac) + [ac]:
@@ -41,7 +41,7 @@ class CommandEnter:
             msgError(err)
             
     def IsActive(self):
-        return True #temporarily disabled. Fixes mysterious Module tip changes
+        #return True #temporarily disabled. Fixes mysterious Module tip changes
         
         if not App.ActiveDocument: return False
         try:

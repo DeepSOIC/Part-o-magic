@@ -32,3 +32,17 @@ class CommandError(Exception):
 class CancelError(Exception):
     pass
 
+def screen(feature):
+    """screen(feature): protects link properties from being overwritten. 
+    This is to be used as workaround for a bug where modifying an object accessed through 
+    a link property of another object results in the latter being touched.
+    
+    returns: feature"""
+    if not hasattr(feature,"isDerivedFrom"):
+        return feature
+    if not feature.isDerivedFrom("App::DocumentObject"):
+        return feature
+    if feature.Document is None:
+        return feature
+    feature = getattr(feature.Document, feature.Name)
+    return feature
