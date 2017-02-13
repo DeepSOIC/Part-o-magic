@@ -3,10 +3,12 @@ print("loading Tools")
 
 __all__ = [
 "LeaveEnter",
+"Tip",
 ]
 
 def importAll():
     from . import LeaveEnter
+    from . import Tip
 
 def reloadAll():
     for modstr in __all__:
