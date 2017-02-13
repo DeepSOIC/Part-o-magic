@@ -19,7 +19,7 @@ def getPartOf(feature):
 def test_exclude(feature, active_workbench):
     '''exclusions to disable automatic container management'''
     exclude_types = ["PartDesign::Feature", 
-                     "PartDesign::ShapeBinder",
+                     # "PartDesign::ShapeBinder", # disabled as an experiment
                      "Part::Datum", 
                      # "PartDesign::Body", # since active part was made none when body is active - part-o-magic is now busy sorting new Bodies to Parts
                      'PartDesign::CoordinateSystem',
