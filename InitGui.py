@@ -11,6 +11,9 @@ if rev_number >= 9933:
 else:
     App.Console.PrintError("Part-o-magic requires FreeCAD at least v0.17.9933. Yours appears to have a rev.{rev}, which is less. Part-o-magic is disabled.\n".format(rev= str(rev_number)))
 
+# substitute TempoVis's isContainer with a more modern one
+import Show.TempoVis 
+Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
 
 class PartOMagicWorkbench (Workbench):
     MenuText = 'Part-o-magic'
