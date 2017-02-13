@@ -32,7 +32,7 @@ class PartOMagicWorkbench (Workbench):
         cmdsNewContainers = ([]
             + ["PartDesign_Part"]            
             + ["PartDesign_Body"]            
-            + POM.Features.Module.exportedCommands
+            + POM.Features.exportedCommands()
         )
         self.appendToolbar('POMContainers', cmdsNewContainers)
         self.appendMenu('Part-o-Magic', cmdsNewContainers)

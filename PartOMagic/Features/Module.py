@@ -157,6 +157,7 @@ class _CommandModule:
 if App.GuiUp:
     Gui.addCommand('PartOMagic_Module',  _CommandModule())
 
-exportedCommands = ['PartOMagic_Module']
-
 # -------------------------- /Gui command --------------------------------------------------
+
+def exportedCommands():
+    return ['PartOMagic_Module']
