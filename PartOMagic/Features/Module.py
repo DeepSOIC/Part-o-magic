@@ -1,5 +1,6 @@
 import FreeCAD as App
-import FreeCADGui as Gui
+if App.GuiUp:
+    import FreeCADGui as Gui
 import Part
 
 __title__="Module container"
@@ -86,6 +87,7 @@ class _ViewProviderModule:
             setActiveContainer(vobj.Object.Document) #deactivate self
         else:
             setActiveContainer(vobj.Object) #activate self
+            Gui.Selection.clearSelection()
         return True
     
     def activationChanged(self, vobj, old_active_container, new_active_container, event):
@@ -126,6 +128,7 @@ def CreateModule(name):
     Gui.addModule("PartOMagic.Features.Module")
     Gui.doCommand("f = PartOMagic.Features.Module.makeModule(name = '"+name+"')")
     Gui.doCommand("PartOMagic.Base.Containers.setActiveContainer(f)")
+    Gui.doCommand("Gui.Selection.clearSelection()")
     App.ActiveDocument.commitTransaction()
 
 
