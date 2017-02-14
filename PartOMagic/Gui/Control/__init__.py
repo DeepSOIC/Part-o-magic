@@ -1,14 +1,12 @@
-print("loading Tools")
+print("loading Control")
 
 
 __all__ = [
-"LeaveEnter",
-"Tip",
+"OnOff",
 ]
 
 def importAll():
-    from . import LeaveEnter
-    from . import Tip
+    from . import OnOff
 
 def reloadAll():
     for modstr in __all__:

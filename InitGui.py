@@ -33,6 +33,14 @@ class PartOMagicWorkbench (Workbench):
     def Initialize(self):
         import PartOMagic as POM
         POM.importAll()
+
+        cmdsControl = ([]
+            + POM.Gui.Control.exportedCommands()
+        )
+        self.appendToolbar('POMControl', cmdsControl)
+        self.appendMenu('Part-o-Magic', cmdsControl)
+        
+        self.appendMenu('Part-o-Magic', ["Separator"])
         
         cmdsNewContainers = ([]
             + ["PartDesign_Part"]            
@@ -42,11 +50,14 @@ class PartOMagicWorkbench (Workbench):
         self.appendToolbar('POMContainers', cmdsNewContainers)
         self.appendMenu('Part-o-Magic', cmdsNewContainers)
 
+        self.appendMenu('Part-o-Magic', ["Separator"])
+
         cmdsTools = ([]
             + POM.Gui.Tools.exportedCommands()
         )
         self.appendToolbar('POMTools', cmdsTools)
         self.appendMenu('Part-o-Magic', cmdsTools)
+
         
     def Activated(self):
         pass

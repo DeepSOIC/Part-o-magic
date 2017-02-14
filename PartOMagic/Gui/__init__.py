@@ -5,6 +5,7 @@ __all__ = [
 "Utils",
 "Observer",
 "TempoVis",
+"Control",
 "Tools",
 "Icons",
 ]
@@ -13,6 +14,7 @@ def importAll():
     from . import Utils
     from . import Observer
     from . import TempoVis
+    from . import Control
     from . import Tools
     from . import Icons
     for modstr in __all__:
