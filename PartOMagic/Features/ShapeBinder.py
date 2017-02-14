@@ -1,4 +1,4 @@
-print("loading Tip")
+print("loading ShapeBinder")
 
 import FreeCAD as App
 if App.GuiUp:

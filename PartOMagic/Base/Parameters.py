@@ -1,3 +1,5 @@
+print("Loading Parameters")
+
 import FreeCAD as App
 
 class Parameter(object):

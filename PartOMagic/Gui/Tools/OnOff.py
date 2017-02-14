@@ -1,3 +1,5 @@
+print("Loading OnOff")
+
 from PartOMagic.Gui.Utils import msgbox
 import PartOMagic.Base.Parameters as Params
 
