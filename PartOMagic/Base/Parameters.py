@@ -8,8 +8,11 @@ class Parameter(object):
     method_dict = {"Bool": ("GetBool", "SetBool")}
     def get(self):
         if not hasattr(self, "_value"):
-            self._value = getattr(App.ParamGet(self.path), self.method_dict[self.type][0])(self.param, self.default)
+            self._value = self.get_stored()
         return self._value
+    
+    def get_stored(self):
+        return getattr(App.ParamGet(self.path), self.method_dict[self.type][0])(self.param, self.default)
 
     def set(self, val):
         getattr(App.ParamGet(self.path), self.method_dict[self.type][1])(self.param, val)
