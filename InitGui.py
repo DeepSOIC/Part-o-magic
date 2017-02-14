@@ -1,19 +1,24 @@
 
 import FreeCAD as App
 
-rev_number = int(App.Version()[2].replace("(Git)",""))
-if rev_number >= 9933:
-    import PartOMagic
-    PartOMagic.importAll()
-    if App.GuiUp:
-        Gui.addModule("PartOMagic")
-        PartOMagic.Gui.Observer.start()
-else:
-    App.Console.PrintError("Part-o-magic requires FreeCAD at least v0.17.9933. Yours appears to have a rev.{rev}, which is less. Part-o-magic is disabled.\n".format(rev= str(rev_number)))
+import PartOMagic.Base.Parameters as Params
 
-# substitute TempoVis's isContainer with a more modern one
-import Show.TempoVis 
-Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
+if Params.EnablePartOMagic.get():
+    rev_number = int(App.Version()[2].replace("(Git)",""))
+    if rev_number >= 9933:
+        import PartOMagic
+        PartOMagic.importAll()
+        Gui.addModule("PartOMagic")
+        if Params.EnableObserver.get():
+            PartOMagic.Gui.Observer.start()
+    else:
+        Params.EnablePartOMagic.set_volatile(False)
+        App.Console.PrintError("Part-o-magic requires FreeCAD at least v0.17.9933. Yours appears to have a rev.{rev}, which is less. Part-o-magic is disabled.\n".format(rev= str(rev_number)))
+
+if Params.EnablePartOMagic.get():
+    # substitute TempoVis's isContainer with a more modern one
+    import Show.TempoVis 
+    Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
 
 class PartOMagicWorkbench (Workbench):
     MenuText = 'Part-o-magic'
@@ -46,8 +51,8 @@ class PartOMagicWorkbench (Workbench):
     def Activated(self):
         pass
 
-
-Gui.addWorkbench(PartOMagicWorkbench())
+if Params.EnablePartOMagic.get():
+    Gui.addWorkbench(PartOMagicWorkbench())
 
 
 
