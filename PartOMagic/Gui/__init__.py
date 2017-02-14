@@ -6,6 +6,7 @@ __all__ = [
 "Observer",
 "TempoVis",
 "Tools",
+"Icons",
 ]
 
 def importAll():
@@ -13,6 +14,7 @@ def importAll():
     from . import Observer
     from . import TempoVis
     from . import Tools
+    from . import Icons
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, "importAll"):

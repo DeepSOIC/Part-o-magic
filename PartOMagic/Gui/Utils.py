@@ -22,6 +22,7 @@ def msgError(err):
     
     
 def getIconPath(icon_dot_svg):
+    import PartOMagic.Gui.Icons.Icons
     return ":/icons/" + icon_dot_svg
 
 class CommandError(Exception):

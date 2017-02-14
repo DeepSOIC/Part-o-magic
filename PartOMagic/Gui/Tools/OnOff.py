@@ -38,7 +38,7 @@ class CommandEnableObserver:
     "Switches Part-O-magic observer on"
     def GetResources(self):
         from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath("PartOMagic_PauseObserver.svg"),
+        return {'Pixmap'  : getIconPath("PartOMagic_EnableObserver.svg"),
                 'MenuText': "Enable Observer",
                 'Accel': "",
                 'ToolTip': "Enable Observer. (enable adding new objects to active containers, and enable visibility automation)"}
@@ -62,7 +62,7 @@ class CommandPauseObserver:
     "Switches Part-O-magic observer off"
     def GetResources(self):
         from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath("PartOMagic_EnableObserver.svg"),
+        return {'Pixmap'  : getIconPath("PartOMagic_PauseObserver.svg"),
                 'MenuText': "Pause Observer",
                 'Accel': "",
                 'ToolTip': "Pause Observer. (temporarily disable)"}

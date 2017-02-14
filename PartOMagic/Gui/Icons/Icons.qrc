@@ -1,0 +1,9 @@
+<RCC>
+    <qresource>
+        <file>icons/PartOMagic.svg</file>
+        <file>icons/PartOMagic_DisableObserver.svg</file>
+        <file>icons/PartOMagic_EnableObserver.svg</file>
+        <file>icons/PartOMagic_PauseObserver.svg</file>        
+        <file>icons/PartOMagic_Power.svg</file>
+    </qresource>
+</RCC> 
