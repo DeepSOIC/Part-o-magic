@@ -31,7 +31,7 @@ class CommandSetTip:
             ac = Containers.activeContainer()
             if not hasattr(ac, "Tip"):
                 raise CommandError("Set as Tip","{cnt} can't have Tip object (it is not a module or a body).".format(cnt= ac.Label))
-            if not sel in getDirectChildren(ac):
+            if not sel in Containers.getDirectChildren(ac):
                 raise CommandError("Set as Tip", "{feat} is not from active container ({cnt}). Please select an object belonging to active container.".format(feat= sel.Label, cnt= ac.Label))
             if screen(ac.Tip) is sel:
                 raise CommandError("Set as Tip", "{feat} is already a Tip of ({cnt}).".format(feat= sel.Label, cnt= ac.Label))

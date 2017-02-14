@@ -33,6 +33,8 @@ class CommandShapeBinder:
             ac = Containers.activeContainer()
             if sel in Containers.getDirectChildren(ac):
                 raise CommandError("Shapebinder", "{feat} is from active container ({cnt}). Please select an object belonging to another container.".format(feat= sel.Label, cnt= ac.Label))
+            if sel in (Containers.getAllDependent(ac)+ [ac]):
+                raise CommandError("ShapeBinder", "Can't create a shapebinder, because a circular dependency will result.")
             if b_run: CreateShapeBinder(sel)
         else:
             raise CommandError("Shapebinder", "Shapebinder command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))
