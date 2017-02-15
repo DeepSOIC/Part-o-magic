@@ -34,12 +34,12 @@ def test_exclude(feature, active_workbench):
     return False
     
 def addObjectTo(container, feature):
-    if container.isDerivedFrom("PartDesign::Body"):
-        #Part-o-magic is not supposed add stuff to PartDesign bodies, as it is managed by PartDesign.
-        tmp = container
-        container = getPartOf(container)
-        msgbox("Part-o-magic","Cannot add the new object of type {typ} to {body}, because bodies accept only PartDesign features. Feature added to {cnt} instead."
-                              .format(body= tmp.Label, cnt= container.Label, typ= feature.TypeId))
+    #if container.isDerivedFrom("PartDesign::Body"):
+    #    #Part-o-magic is not supposed add stuff to PartDesign bodies, as it is managed by PartDesign.
+    #    tmp = container
+    #    container = getPartOf(container)
+    #    msgbox("Part-o-magic","Cannot add the new object of type {typ} to {body}, because bodies accept only PartDesign features. Feature added to {cnt} instead."
+    #                          .format(body= tmp.Label, cnt= container.Label, typ= feature.TypeId))
 
     if container.isDerivedFrom("App::Document"):
         return #nothing to do... This is to avoid reopening edit.
@@ -55,7 +55,19 @@ def addObjectTo(container, feature):
                 bool_editingclosed = True
     
     #actual addition
-    GT.addObjectTo(container, feature)
+    added = False
+    actual_container = container
+    while not added:
+        try:
+            GT.addObjectTo(actual_container, feature)
+            added = True
+        except App.Base.FreeCADError as err:
+            #assuming it's a "not allowed" error
+            #try adding to upper level container. Until Document is reached, which should never fail with FreeCADError
+            actual_container = GT.getContainer(actual_container)
+    if actual_container is not container:
+        msgbox("Part-o-magic","Cannot add the new object of type {typ} to '{container}'. Feature added to '{actual_container}' instead."
+                              .format(container= container.Label, actual_container= actual_container.Label, typ= feature.TypeId))
         
     # re-open editing that we had closed...
     if bool_editingclosed:
