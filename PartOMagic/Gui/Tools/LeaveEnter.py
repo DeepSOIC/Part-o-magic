@@ -5,6 +5,8 @@ import FreeCADGui as Gui
 from PartOMagic.Gui.Utils import *
 from PartOMagic.Base import Containers
 
+import SketcherGui #needed for icons
+
 class CommandEnter:
     "Command to enter a feature"
     def GetResources(self):

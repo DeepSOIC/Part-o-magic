@@ -5,6 +5,8 @@ import FreeCADGui as Gui
 from PartOMagic.Gui.Utils import *
 from PartOMagic.Base import Containers
 
+import PartDesignGui
+
 def MoveTip(container, new_tip):
     App.ActiveDocument.openTransaction("Set Tip")
     Gui.doCommand("cnt = App.ActiveDocument.{cnt}".format(cnt= container.Name))

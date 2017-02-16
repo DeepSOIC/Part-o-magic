@@ -6,6 +6,8 @@ if App.GuiUp:
 from PartOMagic.Gui.Utils import *
 from PartOMagic.Base import Containers
 
+import PartDesignGui
+
 def CreateShapeBinder(feature):
     App.ActiveDocument.openTransaction("Create Shapebinder")
     Gui.doCommand("f = App.ActiveDocument.addObject('PartDesign::ShapeBinder','ShapeBinder')")
