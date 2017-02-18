@@ -4,7 +4,7 @@ import FreeCAD as App
 import PartOMagic.Base.Parameters as Params
 
 if Params.EnablePartOMagic.get():
-    rev_number = int(App.Version()[2].replace("(Git)",""))
+    rev_number = int(App.Version()[2].split(" ")[0])
     if rev_number >= 9933:
         import PartOMagic
         PartOMagic.importAll()
