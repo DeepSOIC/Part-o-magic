@@ -109,22 +109,6 @@ class _ViewProviderModule:
     def __setstate__(self,state):
         return None
 
-#    def claimChildren(self):
-#        children = [self.Object.Base]
-#        if self.Object.Stencil:
-#            children.append(self.Object.Stencil)
-#        return children
-
-#    def onDelete(self, feature, subelements): # subelements is a tuple of strings
-#        if not self.ViewObject.DontUnhideOnDelete:
-#            try:
-#                self.Object.Base.ViewObject.show()
-#                if self.Object.Stencil:
-#                    self.Object.Stencil.ViewObject.show()
-#            except Exception as err:
-#                App.Console.PrintError("Error in onDelete: " + err.message)
-#        return True
-
 def CreateModule(name):
     App.ActiveDocument.openTransaction("Create Module")
     Gui.addModule("PartOMagic.Features.Module")
