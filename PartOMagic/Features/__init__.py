@@ -3,11 +3,13 @@ print("loading Features")
 
 __all__ = [
 "Module",
+"ShapeGroup",
 "ShapeBinder",
 ]
 
 def importAll():
     from . import Module
+    from . import ShapeGroup
     from . import ShapeBinder
 
 def reloadAll():
