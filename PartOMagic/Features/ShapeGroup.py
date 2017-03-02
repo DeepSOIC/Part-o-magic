@@ -16,6 +16,7 @@ def makeShapeGroup(name):
     obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     proxy = ShapeGroup(obj)
     vp_proxy = ViewProviderShapeGroup(obj.ViewObject)
+    obj.ViewObject.DisplayMode = 'Flat Lines'
     return obj
 
 class ShapeGroup:
@@ -129,9 +130,17 @@ class ViewProviderShapeGroup:
 def CreateShapeGroup(name):
     App.ActiveDocument.openTransaction("Create ShapeGroup")
     Gui.addModule("PartOMagic.Features.ShapeGroup")
+    Gui.doCommand("sel = Gui.Selection.getSelectionEx()")
     Gui.doCommand("f = PartOMagic.Features.ShapeGroup.makeShapeGroup(name = '"+name+"')")
-    Gui.doCommand("PartOMagic.Base.Containers.setActiveContainer(f)")
     Gui.doCommand("Gui.Selection.clearSelection()")
+    Gui.doCommand("if len(sel) == 0:\n"
+                  "    PartOMagic.Base.Containers.setActiveContainer(f)\n"
+                  "else:\n"
+                  "    for so in sel:\n"
+                  "        PartOMagic.Base.Containers.moveObjectTo(so.Object, f)\n"
+                  "    f.Tip = f.Group\n"
+                  "    App.ActiveDocument.recompute()\n"
+                  "    Gui.Selection.addSelection(f)")
     App.ActiveDocument.commitTransaction()
 
 

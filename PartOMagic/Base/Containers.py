@@ -184,6 +184,25 @@ def addObjectTo(container, feature, b_advance_tip = True):
         return
     
     raise ContainerUnsupportedError("No idea how to add objects to containers of type {typ}".format(typ= container.TypeId))
+    
+def moveObjectTo(feature, container):
+    cnt_old = getContainer(feature)
+    if cnt_old is container:
+        return #nothing to do
+        
+    withdrawObject(feature)
+    addObjectTo(container, feature, b_advance_tip= False)
+
+def withdrawObject(feature):
+    cnt_old = getContainer(feature)
+    if cnt_old.isDerivedFrom('App::Document'):
+        return
+    if container.hasExtension("App::GroupExtension"):
+        if feature not in container.Group:
+            raise SpecialChildError("{feat} is a special child of {container} and can't be withdrawn.".format(feat= feature.Label, container= container.Label))
+        container.removeObject(feature)
+        assert(feature not in container.Group) #test it was actually removed
+    
 
 def getContainer(feat):
     
@@ -312,4 +331,5 @@ class ContainerUnsupportedError(ContainerError):
     pass
 class NotAContainerError(ContainerError):
     pass
-    
+class SpecialChildError(ContainerError): # happens when attempting to withdraw origin from container
+    pass
