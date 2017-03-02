@@ -194,8 +194,8 @@ def moveObjectTo(feature, container):
     addObjectTo(container, feature, b_advance_tip= False)
 
 def withdrawObject(feature):
-    cnt_old = getContainer(feature)
-    if cnt_old.isDerivedFrom('App::Document'):
+    container = getContainer(feature)
+    if container.isDerivedFrom('App::Document'):
         return
     if container.hasExtension("App::GroupExtension"):
         if feature not in container.Group:
