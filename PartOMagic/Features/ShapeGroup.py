@@ -3,8 +3,6 @@ if App.GuiUp:
     import FreeCADGui as Gui
 import Part
 
-import PartDesignGui #needed for icon
-
 __title__="ShapeGroup container"
 __author__ = "DeepSOIC"
 __url__ = ""
