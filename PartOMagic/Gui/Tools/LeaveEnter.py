@@ -73,9 +73,15 @@ class CommandLeave:
         
     def RunOrTest(self, b_run):
         if Gui.ActiveDocument.getInEdit() is not None:
-            if b_run: Gui.ActiveDocument.resetEdit()
+            if b_run: 
+                Gui.ActiveDocument.resetEdit()
+                App.ActiveDocument.recompute()
+                App.ActiveDocument.commitTransaction()
         elif Gui.Control.activeDialog():
-            if b_run: Gui.Control.closeDialog()
+            if b_run:
+                Gui.Control.closeDialog()
+                App.ActiveDocument.recompute()
+                App.ActiveDocument.commitTransaction()
         else:
             ac = Containers.activeContainer()
             if ac.isDerivedFrom("App::Document"):
