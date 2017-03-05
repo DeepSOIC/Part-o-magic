@@ -4,12 +4,14 @@ print("loading Features")
 __all__ = [
 "Module",
 "ShapeGroup",
+"PDShapeFeature",
 "ShapeBinder",
 ]
 
 def importAll():
     from . import Module
     from . import ShapeGroup
+    from . import PDShapeFeature
     from . import ShapeBinder
 
 def reloadAll():
