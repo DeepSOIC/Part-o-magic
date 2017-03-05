@@ -136,14 +136,18 @@ class ViewProviderPDShapeFeature:
     def __setstate__(self,state):
         return None
         
-    def onDelete(self, feature, subelements): # subelements is a tuple of strings
+    def onDelete(self, viewprovider, subelements): # subelements is a tuple of strings
         try:
+            selfobj = self.Object
             import PartOMagic.Base.Containers as Containers
-            body = Containers.getContainer(feature)
+            body = Containers.getContainer(selfobj)
             if not body.isDerivedFrom('PartDesign::Body'): return
-            if self.ViewObject.Visibility and feature.BaseFeature:
-                feature.BaseFeature.ViewObject.show()
-            body.removeObject(feature)
+            
+            if self.ViewObject.Visibility and selfobj.BaseFeature:
+                selfobj.BaseFeature.ViewObject.show()
+                
+            body.removeObject(selfobj)
+            
         except Exception as err:
             App.Console.PrintError("Error in onDelete: " + err.message)
         return True
