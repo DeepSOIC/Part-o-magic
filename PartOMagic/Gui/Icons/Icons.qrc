@@ -5,6 +5,8 @@
         <file>icons/PartOMagic_EnableObserver.svg</file>
         <file>icons/PartOMagic_PauseObserver.svg</file>        
         <file>icons/PartOMagic_Power.svg</file>
+        <file>icons/PartOMagic_PDShapeFeature_Additive.svg</file>
+        <file>icons/PartOMagic_PDShapeFeature_Subtractive.svg</file>
         <file>icons/PartOMagic_ShapeGroup.svg</file>
     </qresource>
 </RCC> 
