@@ -21,10 +21,20 @@ class Exporter:
     def __init__(self,obj):
         self.Type = 'Exporter'
         obj.addProperty('App::PropertyLink','ObjectToExport',"Exporter","Object to use to form the feature")
-        obj.addProperty('App::PropertyString', 'FilePath', "Exporter", "Relative or absolute path to file to write")
+        obj.addProperty('App::PropertyString', 'FilePath', "Exporter", "Relative or absolute path to file to write. Hint: type '%Label%.step'.")
+        obj.addProperty('App::PropertyString', 'FullActualPath', "Exporter", "Path to the last file that was written")        
+        obj.setEditorMode('FullActualPath', 1)#read-only
+        
         obj.addProperty('App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file.")
         obj.ExportingFrequency = ['Disabled', 'Export once', 'Every recompute'] 
         obj.ExportingFrequency = 'Every recompute'
+        
+        obj.addProperty('App::PropertyEnumeration', 'ContainerMode', "Exporter", "Sets what to export if exporting a container" )
+        obj.ContainerMode = ['Feed straight to exporter', 'Feed tip features to exporter','Feed all children', '(Auto)']
+        obj.ContainerMode = '(Auto)'
+        
+        obj.addProperty('App::PropertyEnumeration', 'MultiMode', "Exporter", "Sets how to deal with multitude of objects, when exporting containers")
+        obj.MultiMode = ['Write one file', 'Write many files']
         
         obj.Proxy = self
         
@@ -38,11 +48,13 @@ class Exporter:
             selfobj.ExportingFrequency == 'Disabled'
 
     def export(self, selfobj):
+        #check the model
         from PartOMagic.Base import Containers
         for obj in Containers.getAllDependencies(selfobj):
             if 'Invalid' in obj.State:
                 raise RuntimeError("File not exported, because {feat} is in error state.".format(feat= obj.Label))
     
+        #form absolute path
         filepath = selfobj.FilePath
         
         from os import path
@@ -59,8 +71,46 @@ class Exporter:
             context = path.dirname(selfobj.Document.FileName)
             filepath = path.join(context, filepath)
         
-        mod.export([selfobj.ObjectToExport], filepath)
-        print("Exported {file}".format(file= filepath))
+        #collect what to export
+        objects_to_export = []
+        containermode = selfobj.ContainerMode
+        if hasattr(selfobj.ObjectToExport, "Group"):
+            if containermode == '(Auto)':
+                if hasattr(selfobj.ObjectToExport, 'Shape'):
+                    containermode = 'Feed straight to exporter' 
+                elif hasattr(selfobj.ObjectToExport, 'Tip'):
+                    containermode = 'Feed tip features to exporter'
+                else:
+                    containermode = 'Feed all children'
+                selfobj.ContainerMode = containermode
+            if containermode == 'Feed straight to exporter':
+                objects_to_export.append(selfobj.ObjectToExport)
+            elif containermode == 'Feed tip features to exporter':
+                objects_to_export += selfobj.ObjectToExport.Tip if type(selfobj.ObjectToExport.Tip) is list else [selfobj.ObjectToExport.Tip]
+            elif containermode == 'Feed all children':
+                objects_to_export += selfobj.ObjectToExport.Group
+            else: 
+                raise NotImplementedError("Unexpected contaner mode {mode}".format(mode= repr(containermode)))
+        else:
+            objects_to_export.append(selfobj.ObjectToExport)
+        
+        if selfobj.MultiMode == 'Write one file':
+            filepath = filepath.replace('%Label%', selfobj.ObjectToExport.Label)
+            mod.export(objects_to_export, filepath)
+            print("Exported {file}".format(file= filepath))
+            selfobj.FullActualPath = filepath
+        elif selfobj.MultiMode == 'Write many files':
+            if not '%Label%' in filepath:
+                raise ValueError("In multi-file export, you must include %Label% into the file name.")
+            for obj in objects_to_export:
+                thisfilepath = filepath.replace('%Label%', obj.Label)
+                mod.export([obj], thisfilepath)
+                print("Exported {file}".format(file= thisfilepath))
+            selfobj.FullActualPath = thisfilepath
+        else:
+            raise NotImplementedError("Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
+        
+        
  
 
 class ViewProviderExporter:
@@ -80,6 +130,7 @@ class ViewProviderExporter:
     def doubleClicked(self, vobj):
         try:
             self.Object.Proxy.export(self.Object)
+            self.Object.purgeTouched()
         except Exception as err:
             from PartOMagic.Gui.Utils import msgError
             msgError(err)
