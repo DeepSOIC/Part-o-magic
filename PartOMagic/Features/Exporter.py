@@ -25,8 +25,8 @@ class Exporter:
         obj.addProperty('App::PropertyString', 'FullActualPath', "Exporter", "Path to the last file that was written")        
         obj.setEditorMode('FullActualPath', 1)#read-only
         
-        obj.addProperty('App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file.")
-        obj.ExportingFrequency = ['Disabled', 'Export once', 'Every recompute'] 
+        obj.addProperty('App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file. (double-click always works)")
+        obj.ExportingFrequency = ['On double-click only', 'Export once', 'Every recompute'] 
         obj.ExportingFrequency = 'Every recompute'
         
         obj.addProperty('App::PropertyEnumeration', 'ContainerMode', "Exporter", "Sets what to export if exporting a container" )
@@ -40,12 +40,12 @@ class Exporter:
         
 
     def execute(self,selfobj):
-        if selfobj.ExportingFrequency == 'Disabled': return
+        if selfobj.ExportingFrequency == 'On double-click only': return
         
         self.export(selfobj)
         
         if selfobj.ExportingFrequency == 'Export once':
-            selfobj.ExportingFrequency == 'Disabled'
+            selfobj.ExportingFrequency == 'On double-click only'
 
     def export(self, selfobj):
         #check the model
