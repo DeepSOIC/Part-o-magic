@@ -6,6 +6,7 @@ __all__ = [
 "ShapeGroup",
 "PDShapeFeature",
 "ShapeBinder",
+"Exporter",
 ]
 
 def importAll():
@@ -13,6 +14,7 @@ def importAll():
     from . import ShapeGroup
     from . import PDShapeFeature
     from . import ShapeBinder
+    from . import Exporter
 
 def reloadAll():
     for modstr in __all__:
