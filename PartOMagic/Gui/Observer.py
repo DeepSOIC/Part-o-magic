@@ -85,7 +85,8 @@ class Observer(FrozenClass):
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
         self.delayed_slot_calls_queue = [] # queue of lambdas/functions to execute upon next firing of the timer.
         
-        self.editing = {}
+        self.editing = {} # last seen object in edit. Dict: key is document name, value is documentobject.
+        self.edit_TVs = {} #key is document name, value is a tempovis associated with the feature being edited
         
         self._freeze()
         
@@ -194,9 +195,26 @@ class Observer(FrozenClass):
         
     def slotStartEditing(self, feature):
         print("Start Editing {f}".format(f= feature.Name))
+        cnt = GT.getContainer(feature)
+        if feature.isDerivedFrom("PartDesign::Boolean"):
+            # show all bodies nearby...
+            part = GT.getContainer(cnt)
+            children = GT.getDirectChildren(part)
+            children = [child for child in children if child.isDerivedFrom("Part::BodyBase")]
+            children = set(children)
+            children.remove(cnt)
+            for obj in GT.getAllDependent(cnt):
+                if obj in children:
+                    children.remove(obj)
+            tv = TempoVis(feature.Document)
+            tv.show(children)
+            self.edit_TVs[feature.Document.Name] = tv
         
     def slotFinishEditing(self, feature):
         print("Finish Editing {f}".format(f= feature.Name))
+        tv = self.edit_TVs.pop(App.ActiveDocument.Name, None)
+        if tv is not None:
+            tv.restore()
     
     def activeObjectWatcher(self):
         'Called by timer to poll for container changes'
@@ -306,12 +324,10 @@ class Observer(FrozenClass):
             objects_in = set(  GT.getDirectChildren(ac)  )
         objects_out = set(App.ActiveDocument.Objects) - objects_in
         
+        # make all object in context selectable. This is mainly to undo consequences of old behavior of making everything out-of-context non-selectable
         for o in objects_in:
             if hasattr(o.ViewObject, "Selectable"):
                 o.ViewObject.Selectable = True
-        for o in objects_out:
-            if hasattr(o.ViewObject, "Selectable"):
-                o.ViewObject.Selectable = False
         
         active_chain = GT.getContainerChain(ac) + [ac]
         for o in App.ActiveDocument.findObjects("Part::BodyBase"):
