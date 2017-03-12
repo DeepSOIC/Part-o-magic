@@ -85,6 +85,8 @@ class Observer(FrozenClass):
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
         self.delayed_slot_calls_queue = [] # queue of lambdas/functions to execute upon next firing of the timer.
         
+        self.editing = {}
+        
         self._freeze()
         
     def __init__(self):
@@ -189,6 +191,12 @@ class Observer(FrozenClass):
             self.enterContainer(cnt)
         
         self.updateVPs()
+        
+    def slotStartEditing(self, feature):
+        print("Start Editing {f}".format(f= feature.Name))
+        
+    def slotFinishEditing(self, feature):
+        print("Finish Editing {f}".format(f= feature.Name))
     
     def activeObjectWatcher(self):
         'Called by timer to poll for container changes'
@@ -249,6 +257,17 @@ class Observer(FrozenClass):
             self.lastMD[App.ActiveDocument.Name] = cur_lmd
             if last_lmd is not None: #filter out the apparent change that happens when there was no last-seen value
                 self.slotSavedDocument(App.ActiveDocument)
+        
+        #detect start/end of editing
+        cur_in_edit_vp = Gui.ActiveDocument.getInEdit()
+        cur_in_edit = cur_in_edit_vp.Object if cur_in_edit_vp is not None else None
+        last_in_edit = self.editing.get(App.ActiveDocument.Name, None)
+        if cur_in_edit is not last_in_edit:
+            self.editing[App.ActiveDocument.Name] = cur_in_edit
+            if last_in_edit is not None:
+                self.slotFinishEditing(last_in_edit)
+            if cur_in_edit is not None:
+                self.slotStartEditing(cur_in_edit)
         
     # functions
     
