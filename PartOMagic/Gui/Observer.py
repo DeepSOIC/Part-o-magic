@@ -196,6 +196,11 @@ class Observer(FrozenClass):
     def slotStartEditing(self, feature):
         print("Start Editing {f}".format(f= feature.Name))
         cnt = GT.getContainer(feature)
+        if GT.activeContainer() is not cnt:
+            print("Feature being edited is not in active container. Activating {cnt}...".format(cnt= cnt.Name))
+            Gui.ActiveDocument.resetEdit()
+            GT.setActiveContainer(cnt)
+            return
         if feature.isDerivedFrom("PartDesign::Boolean"):
             # show all bodies nearby...
             part = GT.getContainer(cnt)
