@@ -15,6 +15,12 @@ def getPartOf(feature):
             return cnt
     assert(False)
         
+def activateContainer(container):
+    '''activateContainer(container): activates, and applies visibility automation immediately.'''
+    setActiveContainer(container)
+    if isRunning():
+        global observerInstance
+        observerInstance.trackActiveContainer()
 
 def test_exclude(feature, active_workbench):
     '''exclusions to disable automatic container management'''
@@ -121,7 +127,7 @@ class Observer(FrozenClass):
         if feature in GT.getContainerChain(ac)+[ac]:
             # active container was deleted. Need to leave it ASAP, as long as we can access the chain
             setActiveContainer(GT.getContainer(feature))
-            self.activeObjectWatcher()
+            self.poll()
         
     #def slotChangedObject(self, feature, prop_name):
     #    pass
@@ -156,7 +162,7 @@ class Observer(FrozenClass):
         if mb.clickedButton() is btnResave:
             cnt = activeContainer()
             setActiveContainer(cnt.Document)
-            self.activeObjectWatcher() #explicit call to poller, to update all visibilities
+            self.poll() #explicit call to poller, to update all visibilities
             cnt.Document.save()
             self.lastMD[App.ActiveDocument.Name] = cnt.Document.LastModifiedDate #to avoid triggering this dialog again
             setActiveContainer(cnt)
@@ -221,8 +227,20 @@ class Observer(FrozenClass):
         if tv is not None:
             tv.restore()
     
-    def activeObjectWatcher(self):
-        'Called by timer to poll for container changes'
+    def poll(self):
+        'Called by timer to poll for container changes, and other tracking'
+        self.executeDelayedOperations()
+
+        if App.ActiveDocument is None:
+            return
+        if Gui.ActiveDocument.ActiveView is None:
+            return # happens when editing a spreadsheet
+            
+        self.trackActiveContainer()
+        self.trackSaves()
+        self.trackEditing()
+        
+    def executeDelayedOperations(self):
         # execute delayed onChange
         try:
             for lmd in self.delayed_slot_calls_queue:
@@ -230,11 +248,7 @@ class Observer(FrozenClass):
         finally:
             self.delayed_slot_calls_queue = []
         
-        if App.ActiveDocument is None:
-            return
-        if Gui.ActiveDocument.ActiveView is None:
-            return # happens when editing a spreadsheet
-        
+    def trackActiveContainer(self):
         #watch for changes in active object
         activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
         activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
@@ -271,7 +285,8 @@ class Observer(FrozenClass):
                 activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
                 activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
                 self.activeObjects[App.ActiveDocument.Name] = (ac, activePart, activeBody)
-        
+    
+    def trackSaves(self):
         # detect document saves
         cur_lmd = App.ActiveDocument.LastModifiedDate
         last_lmd = self.lastMD.get(App.ActiveDocument.Name, None)
@@ -281,6 +296,7 @@ class Observer(FrozenClass):
             if last_lmd is not None: #filter out the apparent change that happens when there was no last-seen value
                 self.slotSavedDocument(App.ActiveDocument)
         
+    def trackEditing(self):
         #detect start/end of editing
         cur_in_edit_vp = Gui.ActiveDocument.getInEdit()
         cur_in_edit = cur_in_edit_vp.Object if cur_in_edit_vp is not None else None
@@ -363,7 +379,7 @@ def start():
     from PySide import QtCore
     timer = QtCore.QTimer()
     timer.setInterval(300)
-    timer.connect(QtCore.SIGNAL("timeout()"), observerInstance.activeObjectWatcher)
+    timer.connect(QtCore.SIGNAL("timeout()"), observerInstance.poll)
     timer.start()
     
 def stop():
