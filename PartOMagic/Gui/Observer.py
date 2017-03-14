@@ -322,9 +322,11 @@ class Observer(FrozenClass):
         tv = TempoVis(cnt.Document)
         self.TVs[key] = tv
         list_hiding = [o for o in GT.getDirectChildren(GT.getContainer(cnt)) if not o is cnt]
-        print [o.Name for o in list_hiding]
         tv.hide(list_hiding)
         tv.show(cnt)
+        for obj in list_hiding:
+            Gui.ActiveDocument.toggleTreeItem(obj, 1) #collapse
+        Gui.ActiveDocument.toggleTreeItem(cnt, 2) #expand
         
     def leaveContainer(self, cnt):
         print "leaving "+cnt.Name
@@ -334,6 +336,7 @@ class Observer(FrozenClass):
         tv.restore()
         tv.forget()
         self.TVs.pop(key)
+        Gui.ActiveDocument.toggleTreeItem(cnt, 1) #collapse
         
     def updateVPs(self):
         '''updates many viewprovider properties (except visibility, which is handled by TempoVis objets)'''
