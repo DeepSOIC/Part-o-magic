@@ -124,6 +124,65 @@ class ViewProviderShapeGroup:
 
     def __setstate__(self,state):
         return None
+        
+    def setEdit(self, selfvp, mode):
+        print("ShapeGroup enter edit mode {num}".format(num= mode))
+        if mode == 0:
+            try:
+                selfobj = selfvp.Object
+                #ensure right container is active
+                from PartOMagic.Base import Containers
+                container = Containers.getContainer(selfobj)
+                if Containers.activeContainer() is not Containers.getContainer(selfobj):
+                    from PartOMagic.Gui import Observer
+                    Observer.activateContainer(container)
+
+                selfobj.Document.openTransaction('Edit Tip of {sg}'.format(sg= selfobj.Label))
+                
+                #prepare scene
+                from PartOMagic.Gui.TempoVis import TempoVis
+                self.tv = TempoVis(selfobj.Document)
+                tv = self.tv
+                #update visibilities of children to match what's in tip
+                children = selfobj.Group
+                tip = selfobj.Tip
+                for child in children:
+                    tv.modifyVPProperty(child, 'Visibility', child in tip)
+                #ensure children are visible, and nothing else...
+                tv.modifyVPProperty(selfobj, 'DisplayMode','Group')
+                tv.show(selfobj)
+                for child in Containers.getDirectChildren(container):
+                    if child is not selfobj:
+                        tv.hide(child)
+                
+                #start editing
+                self.observer = VisibilityObserver(selfobj.Group, self.editCallback)
+            except Exception as err:
+                App.Console.PrintError("Error in ShapeGroup setEdit: {err}\n".format(err= err.message))
+                return False
+            return True
+        raise NotImplementedError()
+        
+    def editCallback(self, child, visible):
+        selfobj = self.Object
+        if visible:
+            if not child in selfobj.Tip:
+                selfobj.Tip = selfobj.Tip + [child]
+        else:
+            if child in selfobj.Tip:
+                tip = selfobj.Tip
+                tip.remove(child)
+                selfobj.Tip = tip
+    
+    def unsetEdit(self, selfvp, mode):
+        if mode == 0:
+            selfobj = selfvp.Object
+            self.observer.poll() #to make sure last change is incorporated
+            self.observer.stop()
+            self.tv.restore()
+            selfobj.Document.commitTransaction()
+            return True
+        raise NotImplementedError()
 
 def CreateShapeGroup(name):
     App.ActiveDocument.openTransaction("Create ShapeGroup")
@@ -141,8 +200,50 @@ def CreateShapeGroup(name):
                   "    Gui.Selection.addSelection(f)")
     App.ActiveDocument.commitTransaction()
 
+from FrozenClass import FrozenClass
+class VisibilityObserver(FrozenClass):
+    '''VisibilityObserver tracks changes to visibilities of provided list of objects, and notifies by calling a callback function.
+Constructor:
+    observer = VisibilityObserver(list_of_objects, callback)
+        list_of_objects: list of objects of type App::DocumentObject
+        callback: function with footprint: myCallback(object, b_visible), where b_visible 
+            is the new state of object's visibility
+It is recommended to explicitly stop the observer using `observer.stop()`
+    '''
+    def __define_attributes(self):
+        self.timer = None
+        self.vismap = {} # key = feature, value = last seen state of visibility
+        self.list_of_objects = []
+        self.callback = None 
+    
+    def __init__(self, list_of_objects, callback):
+        self.__define_attributes()
+        self._freeze()
+        
+        self.list_of_objects = list_of_objects
+        self.callback = callback
 
-# -------------------------- /common stuff --------------------------------------------------
+        from PySide import QtCore
+        timer = QtCore.QTimer()
+        timer.setInterval(300)
+        timer.connect(QtCore.SIGNAL("timeout()"), self.poll)
+        timer.start()
+        self.timer = timer
+    
+    def stop(self):
+        self.timer.stop
+        self.timer = None
+        
+    def __del__(self):
+        self.stop()
+        
+    def poll(self):
+        for obj in self.list_of_objects:
+            vis = obj.ViewObject.Visibility
+            if self.vismap.get(obj, vis) != vis:
+                self.callback(obj, vis)
+            self.vismap[obj] = vis
+
 
 # -------------------------- Gui command --------------------------------------------------
 
