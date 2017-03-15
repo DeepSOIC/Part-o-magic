@@ -1,7 +1,7 @@
 # Part-o-magic
 PoM is an experimental add-on module for FreeCAD v0.17. (It won't work with FC v0.16.)
 
-The goal is to experiment with UI and ways to bring assembly infrastructure into the whole FreeCAD. Saw that new PartDesign things called Part and Body? The aim of Part-o-magic is to bring similar things to every workbench in FreeCAD, and make working with them more convenient.
+The goal is to experiment with UI and ways to bring assembly infrastructure into the whole FreeCAD. Sure you have seen that new PartDesign things called Part and Body. The aim of Part-o-magic is to bring similar things to every workbench in FreeCAD, and make working with them more convenient.
 
 With Part-o-magic, organizing a multi-part project (i.e. an assembly) is much easier.
 
@@ -44,6 +44,9 @@ when you activate a container, the container is switched into Through mode, so y
 
 ### Tree automation
 when you activate a container, it is automatically expanded in tree. When deactivated, it is automatically collapsed. With the aim to show you only the features that make up the container, so that you can focus on editing the piece.
+
+### Editing automation
+When you try to edit a feature, PoM will check if the container of the feature is active, and activate it. (as of now, it has to cancel the editing, so please invoke the edititng again). If the right container is not activated, you may not even see the feature.
 
 ## Containers
 
