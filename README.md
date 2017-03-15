@@ -39,10 +39,10 @@ In PartDesign, all new features are automatically added to Body. Observer expand
 
 That works (well, it should) in absolutely every workbench, including add-on workbenches and macros!
 
-### Visibility automation: 
+### Visibility automation
 when you activate a container, the container is switched into Through mode, so you see individual contained objects. When you leave it, you see only the final shape (Tip), but not contained objects. Also, when you activate a container, anything outside of it is automatically hidden, so that you can focus on editing the piece.
 
-### Tree automation: 
+### Tree automation
 when you activate a container, it is automatically expanded in tree. When deactivated, it is automatically collapsed. With the aim to show you only the features that make up the container, so that you can focus on editing the piece.
 
 ## Containers
