@@ -20,6 +20,11 @@ if Params.EnablePartOMagic.get():
     import Show.TempoVis 
     Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
 
+if Params.EnablePartOMagic.get():
+    # global toolbar
+    if not PartOMagic.Gui.GlobalToolbar.isRegistered():
+        PartOMagic.Gui.GlobalToolbar.registerToolbar()
+
 class PartOMagicWorkbench (Workbench):
     MenuText = 'Part-o-magic'
     ToolTip = "Part-o-magic: experimental group and Part and Body automation"

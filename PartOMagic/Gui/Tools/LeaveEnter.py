@@ -8,7 +8,7 @@ from PartOMagic.Gui.AACommand import AACommand, CommandError
 
 commands = []
 
-class CommandEnter(AACommand):
+class _CommandEnter(AACommand):
     "Command to enter a feature"
     def GetResources(self):
         import SketcherGui #needed for icons
@@ -38,11 +38,12 @@ class CommandEnter(AACommand):
                     if b_run: Containers.setActiveContainer(cnt)
         else:
             raise CommandError(self, "Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))            
-commands.append(CommandEnter())
+commandEnter = _CommandEnter()
+commands.append(commandEnter)
 
 
 
-class CommandLeave(AACommand):
+class _CommandLeave(AACommand):
     "Command to leave editing or a container"
     def GetResources(self):
         import SketcherGui #needed for icons
@@ -71,7 +72,8 @@ class CommandLeave(AACommand):
             if b_run: Containers.setActiveContainer(Containers.getContainer(ac))
             if b_run: Gui.Selection.clearSelection()
             if b_run: Gui.Selection.addSelection(ac)    
-commands.append(CommandLeave())            
+commandLeave = _CommandLeave()
+commands.append(commandLeave)
 
 exportedCommands = AACommand.registerCommands(commands)
 

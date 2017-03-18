@@ -9,7 +9,8 @@ __all__ = [
 "Control",
 "Tools",
 "Icons",
-"CommandCollection1"
+"CommandCollection1",
+"GlobalToolbar",
 ]
 
 def importAll():
@@ -21,6 +22,7 @@ def importAll():
     from . import Tools
     from . import Icons
     from . import CommandCollection1
+    from . import GlobalToolbar
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, "importAll"):

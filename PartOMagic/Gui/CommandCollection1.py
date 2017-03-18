@@ -1,4 +1,4 @@
-print("Loading CompCommands")
+print("Loading CommandCollection1")
 
 import PartOMagic.Gui as myGui
 myGui.Tools.importAll()
@@ -24,7 +24,8 @@ class GroupCommand(object):
         
     def IsActive(self): # optional
         return True
-        
+import PartDesign
+import PartDesignGui
 Gui.addCommand('PartOMagic_Collection1',
  GroupCommand(
     list_of_commands= ['PartDesign_Part']+myFeatures.exportedCommands() + ['PartOMagic_SetTip'],
