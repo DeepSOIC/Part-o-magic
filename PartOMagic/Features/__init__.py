@@ -4,17 +4,22 @@ print("loading Features")
 __all__ = [
 "Module",
 "ShapeGroup",
-"PDShapeFeature",
 "ShapeBinder",
 "Exporter",
+"PartDesign"
 ]
 
 def importAll():
     from . import Module
     from . import ShapeGroup
-    from . import PDShapeFeature
     from . import ShapeBinder
     from . import Exporter
+    from . import PartDesign
+
+    for modstr in __all__:
+        mod = globals()[modstr]
+        if hasattr(mod, "importAll"):
+            mod.importAll()
 
 def reloadAll():
     for modstr in __all__:
@@ -27,6 +32,7 @@ def exportedCommands():
     result = []
     for modstr in __all__:
         mod = globals()[modstr]
-        if hasattr(mod, "exportedCommands"):
-            result += mod.exportedCommands()
+        if not hasattr(mod, 'reloadAll'): #do not add subpackages (PartDesign)
+            if hasattr(mod, "exportedCommands"):
+                result += mod.exportedCommands()
     return result

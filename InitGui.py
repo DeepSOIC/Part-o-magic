@@ -21,9 +21,11 @@ if Params.EnablePartOMagic.get():
     Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
 
 if Params.EnablePartOMagic.get():
-    # global toolbar
+    # global toolbar - update only if missing
     if not PartOMagic.Gui.GlobalToolbar.isRegistered():
         PartOMagic.Gui.GlobalToolbar.registerToolbar()
+    # PartDesign toolbar - always update
+    PartOMagic.Gui.GlobalToolbar.registerPDToolbar()
 
 class PartOMagicWorkbench (Workbench):
     MenuText = 'Part-o-magic'
@@ -52,6 +54,7 @@ class PartOMagicWorkbench (Workbench):
         cmdsNewContainers = ([]
             + ["PartDesign_Part"]            
             + POM.Features.exportedCommands()
+            + POM.Features.PartDesign.exportedCommands()
         )
         self.appendToolbar('POMContainers', cmdsNewContainers)
         self.appendMenu('Part-o-Magic', cmdsNewContainers)
