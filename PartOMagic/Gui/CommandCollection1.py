@@ -9,7 +9,7 @@ import FreeCADGui as Gui
 
 class GroupCommand(object):
     def __init__(self, list_of_commands, menu_text, tooltip, for_edit= False):
-        self.list_of_commands = [cmd+'_AA' for cmd in list_of_commands]
+        self.list_of_commands = [(cmd+'_AA' if cmd.startswith('PartOMagic') else cmd) for cmd in list_of_commands]
         self.menu_text = menu_text
         self.tooltip = tooltip
         
@@ -24,8 +24,8 @@ class GroupCommand(object):
         
     def IsActive(self): # optional
         return True
-import PartDesign
-import PartDesignGui
+
+import PartDesignGui # for 'PartDesign_Part' to work
 Gui.addCommand('PartOMagic_Collection1',
  GroupCommand(
     list_of_commands= ['PartDesign_Part']+myFeatures.exportedCommands() + ['PartOMagic_SetTip'],
