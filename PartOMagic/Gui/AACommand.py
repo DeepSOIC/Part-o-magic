@@ -62,7 +62,7 @@ class CommandError(Exception):
     def __init__(self, command, message):
         self.command = command
         try:
-            self.title = command.GetResources()['MenuText']
+            self.title = "Part-o-Magic "+ command.GetResources()['MenuText']
         except Exception as err:
             self.title = "<ERROR READING OUT MenuText>"
         self.message = message
