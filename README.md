@@ -10,11 +10,12 @@ Beware. Part-o-magic is an epic hack. It will collide with similar functionality
 ![figure](https://raw.githubusercontent.com/wiki/DeepSOIC/Part-o-magic/pictures/rotating-plate.png)
 
 # Install
-Scroll to top of page, and download zip.
+Launch FreeCAD. In menu, pick Tools->Addon Manager. Select Part-o-magic in the list, and click Install. Restart FreeCAD.
 
-In Path/To/Macros/Mod, create a directory named Part-o-magic, and put the contents of repository there. Restart FreeCAD. Part-o-magic workbench should appear in workbench selector.
-
-Part-o-magic will soon be added to add-on library for easy install, hopefully =)
+After restart, you should notice: 
+* Part-o-magic workbench should appear in workbench selector. 
+* A small global toolbar should appear, which you can disable or customize in Tools->Customize->Toolbars. 
+* Behavior of PartDesign workbench should change drastically, that is due to Observer running.
 
 # Uninstall
 
