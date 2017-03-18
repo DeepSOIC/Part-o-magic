@@ -19,6 +19,10 @@ class _CommandEnter(AACommand):
                 'ToolTip': "Enter object. (activate a container, or open a sketch for editing)"}
         
     def RunOrTest(self, b_run):
+        if Gui.ActiveDocument:
+            in_edit = Gui.ActiveDocument.getInEdit()
+            if in_edit is not None:
+                raise CommandError(self, "{object} is currently being edited. Can't enter anything.".format(object= in_edit.Object.Label))
         sel = Gui.Selection.getSelection()
         if len(sel)==0 :
             raise CommandError(self, "Enter Object command. Please select an object to enter, first. It can be a container, or a sketch.")
