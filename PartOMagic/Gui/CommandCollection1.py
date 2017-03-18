@@ -9,7 +9,7 @@ import FreeCADGui as Gui
 
 class GroupCommand(object):
     def __init__(self, list_of_commands, menu_text, tooltip, for_edit= False):
-        self.list_of_commands = list_of_commands
+        self.list_of_commands = [cmd+'_AA' for cmd in list_of_commands]
         self.menu_text = menu_text
         self.tooltip = tooltip
         

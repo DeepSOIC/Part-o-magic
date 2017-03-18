@@ -1,5 +1,10 @@
 print("loading Utils")
 
+#TODO: remove this:
+def getIconPath(icon_dot_svg):
+    import PartOMagic.Gui.Icons.Icons
+    return ":/icons/" + icon_dot_svg
+
 def msgbox(title, text):
     from PySide import QtGui
     mb = QtGui.QMessageBox()
@@ -21,15 +26,6 @@ def msgError(err):
     mb.exec_()
     
     
-def getIconPath(icon_dot_svg):
-    import PartOMagic.Gui.Icons.Icons
-    return ":/icons/" + icon_dot_svg
-
-class CommandError(Exception):
-    def __init__(self, title, message):
-        self.title = title
-        self.message = message
-
 class CancelError(Exception):
     pass
 

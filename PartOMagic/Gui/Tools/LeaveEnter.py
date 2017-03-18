@@ -2,16 +2,18 @@ print("loading LeaveEnter")
 
 import FreeCAD as App
 import FreeCADGui as Gui
-from PartOMagic.Gui.Utils import *
+from PartOMagic.Gui.Utils import screen
 from PartOMagic.Base import Containers
+from PartOMagic.Gui.AACommand import AACommand, CommandError
 
-import SketcherGui #needed for icons
+commands = []
 
-class CommandEnter:
+class CommandEnter(AACommand):
     "Command to enter a feature"
     def GetResources(self):
-        from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath("Sketcher_EditSketch.svg"),
+        import SketcherGui #needed for icons
+        return {'CommandName': 'PartOMagic_Enter',
+                'Pixmap'  : self.getIconPath("Sketcher_EditSketch.svg"),
                 'MenuText': "Enter object",
                 'Accel': "",
                 'ToolTip': "Enter object. (activate a container, or open a sketch for editing)"}
@@ -19,13 +21,13 @@ class CommandEnter:
     def RunOrTest(self, b_run):
         sel = Gui.Selection.getSelection()
         if len(sel)==0 :
-            raise CommandError("Enter Object", "Enter Object command. Please select an object to enter, first. It can be a container, or a sketch.")
+            raise CommandError(self, "Enter Object command. Please select an object to enter, first. It can be a container, or a sketch.")
         elif len(sel)==1:
             sel = screen(sel[0])
             ac = Containers.activeContainer()
             if Containers.isContainer(sel):
                 if sel in Containers.getContainerChain(ac) + [ac]:
-                    raise CommandError("Enter Object", "Already inside this object")
+                    raise CommandError(self, "Already inside this object")
                 if b_run: Containers.setActiveContainer(sel)
                 if b_run: Gui.Selection.clearSelection()
             else:
@@ -35,37 +37,17 @@ class CommandEnter:
                 else:
                     if b_run: Containers.setActiveContainer(cnt)
         else:
-            raise CommandError("Enter Object", "Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))
-    
-    def Activated(self):
-        try:
-            self.RunOrTest(b_run= True)
-        except Exception as err:
-            msgError(err)
-            
-    def IsActive(self):
-        if not App.ActiveDocument: return False
-        try:
-            self.RunOrTest(b_run= False)
-            return True
-        except CommandError as err:
-            return False
-        except Exception as err:
-            App.Console.PrintError(repr(err))
-            return True
-            
-
-if App.GuiUp:
-    Gui.addCommand('PartOMagic_Enter',  CommandEnter())
+            raise CommandError(self, "Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))            
+commands.append(CommandEnter())
 
 
 
-
-class CommandLeave:
+class CommandLeave(AACommand):
     "Command to leave editing or a container"
     def GetResources(self):
-        from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath("Sketcher_LeaveSketch.svg"),
+        import SketcherGui #needed for icons
+        return {'CommandName': 'PartOMagic_Leave',
+                'Pixmap'  : self.getIconPath("Sketcher_LeaveSketch.svg"),
                 'MenuText': "Leave object",
                 'Accel': "",
                 'ToolTip': "Leave object. (close sketch editing, or close task dialog, or leave a container).",
@@ -85,31 +67,11 @@ class CommandLeave:
         else:
             ac = Containers.activeContainer()
             if ac.isDerivedFrom("App::Document"):
-                raise CommandError("Leave Object", "Nothing to leave.")
+                raise CommandError(self, "Nothing to leave.")
             if b_run: Containers.setActiveContainer(Containers.getContainer(ac))
             if b_run: Gui.Selection.clearSelection()
-            if b_run: Gui.Selection.addSelection(ac)
-    
-    def Activated(self):
-        try:
-            self.RunOrTest(b_run= True)
-        except Exception as err:
-            msgError(err)
-            
-    def IsActive(self):
-        if not App.ActiveDocument: return False
-        try:
-            self.RunOrTest(b_run= False)
-            return True
-        except CommandError as err:
-            return False
-        except Exception as err:
-            App.Console.PrintError(repr(err))
-            return True
-            
+            if b_run: Gui.Selection.addSelection(ac)    
+commands.append(CommandLeave())            
 
-if App.GuiUp:
-    Gui.addCommand('PartOMagic_Leave',  CommandLeave())
-def exportedCommands():
-    return ['PartOMagic_Enter', 'PartOMagic_Leave']
+exportedCommands = AACommand.registerCommands(commands)
 

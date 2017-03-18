@@ -170,40 +170,36 @@ def CreatePDShapeFeature(name, add_sub_type= 'Additive'):
 # -------------------------- /common stuff --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
-
-class CommandPDShapeFeature:
-    "Command to create PDShapeFeature feature"
-    def __init__(self, add_sub_type):
-        self.add_sub_type = add_sub_type
-        
+from PartOMagic.Gui.AACommand import AACommand, CommandError
+commands = []
+class CommandPDShapeFeature(AACommand):
+    "Command to create PDShapeFeature feature"        
     def GetResources(self):
-        from PartOMagic.Gui.Utils import getIconPath
         if self.add_sub_type == 'Additive':
-            return {'Pixmap'  : getIconPath('PartOMagic_PDShapeFeature_Additive.svg'),
+            return {'CommandName': 'PartOMagic_PDShapeFeature_Additive',
+                    'Pixmap'  : self.getIconPath('PartOMagic_PDShapeFeature_Additive.svg'),
                     'MenuText': "PartDesign addive shape".format(additive= self.add_sub_type),
                     'Accel': '',
                     'ToolTip': "New PartDesign additive shape container. This allows to insert non-PartDesign things into PartDesign sequence."}
         elif self.add_sub_type == 'Subtractive':
-            return {'Pixmap'  : getIconPath('PartOMagic_PDShapeFeature_Subtractive.svg'),
+            return {'CommandName': 'PartOMagic_PDShapeFeature_Subtractive',
+                    'Pixmap'  : self.getIconPath('PartOMagic_PDShapeFeature_Subtractive.svg'),
                     'MenuText': "PartDesign subtractive shape".format(additive= self.add_sub_type),
                     'Accel': '',
                     'ToolTip': "New PartDesign subtractive shape container. This allows to insert non-PartDesign things into PartDesign sequence."}
         
-    def Activated(self):
-        CreatePDShapeFeature('{Additive}Shape'.format(Additive= self.add_sub_type), self.add_sub_type)
-            
-    def IsActive(self):
+    def RunOrTest(self, b_run):
         from PartOMagic.Base.Containers import activeContainer
         ac = activeContainer()
-        return (ac is not None 
-                and ac.isDerivedFrom("PartDesign::Body")
-                and (ac.Tip is not None or self.add_sub_type == 'Additive'))
+        if ac is None:
+            raise CommandError(self, "No active container!")
+        if not ac.isDerivedFrom('PartDesign::Body'):
+            raise CommandError(self, "Active container is not a PartDesign Body. Please activate a PartDesign Body, first.")
+        if ac.Tip is None and self.add_sub_type != 'Additive':
+            raise CommandError(self, "There is no material to subtract from. Either use additive shape feature instead, or add some material to the body.")
+        if b_run: CreatePDShapeFeature('{Additive}Shape'.format(Additive= self.add_sub_type), self.add_sub_type)
 
-if App.GuiUp:
-    Gui.addCommand('PartOMagic_PDShapeFeature_Additive',  CommandPDShapeFeature('Additive'))
-    Gui.addCommand('PartOMagic_PDShapeFeature_Subtractive',  CommandPDShapeFeature('Subtractive'))
+commands.append(CommandPDShapeFeature(add_sub_type= 'Additive'))
+commands.append(CommandPDShapeFeature(add_sub_type= 'Subtractive'))
 
-# -------------------------- /Gui command --------------------------------------------------
-
-def exportedCommands():
-    return ['PartOMagic_PDShapeFeature_Additive', 'PartOMagic_PDShapeFeature_Subtractive']
+exportedCommands = AACommand.registerCommands(commands)

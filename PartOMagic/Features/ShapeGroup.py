@@ -247,28 +247,21 @@ It is recommended to explicitly stop the observer using `observer.stop()`
 
 # -------------------------- Gui command --------------------------------------------------
 
-class _CommandShapeGroup:
+from PartOMagic.Gui.AACommand import AACommand, CommandError
+commands = []
+class CommandShapeGroup(AACommand):
     "Command to create ShapeGroup feature"
     def GetResources(self):
-        from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath("PartOMagic_ShapeGroup.svg"),
+        return {'CommandName': 'PartOMagic_ShapeGroup',
+                'Pixmap'  : self.getIconPath("PartOMagic_ShapeGroup.svg"),
                 'MenuText': "New ShapeGroup container",
                 'Accel': "",
                 'ToolTip': "New ShapeGroup container. ShapeGroup is like Part Compound or Part Union, but can be activated to receive new objects."}
         
-    def Activated(self):
-        CreateShapeGroup(name = "ShapeGroup")
-            
-    def IsActive(self):
-        if App.ActiveDocument:
-            return True
-        else:
-            return False
-
-if App.GuiUp:
-    Gui.addCommand('PartOMagic_ShapeGroup',  _CommandShapeGroup())
+    def RunOrTest(self, b_run):
+        if b_run: CreateShapeGroup(name = "ShapeGroup")
+commands.append(CommandShapeGroup())
 
 # -------------------------- /Gui command --------------------------------------------------
 
-def exportedCommands():
-    return ['PartOMagic_ShapeGroup']
+exportedCommands = AACommand.registerCommands(commands)

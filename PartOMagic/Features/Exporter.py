@@ -157,24 +157,24 @@ def CreateExporter(name):
 
 # -------------------------- Gui command --------------------------------------------------
 
-class CommandExporter:
+from PartOMagic.Gui.AACommand import AACommand, CommandError
+commands = []
+
+class CommandExporter(AACommand):
     "Command to create Exporter feature"
     def GetResources(self):
-        from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath('Part_Export.svg'),
+        return {'CommandName': 'PartOMagic_Exporter',
+                'Pixmap'  : self.getIconPath('Part_Export.svg'),
                 'MenuText': "Create Export feature",
                 'Accel': '',
                 'ToolTip': "Create Export feature. It can export a given object to a file whenever it changes, or on demand."}
         
-    def Activated(self):
-        CreateExporter('Exporter')
-            
-    def IsActive(self):
-        return len(Gui.Selection.getSelection()) == 1
-
-if App.GuiUp:
-    Gui.addCommand('PartOMagic_Exporter',  CommandExporter())
+    def RunOrTest(self, b_run):
+        if len(Gui.Selection.getSelection()) == 1:
+            if b_run: CreateExporter('Exporter')
+        else:
+            raise CommandError(self, "Creates an exporter feature, which will automatically export an object whenever it changes.\n\nPlease select an object, then invoke this command.")
+commands.append(CommandExporter())
 # -------------------------- /Gui command --------------------------------------------------
 
-def exportedCommands():
-    return ['PartOMagic_Exporter']
+exportedCommands = AACommand.registerCommands(commands)

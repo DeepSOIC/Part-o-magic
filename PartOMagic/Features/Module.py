@@ -3,8 +3,6 @@ if App.GuiUp:
     import FreeCADGui as Gui
 import Part
 
-import PartDesignGui #needed for icon
-
 __title__="Module container"
 __author__ = "DeepSOIC"
 __url__ = ""
@@ -121,29 +119,21 @@ def CreateModule(name):
 # -------------------------- /common stuff --------------------------------------------------
 
 # -------------------------- Gui command --------------------------------------------------
-
-class _CommandModule:
+from PartOMagic.Gui.AACommand import AACommand, CommandError
+commands = []
+class CommandModule(AACommand):
     "Command to create Module feature"
     def GetResources(self):
-        from PartOMagic.Gui.Utils import getIconPath
-        return {'Pixmap'  : getIconPath("PartDesign_Body_Create_New.svg"),
+        import PartDesignGui #needed for icon
+        return {'CommandName': 'PartOMagic_Module',
+                'Pixmap'  : self.getIconPath("PartDesign_Body_Create_New.svg"),
                 'MenuText': "New Module container",
                 'Accel': "",
                 'ToolTip': "New Module container. Module is like PartDesign Body, but for Part workbench and friends."}
         
-    def Activated(self):
-        CreateModule(name = "Module")
-            
-    def IsActive(self):
-        if App.ActiveDocument:
-            return True
-        else:
-            return False
-
-if App.GuiUp:
-    Gui.addCommand('PartOMagic_Module',  _CommandModule())
-
+    def RunOrTest(self, b_run):
+        if b_run: CreateModule(name = "Module")
+commands.append(CommandModule())
 # -------------------------- /Gui command --------------------------------------------------
 
-def exportedCommands():
-    return ['PartOMagic_Module']
+exportedCommands = AACommand.registerCommands(commands)
