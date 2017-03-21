@@ -4,11 +4,13 @@ print("loading Tools")
 __all__ = [
 "LeaveEnter",
 "Tip",
+"MorphContainer",
 ]
 
 def importAll():
     from . import LeaveEnter
     from . import Tip
+    from . import MorphContainer
 
 def reloadAll():
     for modstr in __all__:

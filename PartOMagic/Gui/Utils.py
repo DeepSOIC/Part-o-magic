@@ -43,3 +43,56 @@ def screen(feature):
         return feature
     feature = getattr(feature.Document, feature.Name)
     return feature
+
+from Show.FrozenClass import FrozenClass
+class DelayedExecute(FrozenClass):
+    "DelayedExecuter(func, timeout = 30): sets up a timer, executes func, and self-destructs."
+    def defineAttributes(self):
+        self.func = None # function to run
+        self.timer = None # the timer
+        self.self = None #self-reference, to keep self alive until timer fires
+        self.delay = 0 # not really needed, for convenience/debug
+        self.is_done = False
+
+        self._freeze()
+
+    def __init__(self, func, delay= 30):
+        self.defineAttributes()
+        self.func = func
+        self.delay = delay
+        from PySide import QtCore
+        timer = QtCore.QTimer(); self.timer = timer
+        timer.setInterval(delay)
+        timer.setSingleShot(True)
+        timer.connect(QtCore.SIGNAL("timeout()"), self.timeout)
+        timer.start()
+        self.self = self
+        self.is_done = False
+        
+    def timeout(self):
+        self.timer = None
+        self.self = None
+        try:
+            self.func()
+        except Exception as err:
+            import FreeCAD as App
+            App.Console.PrintError("DelayedExecuter: running the routine failed with an error: {err}".format(err.message))
+        self.is_done = True
+
+class Transaction(object):
+    def __init__(self, title, doc= None):
+        if doc is None:
+            import FreeCAD as App
+            doc = App.ActiveDocument
+        self.title = title
+        self.document = doc
+        
+    def __enter__(self):
+        self.document.openTransaction(self.title)
+    
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if exc_value is None:
+            self.document.commitTransaction()
+        else:
+            self.document.abortTransaction()
+            
