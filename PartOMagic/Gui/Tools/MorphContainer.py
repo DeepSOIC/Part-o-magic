@@ -135,6 +135,12 @@ class CommandMorphContainer(AACommand):
                 'ToolTip': "Morph container (change container type). Select the container to be morphed, then invoke this tool, then create a container of new type."}
         
     def RunOrTest(self, b_run):
+        # outline.
+        # 0. user click calls Activated().
+        # 1. set up self.waiter, which waits for new object to be created
+        # 2. waiter calls Activated() of this command, and knows what object was created
+        # 3. command removes waiter, and calls morphContainer
+        
         if self.waiter is not None:
             if self.waiter.is_done:
                 waiter = self.waiter
@@ -145,6 +151,7 @@ class CommandMorphContainer(AACommand):
                 if pomObserver.isRunning():
                     pomObserver.observerInstance.poll()
                     
+                #check
                 if not Containers.isContainer(waiter.target_container): 
                     raise CommandError(self, "You created {obj}, which isn't a container. Can't morph {src} into {objt}. Morphing canceled."
                                               .format(obj= waiter.target_container, 
@@ -157,6 +164,7 @@ class CommandMorphContainer(AACommand):
                 if waiter.target_container in Containers.getContainerChain(ac)+[ac]:
                     pomObserver.activateContainer(Containers.getContainer(waiter.target_container))
                 
+                # do it!
                 with Transaction("Morph container"):
                     morphContainer(waiter.source_container, waiter.target_container)
                 return
