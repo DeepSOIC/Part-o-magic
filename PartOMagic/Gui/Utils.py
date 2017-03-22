@@ -74,10 +74,8 @@ class DelayedExecute(FrozenClass):
         self.self = None
         try:
             self.func()
-        except Exception as err:
-            import FreeCAD as App
-            App.Console.PrintError("DelayedExecuter: running the routine failed with an error: {err}".format(err.message))
-        self.is_done = True
+        finally:
+            self.is_done = True
 
 class Transaction(object):
     def __init__(self, title, doc= None):

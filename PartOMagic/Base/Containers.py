@@ -110,11 +110,18 @@ def isContainer(obj):
         return True
     if obj.hasExtension('App::OriginGroupExtension'):
         return True
-    #if obj.hasExtension('App::GroupExtension'):
-    #    return True  # as of now, groups cannot be treated like containers.
+    if obj.hasExtension('App::GroupExtension'):
+        return True  # experimental...
     if obj.isDerivedFrom('App::Origin'):
         return True
     return False
+
+def canBeActive(obj):
+    if not isContainer(obj):
+        return False
+    if obj.isDerivedFrom('App::Origin'):
+        return False
+    return True
 
 def isMovableContainer(obj):
     '''isMovableContainer(obj): reuturns if obj is a movable container, that 
