@@ -25,10 +25,9 @@ class GroupCommand(object):
     def IsActive(self): # optional
         return True
 
-import PartDesignGui # for 'PartDesign_Part' to work
 Gui.addCommand('PartOMagic_Collection1',
  GroupCommand(
-    list_of_commands= ['PartDesign_Part']+myFeatures.exportedCommands() + ['PartOMagic_SetTip'],
+    list_of_commands= myFeatures.exportedCommands() + ['PartOMagic_SetTip'],
     menu_text= "PartOMagic collection 1",
     tooltip= ""
    )

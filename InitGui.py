@@ -49,10 +49,7 @@ class PartOMagicWorkbench (Workbench):
         
         self.appendMenu('Part-o-Magic', ["Separator"])
         
-        import PartDesignGui #needed for the command
-        
-        cmdsNewContainers = ([]
-            + ["PartDesign_Part"]            
+        cmdsNewContainers = ([]  
             + POM.Features.exportedCommands()
             + POM.Features.PartDesign.exportedCommands()
         )
