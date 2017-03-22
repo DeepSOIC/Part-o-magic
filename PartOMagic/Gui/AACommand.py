@@ -66,6 +66,11 @@ class CommandError(Exception):
         except Exception as err:
             self.title = "<ERROR READING OUT MenuText>"
         self.message = message
+        self.show_msg_on_delete = True
+    
+    def __del__(self):
+        if self.show_msg_on_delete:
+            msgError(self)
         
 registeredCommands = {} #dict, key = command name, value = instance of command
 
@@ -121,8 +126,11 @@ class AACommand(object):
         # you generally shouldn't override this. Override RunOrTest instead.
         try:
             self.RunOrTest(b_run= True)
+        except CommandError as err:
+            pass
         except Exception as err:
             msgError(err)
+            raise
             
     def IsActive(self):
         # you generally shouldn't override this. Override RunOrTest instead.
@@ -132,6 +140,7 @@ class AACommand(object):
             self.RunOrTest(b_run= False)
             return True
         except CommandError as err:
+            err.show_msg_on_delete = False
             return False
         except Exception as err:
             App.Console.PrintError(repr(err))
