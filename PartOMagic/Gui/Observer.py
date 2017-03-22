@@ -322,6 +322,7 @@ class Observer(FrozenClass):
         tv = TempoVis(cnt.Document)
         self.TVs[key] = tv
         list_hiding = [o for o in GT.getDirectChildren(GT.getContainer(cnt)) if not o is cnt]
+        list_hiding = [o for o in list_hiding if not o.isDerivedFrom('App::DocumentObjectGroup')] # don't touch visibility of groups just yet...
         tv.hide(list_hiding)
         tv.show(cnt)
         for obj in list_hiding:
