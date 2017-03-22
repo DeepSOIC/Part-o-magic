@@ -60,6 +60,7 @@ def morphContainer(src_container, dst_container):
         'Origin',
         'ExpressionEngine',
         'Tip',
+        'Label',
         #.. and these should never be copied at all
         'ExtensionProxy',
         'Proxy',
@@ -67,11 +68,13 @@ def morphContainer(src_container, dst_container):
     
     properties_to_copy = []
     for prop in src_container.PropertiesList:
-        if len(src_container.getEditorMode(prop))>0: # screen out read-only and hidden properties
+        if len(src_container.getEditorMode(prop)) == 0: # screen out read-only and hidden properties
             if not prop in properties_to_avoid:
                 properties_to_copy.append(prop)
     
+    print("copying properties")
     for prop in properties_to_copy:
+        print("  "+prop)
         copyProperty(src_container, dst_container, prop)
         
     #Copy expressions
@@ -82,8 +85,15 @@ def morphContainer(src_container, dst_container):
     substituteObjectInProperties(src_container, dst_container, doc.Objects)
     substituteObjectInExpressions(src_container, dst_container, doc.Objects)
     
+    label = src_container.Label
+    label = label.replace(src_container.Name, dst_container.Name)
+        
+    
     Containers.withdrawObject(src_container)
     doc.removeObject(src_container.Name)
+    
+    #copy Label last, because otherwise it gets "001" at the end...
+    dst_container.Label = label
     
 def copyProperty(src, dst, prop):
     if hasattr(dst, prop):
