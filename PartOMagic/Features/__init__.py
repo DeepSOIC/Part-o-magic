@@ -2,7 +2,7 @@ print("loading Features")
 
 
 __all__ = [
-"Part",
+"PartContainer",
 "Module",
 "ShapeGroup",
 "ShapeBinder",
@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 def importAll():
-    from . import Part
+    from . import PartContainer
     from . import Module
     from . import ShapeGroup
     from . import ShapeBinder
