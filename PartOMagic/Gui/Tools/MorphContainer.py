@@ -84,10 +84,10 @@ def morphContainer(src_container, dst_container):
     #redirect links
     substituteObjectInProperties(src_container, dst_container, doc.Objects)
     substituteObjectInExpressions(src_container, dst_container, doc.Objects)
+    substituteObjectInSpreadsheets(src_container, dst_container, doc.Objects)
     
     label = src_container.Label
     label = label.replace(src_container.Name, dst_container.Name)
-        
     
     Containers.withdrawObject(src_container)
     doc.removeObject(src_container.Name)
@@ -142,53 +142,86 @@ def substituteObjectInProperties(orig, new, within):
                 
 
 def substituteObjectInExpressions(orig, new, within):
-    #FIXME: special case spreadsheet handling
     if hasattr(within, "isDerivedFrom") :
         within = [within]
     print("replacing {orig} with {new} within expressions in {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
-    namechars = [chr(c) for c in range(ord('a'), ord('z')+1)]
-    namechars += [chr(c) for c in range(ord('A'), ord('Z')+1)]
-    namechars += [chr(c) for c in range(ord('0'), ord('9')+1)]
-    namechars += ['_']
-    namechars = set(namechars)
-    orig_name = orig.Name
     for obj in within:
         for prop, expr in obj.ExpressionEngine:
             oldexpr = expr
-            i = len(expr)
-            n = len(orig_name)
-            valchanged = False
-            while True:
-                i = expr.rfind(orig_name, 0,i)
-                if i == -1:
-                    break
-                
-                #match found, but that can be a match inside of a different name. Test if characters around are non-naming.
-                match = True
-                if i > 0:
-                    if expr[i-1] in namechars:
-                        match = False
-                if i+n < len(expr):
-                    if expr[i+n] in namechars:
-                        match = False
-                
-                #replace it
-                if match:
-                    valchanged = True
-                    expr = expr[0:i] + new.Name + expr[i+n : ]
-            
-            if valchanged:
+            newexpr = replaceNameInExpression(expr, orig.Name, new.Name)
+            if newexpr is not None:
                 print("  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
                       .format(obj= obj.Name,
                               prop= prop,
                               oldexpr= oldexpr,
-                              newexpr= expr))
+                              newexpr= newexpr))
                 try:
-                    obj.setExpression(prop, expr)
+                    obj.setExpression(prop, newexpr)
                 except Exception as err:
                     App.Console.PrintError(err.message+'\n')
 
-    
+def substituteObjectInSpreadsheets(orig, new, within):
+    if hasattr(within, "isDerivedFrom") :
+        within = [within]
+    within = [obj for obj in within if obj.isDerivedFrom('Spreadsheet::Sheet')]
+    print("replacing {orig} with {new} within expressions in {n} spreadsheets...".format(orig= orig.Name, new= new.Name, n= len(within)))
+    for obj in within:
+        for prop in obj.PropertiesList:
+            try:
+                expr = obj.getContents(prop) #raises ValueError if not a cell
+                if not expr.startswith('='): raise ValueError()
+            except ValueError:
+                continue
+            oldexpr = expr
+            newexpr = replaceNameInExpression(expr, orig.Name, new.Name)
+            if newexpr is not None:
+                print("  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
+                      .format(obj= obj.Name,
+                              prop= prop,
+                              oldexpr= oldexpr,
+                              newexpr= newexpr))
+                try:
+                    obj.set(prop, newexpr)
+                except Exception as err:
+                    App.Console.PrintError(err.message+'\n')
+
+def replaceNameInExpression(expr, old_name, new_name):
+    'If not found, returns None. If replaced, returns new expression.'
+    global namechars
+    if not "namechars" in vars():
+        namechars = [chr(c) for c in range(ord('a'), ord('z')+1)]
+        namechars += [chr(c) for c in range(ord('A'), ord('Z')+1)]
+        namechars += [chr(c) for c in range(ord('0'), ord('9')+1)]
+        namechars += ['_']
+        namechars = set(namechars)
+
+    valchanged = False
+    n = len(old_name)
+    i = len(expr)
+    while True:
+        i = expr.rfind(old_name, 0,i)
+        if i == -1:
+            break
+        
+        #match found, but that can be a match inside of a different name. Test if characters around are non-naming.
+        match = True
+        if i > 0:
+            if expr[i-1] in namechars:
+                match = False
+        if i+n < len(expr):
+            if expr[i+n] in namechars:
+                match = False
+        
+        #replace it
+        if match:
+            valchanged = True
+            expr = expr[0:i] + new_name + expr[i+n : ]
+    if valchanged:
+        return expr
+    else:
+        return None
+
+
 from Show.FrozenClass import FrozenClass
 class WaitForNewContainer(FrozenClass):
     """WaitForNewContainer(command, source_container): waits for new object to be added to document. 
