@@ -95,6 +95,8 @@ class Observer(FrozenClass):
         self.editing = {} # last seen object in edit. Dict: key is document name, value is documentobject.
         self.edit_TVs = {} #key is document name, value is a tempovis associated with the feature being edited
         
+        self.expandedness = {} #last seen expand state of objects. Dict: key = (document name, feature name), value = boolean
+        
         self._freeze()
         
     def __init__(self):
@@ -236,6 +238,7 @@ class Observer(FrozenClass):
             return # happens when editing a spreadsheet
             
         self.trackActiveContainer()
+        self.trackExpands()
         self.trackSaves()
         self.trackEditing()
         
@@ -306,7 +309,20 @@ class Observer(FrozenClass):
                 self.slotFinishEditing(last_in_edit)
             if cur_in_edit is not None:
                 self.slotStartEditing(cur_in_edit)
-        
+    
+    def trackExpands(self):
+        docname = App.ActiveDocument.Name
+        for obj in App.ActiveDocument.Objects:
+            objname = obj.Name
+            key = (docname, objname)
+            curstate = 'Expanded' in obj.State
+            oldstate = self.expandedness.get(key, False)
+            if curstate != oldstate:
+                self.expandedness[key] = curstate
+                if GT.isContainer(obj):
+                    gc = GenericContainer(obj)
+                    gc.ViewObject.call(gc.ViewObject.expandednessChanged, oldstate, curstate)
+    
     # functions
     
     def enterContainer(self, cnt):

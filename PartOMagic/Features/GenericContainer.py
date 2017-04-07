@@ -1,3 +1,4 @@
+from PartOMagic.Base import Containers
 
 class GenericContainer(object):
     "Implements default behavior of containers in PoM (mostly aimed at C++ ones)"
@@ -40,6 +41,12 @@ class ViewProviderGenericContainer(object):
         #        +1 = entering (active container was outside, new active container is inside)
         self.call(self.doDisplayModeAutomation, old_active_container, new_active_container, event)
         self.call(self.doTreeAutomation, old_active_container, new_active_container, event)
+    
+    def expandednessChanged(self, old_state, new_state):
+        ac = Containers.activeContainer()
+        activeChain = Containers.getContainerChain(ac)+[ac]
+        self.call(self.doDisplayModeAutomation, ac, ac, +1 if new_state == True else (0 if self.selfobj in activeChain else -1))
+            
             
     def doDisplayModeAutomation(self, old_active_container, new_active_cntainer, event):
         # event: -1 = show public stuff
