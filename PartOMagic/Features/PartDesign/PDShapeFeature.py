@@ -9,36 +9,8 @@ __url__ = ""
 
 print("loading PDShapeFeature")
 
-def transformCopy(shape, extra_placement = None):
-    """transformCopy(shape, extra_placement = None): creates a deep copy shape with shape's placement applied to 
-    the subelements (the placement of returned shape is zero)."""
-    
-    if extra_placement is None:
-        extra_placement = App.Placement()
-    ret = shape.copy()
-    if ret.ShapeType == "Vertex":
-        # oddly, on Vertex, transformShape behaves strangely. So we'll create a new vertex instead.
-        ret = Part.Vertex(extra_placement.multVec(ret.Point))
-    else:
-        ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix(), True)
-        ret.Placement = App.Placement() #reset placement
-    return ret
-    
-def PlacementsFuzzyCompare(plm1, plm2):
-    pos_eq = (plm1.Base - plm2.Base).Length < 1e-7   # 1e-7 is OCC's Precision::Confusion
-    
-    q1 = plm1.Rotation.Q
-    q2 = plm2.Rotation.Q
-    # rotations are equal if q1 == q2 or q1 == -q2. 
-    # Invert one of Q's if their scalar product is negative, before comparison.
-    if q1[0]*q2[0] + q1[1]*q2[1] + q1[2]*q2[2] + q1[3]*q2[3] < 0:
-        q2 = [-v for v in q2]
-    rot_eq = (  abs(q1[0]-q2[0]) + 
-                abs(q1[1]-q2[1]) + 
-                abs(q1[2]-q2[2]) + 
-                abs(q1[3]-q2[3])  ) < 1e-12   # 1e-12 is OCC's Precision::Angular (in radians)
-    return pos_eq and rot_eq
-
+from PartOMagic.Base.Utils import transformCopy, shallowCopy
+from PartOMagic.Base.Utils import PlacementsFuzzyCompare
 
 def makePDShapeFeature(name):
     '''makePDShapeFeature(name): makes a PDShapeFeature object.'''
@@ -57,12 +29,14 @@ class PDShapeFeature:
         obj.addProperty('Part::PropertyPartShape', 'AddSubShape', "PartDesign", "Shape that forms the feature") #TODO: expose PartDesign::AddSub, and use it, instead of mimicking it
         obj.AddSubType = ['Additive', 'Subtractive']
         
+        obj.setEditorMode('Placement', 0) #non-readonly non-hidden
+        
         obj.Proxy = self
         
 
     def execute(self,selfobj):
         import Part
-        selfobj.AddSubShape = selfobj.Tip.Shape
+        selfobj.AddSubShape = shallowCopy(selfobj.Tip.Shape, selfobj.Placement)
         base_feature = selfobj.BaseFeature
         result_shape = None
         if selfobj.AddSubType == 'Additive':

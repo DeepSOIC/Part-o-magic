@@ -9,21 +9,7 @@ __url__ = ""
 
 print("loading Module")
 
-def transformCopy(shape, extra_placement = None):
-    """transformCopy(shape, extra_placement = None): creates a deep copy shape with shape's placement applied to 
-    the subelements (the placement of returned shape is zero)."""
-    
-    if extra_placement is None:
-        extra_placement = App.Placement()
-    ret = shape.copy()
-    if ret.ShapeType == "Vertex":
-        # oddly, on Vertex, transformShape behaves strangely. So we'll create a new vertex instead.
-        ret = Part.Vertex(extra_placement.multVec(ret.Point))
-    else:
-        ret.transformShape(extra_placement.multiply(ret.Placement).toMatrix(), True)
-        ret.Placement = App.Placement() #reset placement
-    return ret
-
+from PartOMagic.Base.Utils import transformCopy_Smart
 
 def makeModule(name):
     '''makeModule(name): makes a Module object.'''
@@ -45,7 +31,7 @@ class _Module:
     def execute(self,selfobj):
         from PartOMagic.Gui.Utils import screen
         if selfobj.Tip is not None:
-            selfobj.Shape = transformCopy(screen(selfobj.Tip).Shape)
+            selfobj.Shape = transformCopy_Smart(screen(selfobj.Tip).Shape, selfobj.Placement)
         else:
             selfobj.Shape = Part.Shape()
             
