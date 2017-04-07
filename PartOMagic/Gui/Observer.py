@@ -1,5 +1,6 @@
 from PartOMagic.Base import Containers as GT
 from PartOMagic.Base.Containers import activeContainer, setActiveContainer
+from PartOMagic.Features.GenericContainer import GenericContainer
 import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Gui.TempoVis import TempoVis
@@ -182,17 +183,15 @@ class Observer(FrozenClass):
         chain_from, chain_to = GT.getContainerRelativePath(oldContainer, newContainer)
         for cnt in chain_from[::-1]:
             try:
-                cnt.ViewObject.Proxy.activationChanged(cnt.ViewObject, oldContainer, newContainer, event= -1)
-            except AttributeError:
-                pass
+                gc = GenericContainer(cnt)
+                gc.ViewObject.call(gc.ViewObject.activationChanged, oldContainer, newContainer, event= -1)
             except Exception as err:
                 App.Console.PrintError("Error deactivating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
             self.leaveContainer(cnt)
         for cnt in chain_to:
             try:
-                cnt.ViewObject.Proxy.activationChanged(cnt.ViewObject, oldContainer, newContainer, event= +1)
-            except AttributeError:
-                pass
+                gc = GenericContainer(cnt)
+                gc.ViewObject.call(gc.ViewObject.activationChanged, oldContainer, newContainer, event= +1)
             except Exception as err:
                 App.Console.PrintError("Error activating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
             self.enterContainer(cnt)
@@ -325,9 +324,6 @@ class Observer(FrozenClass):
         list_hiding = [o for o in list_hiding if not o.isDerivedFrom('App::DocumentObjectGroup')] # don't touch visibility of groups just yet...
         tv.hide(list_hiding)
         tv.show(cnt)
-        for obj in list_hiding:
-            Gui.ActiveDocument.toggleTreeItem(obj, 1) #collapse
-        Gui.ActiveDocument.toggleTreeItem(cnt, 2) #expand
         
     def leaveContainer(self, cnt):
         print "leaving "+cnt.Name
@@ -337,7 +333,6 @@ class Observer(FrozenClass):
         tv.restore()
         tv.forget()
         self.TVs.pop(key)
-        Gui.ActiveDocument.toggleTreeItem(cnt, 1) #collapse
         
     def updateVPs(self):
         '''updates many viewprovider properties (except visibility, which is handled by TempoVis objets)'''
@@ -354,13 +349,6 @@ class Observer(FrozenClass):
             if hasattr(o.ViewObject, "Selectable"):
                 o.ViewObject.Selectable = True
         
-        active_chain = GT.getContainerChain(ac) + [ac]
-        for o in App.ActiveDocument.findObjects("Part::BodyBase"):
-            dm = "Through" if o in active_chain else "Tip"
-            if o.ViewObject.DisplayModeBody != dm: # check if actual change needed, to avoid potential slowdown
-                o.ViewObject.DisplayModeBody = dm
-                o.ViewObject.Visibility = o.ViewObject.Visibility #workaround for bug: http://forum.freecadweb.org/viewtopic.php?f=3&t=15845
-                
         for o in App.ActiveDocument.findObjects("App::Origin"):
             o.ViewObject.Visibility = GT.getContainer(o) is ac
 if not "observerInstance" in globals():

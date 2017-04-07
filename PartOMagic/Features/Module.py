@@ -76,9 +76,9 @@ class _ViewProviderModule:
             Gui.Selection.clearSelection()
         return True
     
-    def activationChanged(self, vobj, old_active_container, new_active_container, event):
-        # event: -1 = leaving (active container was self or another container inside, new container is outside)
-        #        +1 = entering (active container was outside, new active container is inside)
+    def doDisplayModeAutomation(self, vobj, old_active_container, new_active_container, event):
+        # event: -1 = show public stuff
+        #        +1 = show private stuff
         if event == +1:
             self.oldMode = vobj.DisplayMode
             vobj.DisplayMode = 'Group'
