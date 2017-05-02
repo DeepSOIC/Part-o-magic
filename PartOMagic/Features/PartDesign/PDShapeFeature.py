@@ -132,7 +132,8 @@ def CreatePDShapeFeature(name, add_sub_type= 'Additive'):
     Gui.addModule('PartOMagic.Features.PDShapeFeature')
     Gui.doCommand('body = PartOMagic.Base.Containers.activeContainer()')
     Gui.doCommand('f = PartOMagic.Features.PDShapeFeature.makePDShapeFeature(name = {name})'.format(name= repr(name)))
-    Gui.doCommand('PartOMagic.Base.Containers.addObjectTo(body, f)')
+    if not hasattr(App, 'ActiveContainer'):
+        Gui.doCommand('PartOMagic.Base.Containers.addObjectTo(body, f)')
     Gui.doCommand('if f.BaseFeature:\n'
                   '    f.BaseFeature.ViewObject.hide()')
     Gui.doCommand('f.AddSubType = {t}'.format(t= repr(add_sub_type)))

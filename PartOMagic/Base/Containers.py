@@ -14,6 +14,9 @@ def activeContainer():
     import FreeCAD as App
     import FreeCADGui as Gui
     
+    if hasattr(App, "ActiveContainer"):
+        return App.ActiveContainer.Object
+    
     if Gui.ActiveDocument is None:
         return None
     activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
@@ -32,6 +35,10 @@ def setActiveContainer(cnt):
     
     import FreeCAD as App
     import FreeCADGui as Gui
+    
+    if hasattr(App, "ActiveContainer"):
+        App.setActiveContainer(cnt)
+        return
 
     if not isContainer(cnt):
         raise NotAContainerError("Can't make '{feat}' active as container, because it's not a container (or an unknown type of container)."

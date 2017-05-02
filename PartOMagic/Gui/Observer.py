@@ -41,15 +41,14 @@ def test_exclude(feature, active_workbench):
     return False
     
 def addObjectTo(container, feature):
-    #if container.isDerivedFrom("PartDesign::Body"):
-    #    #Part-o-magic is not supposed add stuff to PartDesign bodies, as it is managed by PartDesign.
-    #    tmp = container
-    #    container = getPartOf(container)
-    #    msgbox("Part-o-magic","Cannot add the new object of type {typ} to {body}, because bodies accept only PartDesign features. Feature added to {cnt} instead."
-    #                          .format(body= tmp.Label, cnt= container.Label, typ= feature.TypeId))
+    if hasattr(App, 'ActiveContainer'):
+        # New FreeCAD. Feature is added to the container automatically. All that's left to do is call advanceTip().
+        gc = GenericContainer(container)
+        gc.call(gc.advanceTip, feature)
+        return
 
     if container.isDerivedFrom("App::Document"):
-        return #nothing to do... This is to avoid reopening edit.
+        return 
     
     # close editing before addition.
     #  Adding to container while editing causes editing to close anyway. But we want do do 
