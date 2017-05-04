@@ -274,7 +274,8 @@ class Observer(FrozenClass):
             if new_ac is None:
                 new_ac = App.ActiveDocument
             if new_ac is not last_ac: #unlikely it is false, since we have detected a change....
-                setActiveContainer(new_ac)
+                if not hasattr(App, 'ActiveContainer'):
+                    setActiveContainer(new_ac)
                 ac = activeContainer()
                 assert(ac is new_ac)
 
