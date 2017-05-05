@@ -13,8 +13,8 @@ def CreateInstance():
             objname = obj.Name
             reprname = repr(obj.Name + '_i000')
             Gui.doCommand("f = App.ActiveDocument.addObject('App::Link',{reprname})\n"
-                          "f.Source = App.ActiveDocument.{objname}\n".format(**vars()))
-            Gui.doCommand("f.Label = 'instance{num} of {obj}'.format(num= f.Name[-3:], obj= f.Source.Label)")
+                          "f.LinkedObject = App.ActiveDocument.{objname}\n".format(**vars()))
+            Gui.doCommand("f.Label = 'instance{num} of {obj}'.format(num= f.Name[-3:], obj= f.LinkedObject.Label)")
     Gui.doCommand("Gui.Selection.clearSelection()")
 
 
