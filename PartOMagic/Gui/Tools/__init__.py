@@ -5,12 +5,14 @@ __all__ = [
 "LeaveEnter",
 "Tip",
 "MorphContainer",
+"TransferObject",
 ]
 
 def importAll():
     from . import LeaveEnter
     from . import Tip
     from . import MorphContainer
+    from . import TransferObject
 
 def reloadAll():
     for modstr in __all__:
