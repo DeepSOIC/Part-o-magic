@@ -78,6 +78,7 @@ class DelayedExecute(FrozenClass):
             self.is_done = True
 
 class Transaction(object):
+    """Transaction object is to be used in a 'with' block. If an error is thrown in the with block, the transaction is undone automatically."""
     def __init__(self, title, doc= None):
         if doc is None:
             import FreeCAD as App
