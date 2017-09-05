@@ -31,6 +31,22 @@ from FrozenClass import FrozenClass # from 'Show' module
 
 from PartOMagic.Base.Containers import getAllDependencies, getAllDependent, isContainer
 
+def is_in_3Dview(obj):
+    """tests if the object has some 3d view representation"""
+    try:
+        viewprovider = obj.ViewObject
+        from pivy import coin
+        sa = coin.SoSearchAction()
+        sa.setType(coin.SoSwitch.getClassTypeId())
+        sa.traverse(viewprovider.RootNode)
+        if not (sa.isFound() and sa.getPath().getLength() == 1):
+            return False
+        n = sa.getPath().getTail().getNumChildren()
+        return n > 0
+    except Exception as err:
+        App.Console.PrintWarning("Show.TempoVis.isIn3DView error: {err}".format(err= str(err)))
+        return True #assume.
+
 class TempoVis(FrozenClass):
     '''TempoVis - helper object to save visibilities of objects before doing
     some GUI editing, hiding or showing relevant stuff during edit, and
@@ -67,7 +83,13 @@ class TempoVis(FrozenClass):
         if App.GuiUp:
             if not hasattr(doc_obj_or_list, '__iter__'):
                 doc_obj_or_list = [doc_obj_or_list]
+            
             for doc_obj in doc_obj_or_list:
+                
+                # assume that visibility automation is only needed for objects in 3d view. 
+                # See "Gui Problem Sketcher and TechDraw" https://forum.freecadweb.org/viewtopic.php?f=3&t=22797
+                if not is_in_3Dview(doc_obj): continue
+                
                 if not hasattr(doc_obj.ViewObject, prop_name):
                     App.Console.PrintWarning("TempoVis: object {obj} has no attribute {attr}. Skipped.\n"
                                              .format(obj= doc_obj.Name, attr= prop_name))
@@ -89,9 +111,14 @@ class TempoVis(FrozenClass):
         '''hide(doc_obj_or_list): hides objects (sets their Visibility to False). doc_obj_or_list can be a document object, or a list of document objects'''
         self.modifyVPProperty(doc_obj_or_list, "Visibility", False)
 
+    def get_all_dependent(self, object):
+        "in Part-o-magic: hack to make Sketcher happy"
+        deps = getAllDependent(object)
+        return [o for o in deps if not isContainer(o)]
+        
     def hide_all_dependent(self, doc_obj):
         '''hide_all_dependent(doc_obj): hides all objects that depend on doc_obj. Groups, Parts and Bodies are not hidden by this.'''
-        self.hide( [o for o in getAllDependent(doc_obj) if not isContainer(o)])
+        self.hide( [o for o in self.getAllDependent(doc_obj) if not isContainer(o)])
 
     def show_all_dependent(self, doc_obj):
         '''show_all_dependent(doc_obj): shows all objects that depend on doc_obj. This method is probably useless.'''
@@ -238,4 +265,3 @@ class TempoVis(FrozenClass):
                 App.Console.PrintWarning("TempoVis: failed to restore pickability of {obj}. {err}\n"
                                          .format(err= err.message,
                                                  obj= obj_name))
-    
