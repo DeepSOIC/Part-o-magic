@@ -55,6 +55,7 @@ and make exportedCommands() function at the same time.
 print("loading AACommand")
 
 import FreeCAD as App
+from PartOMagic.Base.Containers import NoActiveContainerError
 
 from PartOMagic.Gui.Utils import msgError
 
@@ -141,6 +142,9 @@ class AACommand(object):
             return True
         except CommandError as err:
             err.show_msg_on_delete = False
+            return False
+        except NoActiveContainerError as err:
+            #handling these to prevent error train in report view, when in spreadsheet for example
             return False
         except Exception as err:
             App.Console.PrintError(repr(err))

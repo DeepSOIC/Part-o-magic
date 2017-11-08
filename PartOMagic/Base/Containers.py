@@ -19,6 +19,8 @@ def activeContainer():
     
     if Gui.ActiveDocument is None:
         return None
+    if Gui.ActiveDocument.ActiveView is None:
+        raise NoActiveContainerError("ActiveDocument is not none, but viewer is None. Can't determine active container.")
     activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
     activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
     if activeBody:
@@ -346,4 +348,8 @@ class ContainerUnsupportedError(ContainerError):
 class NotAContainerError(ContainerError):
     pass
 class SpecialChildError(ContainerError): # happens when attempting to withdraw origin from container
+    pass
+class GuiContainerError(ValueError):
+    pass
+class NoActiveContainerError(GuiContainerError): #raised by activeContainer if in spreadsheet or drawing sheet is active
     pass
