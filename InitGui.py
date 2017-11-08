@@ -4,16 +4,17 @@ import FreeCAD as App
 import PartOMagic.Base.Parameters as Params
 
 if Params.EnablePartOMagic.get():
-    rev_number = int(App.Version()[2].split(" ")[0])
-    if rev_number >= 9933:
+    import PartOMagic.Base.Compatibility as compat
+    try:
+        compat.check_POM_compatible()
         import PartOMagic
         PartOMagic.importAll()
         Gui.addModule("PartOMagic")
         if Params.EnableObserver.get():
             PartOMagic.Gui.Observer.start()
-    else:
+    except CompatibilityError as err:
         Params.EnablePartOMagic.set_volatile(False)
-        App.Console.PrintError("Part-o-magic requires FreeCAD at least v0.17.9933. Yours appears to have a rev.{rev}, which is less. Part-o-magic is disabled.\n".format(rev= str(rev_number)))
+        App.Console.PrintError("Part-o-magic is disabled.\n    {err}".format(err= str(err)))
 
 if Params.EnablePartOMagic.get():
     # substitute TempoVis's isContainer with a more modern one

@@ -86,6 +86,19 @@ class ShapeGroup:
         if new_tip == old_tip: return
         print("advanceTip write")
         selfobj.Tip = new_tip
+
+    def onDocumentRestored(self, selfobj):
+        import PartOMagic.Base.Compatibility as compat
+        if compat.scoped_links_are_supported():
+            #check that Tip is scoped properly. Recreate the property if not.
+            if not 'Child' in selfobj.getTypeIdOfProperty('Tip'):
+                v = selfobj.Tip
+                t = selfobj.getTypeIdOfProperty('Tip')
+                g = selfobj.getGroupOfProperty('Tip')
+                d = selfobj.getDocumentationOfProperty('Tip')
+                selfobj.removeProperty('Tip')
+                selfobj.addProperty(t+'Child','Tip', g, d)
+                selfobj.Tip = v
         
 class ViewProviderShapeGroup:
     "A View Provider for the ShapeGroup object"

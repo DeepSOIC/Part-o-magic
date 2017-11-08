@@ -22,16 +22,15 @@ class _Module:
     "The Module object"
     def __init__(self,obj):
         self.Type = "Module"
-        obj.addExtension("App::OriginGroupExtensionPython", self)
+        obj.addExtension('App::OriginGroupExtensionPython', self)
         try:
-            obj.addProperty("App::PropertyLinkChild","Tip","Module","Object to be exposed to the outside")
+            obj.addProperty('App::PropertyLinkChild','Tip',"Module","Object to be exposed to the outside")
         except Exception:
             #for older FC
-            obj.addProperty("App::PropertyLink","Tip","Module","Object to be exposed to the outside") 
+            obj.addProperty('App::PropertyLink','Tip',"Module","Object to be exposed to the outside") 
         
         obj.Proxy = self
         
-
     def execute(self,selfobj):
         from PartOMagic.Gui.Utils import screen
         if selfobj.Tip is not None:
@@ -54,6 +53,19 @@ class _Module:
         if new_tip.Name.startswith("Clone"): return
         if new_tip.Name.startswith("ShapeBinder"): return
         selfobj.Tip = new_tip
+        
+    def onDocumentRestored(self, selfobj):
+        import PartOMagic.Base.Compatibility as compat
+        if compat.scoped_links_are_supported():
+            #check that Tip is scoped properly. Recreate the property if not.
+            if not 'Child' in selfobj.getTypeIdOfProperty('Tip'):
+                v = selfobj.Tip
+                t = selfobj.getTypeIdOfProperty('Tip')
+                g = selfobj.getGroupOfProperty('Tip')
+                d = selfobj.getDocumentationOfProperty('Tip')
+                selfobj.removeProperty('Tip')
+                selfobj.addProperty(t+'Child','Tip', g, d)
+                selfobj.Tip = v
         
 class _ViewProviderModule:
     "A View Provider for the Module object"
