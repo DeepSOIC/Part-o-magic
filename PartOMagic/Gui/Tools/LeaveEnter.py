@@ -76,6 +76,7 @@ class _CommandLeave(AACommand):
             if b_run: Containers.setActiveContainer(Containers.getContainer(ac))
             if b_run: Gui.Selection.clearSelection()
             if b_run: Gui.Selection.addSelection(ac)    
+            if b_run: App.ActiveDocument.recompute() #fixme: scoped recompute, maybe?
 commandLeave = _CommandLeave()
 commands.append(commandLeave)
 
