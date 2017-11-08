@@ -27,7 +27,11 @@ class ShapeGroup:
         obj.Operation = ['None', 'Compound', 'Fusion', 'Common', 'Connect', 'CompSolid']
         obj.Operation = 'Compound'
         
-        obj.addProperty('App::PropertyLinkList', 'Tip', 'ShapeGroup', 'Sets which children to take shapes from.')
+        try:
+            obj.addProperty('App::PropertyLinkListChild', 'Tip', 'ShapeGroup', 'Sets which children to take shapes from.')
+        except Exception:
+            #for older FC
+            obj.addProperty('App::PropertyLinkList', 'Tip', 'ShapeGroup', 'Sets which children to take shapes from.')
         
         obj.Proxy = self
         

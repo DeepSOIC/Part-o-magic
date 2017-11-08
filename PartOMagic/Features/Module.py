@@ -23,7 +23,11 @@ class _Module:
     def __init__(self,obj):
         self.Type = "Module"
         obj.addExtension("App::OriginGroupExtensionPython", self)
-        obj.addProperty("App::PropertyLink","Tip","Module","Object to be exposed to the outside")
+        try:
+            obj.addProperty("App::PropertyLinkChild","Tip","Module","Object to be exposed to the outside")
+        except Exception:
+            #for older FC
+            obj.addProperty("App::PropertyLink","Tip","Module","Object to be exposed to the outside") 
         
         obj.Proxy = self
         

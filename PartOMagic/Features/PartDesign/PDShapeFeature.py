@@ -24,7 +24,13 @@ class PDShapeFeature:
     def __init__(self,obj):
         self.Type = 'PDShapeFeature'
         obj.addExtension('App::OriginGroupExtensionPython', self)
-        obj.addProperty('App::PropertyLink','Tip',"PartDesign","Object to use to form the feature")
+        
+        try:
+            obj.addProperty('App::PropertyLinkChild','Tip',"PartDesign","Object to use to form the feature")
+        except Exception:
+            #for older FC
+            obj.addProperty('App::PropertyLink','Tip',"PartDesign","Object to use to form the feature")
+        
         obj.addProperty('App::PropertyEnumeration', 'AddSubType', "PartDesign", "Feature kind")
         obj.addProperty('Part::PropertyPartShape', 'AddSubShape', "PartDesign", "Shape that forms the feature") #TODO: expose PartDesign::AddSub, and use it, instead of mimicking it
         obj.AddSubType = ['Additive', 'Subtractive']
