@@ -119,8 +119,8 @@ def isContainer(obj):
         return True
     if obj.hasExtension('App::OriginGroupExtension'):
         return True
-    if obj.hasExtension('App::GroupExtension'):
-        return True  # experimental...
+#    if obj.hasExtension('App::GroupExtension'):
+#        return True  # experimental...
     if obj.isDerivedFrom('App::Origin'):
         return True
     return False
