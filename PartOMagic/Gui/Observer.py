@@ -90,6 +90,7 @@ class Observer(FrozenClass):
         
         self.TVs = {} # store for visibility states. Key is "Document.Container" (string), value is TempoVis object created when entering the container
         self.delayed_slot_calls_queue = [] # queue of lambdas/functions to execute upon next firing of the timer.
+        self.addition_calls_queue = [] # queue of lambdas/functions to execute upon next slotChangedObject.
         
         self.editing = {} # last seen object in edit. Dict: key is document name, value is documentobject.
         self.edit_TVs = {} #key is document name, value is a tempovis associated with the feature being edited
@@ -106,22 +107,14 @@ class Observer(FrozenClass):
         print("created object")
         ac = activeContainer()
         aw = Gui.activeWorkbench().GetClassName()
-        if test_exclude(feature, aw):
-            return #PartDesign manages itself
-        if ac is None: #shouldn't happen
-            return
-        actual_container = None
-        if not ac.isDerivedFrom("App::Document"):
-            actual_container = addObjectTo(ac, feature)
-        if actual_container is not None and not actual_container.isDerivedFrom('App::Document') :
-            self.delayed_slot_calls_queue.append(
-              lambda self=self, feature=feature, ac=actual_container, aw=aw:
-                self.slotAdvanceTip(feature, ac, aw)
-              )
-    
-    def slotAdvanceTip(self, feature, active_container, active_workbench): 
-        gc = GenericContainer(active_container)
-        gc.call(gc.advanceTip, feature)
+        #hack!! we delay call of addObject to fire from within onChanged, as doing it now 
+        #results in incorrect parenting of viewproviders. Yet it has to be done before recompute, o
+        #therwise the recompute fails.
+        #From there, another delayed call is registered - a call to advanceTip, which should be called after the new object is fully set up.
+        self.addition_calls_queue.append(
+          lambda self=self, feature=feature, ac=ac, aw=aw:
+            self.appendToActiveContainer(feature, ac, aw)
+          )
 
     def slotDeletedObject(self, feature):
         print ("deleted {feat}. container chain: {chain}"
@@ -132,8 +125,14 @@ class Observer(FrozenClass):
             setActiveContainer(GT.getContainer(feature))
             self.poll()
         
-    #def slotChangedObject(self, feature, prop_name):
-    #    pass
+    def slotChangedObject(self, feature, prop_name):
+        if feature.hasExtension('App::GeoFeatureGroupExtension') and prop_name == 'Group':
+            return #avoid adding objects from within addObject call
+        while len(self.addition_calls_queue) > 0:
+            lmd = self.addition_calls_queue.pop(0)
+            lmd()
+        
+    
     def slotRedoDocument(self,doc):
         pass
     def slotUndoDocument(self,doc):
@@ -325,6 +324,24 @@ class Observer(FrozenClass):
                     gc.ViewObject.call(gc.ViewObject.expandednessChanged, oldstate, curstate)
     
     # functions
+
+    def appendToActiveContainer(self, feature, active_container, active_workbench):
+        if test_exclude(feature, active_workbench):
+            return #PartDesign manages itself
+        if active_container is None: #shouldn't happen
+            return
+        actual_container = None #the container the object was added to. Different to active_container if active_container can't accept the object.
+        if not active_container.isDerivedFrom("App::Document"):
+            actual_container = addObjectTo(active_container, feature)
+        if actual_container is not None and not actual_container.isDerivedFrom('App::Document') :
+            self.delayed_slot_calls_queue.append(
+              lambda self=self, feature=feature, ac=actual_container, aw=active_workbench:
+                self.advanceTip(feature, ac, aw)
+              )
+
+    def advanceTip(self, feature, active_container, active_workbench): 
+        gc = GenericContainer(active_container)
+        gc.call(gc.advanceTip, feature)
     
     def enterContainer(self, cnt):
         '''enterContainer(self, cnt): when cnt either directly is being activated, or one of its child containers is being activated. Assumes container of cnt is already entered.'''
