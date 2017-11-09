@@ -43,12 +43,10 @@ def test_exclude(feature, active_workbench):
 def addObjectTo(container, feature):
     if hasattr(App, 'ActiveContainer'):
         # New FreeCAD. Feature is added to the container automatically. All that's left to do is call advanceTip().
-        gc = GenericContainer(container)
-        gc.call(gc.advanceTip, feature)
-        return
+        return container
 
     if container.isDerivedFrom("App::Document"):
-        return 
+        return container
     
     # close editing before addition.
     #  Adding to container while editing causes editing to close anyway. But we want do do 
@@ -65,7 +63,7 @@ def addObjectTo(container, feature):
     actual_container = container
     while not added:
         try:
-            GT.addObjectTo(actual_container, feature)
+            GT.addObjectTo(actual_container, feature, b_advance_tip = False)
             added = True
         except App.Base.FreeCADError as err:
             #assuming it's a "not allowed" error
@@ -78,6 +76,8 @@ def addObjectTo(container, feature):
     # re-open editing that we had closed...
     if bool_editingclosed:
         Gui.ActiveDocument.setEdit(feature)
+    
+    return actual_container
 
 class Observer(FrozenClass):
     def defineAttributes(self):
@@ -106,21 +106,22 @@ class Observer(FrozenClass):
         print("created object")
         ac = activeContainer()
         aw = Gui.activeWorkbench().GetClassName()
-        self.delayed_slot_calls_queue.append(
-          lambda self=self, feature=feature, ac=ac, aw=aw:
-            self.slotCreatedObject_delayed(feature, ac, aw)
-          )
-    
-    def slotCreatedObject_delayed(self, feature, active_container, active_workbench): 
-        # active_container is remembered at the time the object was actually created. 
-        # This is a hack to make nesting Parts possible.
-        if test_exclude(feature, active_workbench):
+        if test_exclude(feature, aw):
             return #PartDesign manages itself
-        if active_container is None: #shouldn't happen
+        if ac is None: #shouldn't happen
             return
-        if not active_container.isDerivedFrom("App::Document"):
-            addObjectTo(active_container, feature)
-        
+        actual_container = None
+        if not ac.isDerivedFrom("App::Document"):
+            actual_container = addObjectTo(ac, feature)
+        if actual_container is not None and not actual_container.isDerivedFrom('App::Document') :
+            self.delayed_slot_calls_queue.append(
+              lambda self=self, feature=feature, ac=actual_container, aw=aw:
+                self.slotAdvanceTip(feature, ac, aw)
+              )
+    
+    def slotAdvanceTip(self, feature, active_container, active_workbench): 
+        gc = GenericContainer(active_container)
+        gc.call(gc.advanceTip, feature)
 
     def slotDeletedObject(self, feature):
         print ("deleted {feat}. container chain: {chain}"
