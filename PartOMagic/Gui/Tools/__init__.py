@@ -6,6 +6,7 @@ __all__ = [
 "Tip",
 "MorphContainer",
 "TransferObject",
+"ListUsages",
 ]
 
 def importAll():
@@ -13,6 +14,7 @@ def importAll():
     from . import Tip
     from . import MorphContainer
     from . import TransferObject
+    from . import ListUsages
 
 def reloadAll():
     for modstr in __all__:
