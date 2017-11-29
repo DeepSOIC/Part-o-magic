@@ -18,7 +18,13 @@ def msgError(err):
     if type(err) is CancelError: return
     mb = QtGui.QMessageBox()
     mb.setIcon(mb.Icon.Warning)
-    mb.setText(err.message)
+    if hasattr(err,'message'):
+        if isinstance(err.message, dict):
+            mb.setText(err.message['swhat'])
+        else:
+            mb.setText(err.message)
+    else:
+        mb.setText(str(err))
     if hasattr(err, "title"):
         mb.setWindowTitle(err.title)
     else:

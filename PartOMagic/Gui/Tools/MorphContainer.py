@@ -25,7 +25,9 @@ def morphContainer(src_container, dst_container):
     
     #content
     assert(len(dst_container.Group) == 0)
-    dst_container.Group = src_container.Group; src_container.Group = []
+    g = src_container.Group
+    src_container.Group = [] #withdraw first, add last - otherwise, error is thrown
+    dst_container.Group = g 
     if hasattr(dst_container, 'Origin'):
         if hasattr(dst_container, 'Proxy') and dst_container.Origin is not None:
             #workaround for origin not being claimed as child on Py-powered containers
