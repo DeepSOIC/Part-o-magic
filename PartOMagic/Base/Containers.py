@@ -117,7 +117,7 @@ def isContainer(obj):
     
     if obj.isDerivedFrom('App::Document'):
         return True
-    if obj.hasExtension('App::OriginGroupExtension'):
+    if obj.hasExtension('App::GeoFeatureGroupExtension'):
         return True
 #    if obj.hasExtension('App::GroupExtension'):
 #        return True  # experimental...
@@ -160,9 +160,9 @@ def getDirectChildren(container):
         return result
     elif container.hasExtension("App::GroupExtension"):
         result = container.Group
-        if container.hasExtension("App::OriginGroupExtension"):
-            if container.Origin is not None:
-                result.append(container.Origin)
+        #if container.hasExtension("App::OriginGroupExtension"):
+            #if container.Origin is not None:
+            #    result.append(container.Origin)
         return result
     elif container.isDerivedFrom("App::Origin"):
         return container.OriginFeatures
