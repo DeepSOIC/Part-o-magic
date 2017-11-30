@@ -58,12 +58,22 @@ class ViewProviderGenericContainer(object):
                 if o.ViewObject.DisplayModeBody != dm: # check if actual change needed, to avoid potential slowdown
                     o.ViewObject.DisplayModeBody = dm
                     o.ViewObject.Visibility = o.ViewObject.Visibility #workaround for bug: http://forum.freecadweb.org/viewtopic.php?f=3&t=15845
+            elif o.isDerivedFrom('PartDesign::Boolean'):
+                dm = 'Tools'
+                if o.ViewObject.Display != dm: # check if actual change needed, to avoid potential slowdown
+                    o.ViewObject.Display = dm
+                    #o.ViewObject.Visibility = o.ViewObject.Visibility #workaround for bug: http://forum.freecadweb.org/viewtopic.php?f=3&t=15845
         elif event == -1:
             if o.isDerivedFrom('PartDesign::Body'):
                 dm = "Tip"
                 if o.ViewObject.DisplayModeBody != dm: # check if actual change needed, to avoid potential slowdown
                     o.ViewObject.DisplayModeBody = dm
                     o.ViewObject.Visibility = o.ViewObject.Visibility #workaround for bug: http://forum.freecadweb.org/viewtopic.php?f=3&t=15845
+            elif o.isDerivedFrom('PartDesign::Boolean'):
+                dm = 'Result'
+                if o.ViewObject.Display != dm: # check if actual change needed, to avoid potential slowdown
+                    o.ViewObject.Display = dm
+                    #o.ViewObject.Visibility = o.ViewObject.Visibility #workaround for bug: http://forum.freecadweb.org/viewtopic.php?f=3&t=15845
         
     def doTreeAutomation(self, old_active_container, new_active_cntainer, event):
         import FreeCADGui as Gui
