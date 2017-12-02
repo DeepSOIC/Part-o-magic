@@ -65,6 +65,14 @@ class PartOMagicWorkbench (Workbench):
         self.appendToolbar('POMTools', cmdsTools)
         self.appendMenu('Part-o-Magic', cmdsTools)
 
+        self.appendMenu('Part-o-Magic', ["Separator"])
+
+        cmdsTools = ([]
+            + POM.Gui.View.exportedCommands()
+        )
+        self.appendToolbar('POMView', cmdsTools)
+        self.appendMenu('Part-o-Magic', cmdsTools)
+
         
     def Activated(self):
         pass

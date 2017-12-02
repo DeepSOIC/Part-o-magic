@@ -9,6 +9,7 @@
         <file>icons/PartOMagic_PDShapeFeature_Additive.svg</file>
         <file>icons/PartOMagic_PDShapeFeature_Subtractive.svg</file>
         <file>icons/PartOMagic_ShapeGroup.svg</file>
+        <file>icons/PartOMagic_SnapView.svg</file>
         <file>icons/PartOMagic_TransferObject.svg</file>
     </qresource>
 </RCC> 

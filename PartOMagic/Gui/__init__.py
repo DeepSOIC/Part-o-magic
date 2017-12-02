@@ -11,6 +11,7 @@ __all__ = [
 "Icons",
 "CommandCollection1",
 "GlobalToolbar",
+"View",
 ]
 
 def importAll():
@@ -23,6 +24,7 @@ def importAll():
     from . import Icons
     from . import CommandCollection1
     from . import GlobalToolbar
+    from . import View
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, "importAll"):
