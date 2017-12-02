@@ -12,7 +12,7 @@ if Params.EnablePartOMagic.get():
         Gui.addModule("PartOMagic")
         if Params.EnableObserver.get():
             PartOMagic.Gui.Observer.start()
-    except CompatibilityError as err:
+    except compat.CompatibilityError as err:
         Params.EnablePartOMagic.set_volatile(False)
         App.Console.PrintError("Part-o-magic is disabled.\n    {err}".format(err= str(err)))
 
