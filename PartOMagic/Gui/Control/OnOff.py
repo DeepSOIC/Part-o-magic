@@ -12,15 +12,15 @@ class CommandTogglePartOMagic:
     def GetResources(self):
         from PartOMagic.Gui.Utils import getIconPath
         return {'Pixmap'  : getIconPath("PartOMagic_Power.svg"),
-                'MenuText': "Disable/enable Part-o-magic",
+                'MenuText': "Disable/enable Part-o-magic (DANGER)",
                 'Accel': "",
                 'ToolTip': "Disable/enable Part-o-magic. (disables the workbench)"}
             
     def Activated(self):
         if Params.EnablePartOMagic.get():
             Params.EnablePartOMagic.set(False)
-            msgbox("Part-o-Magic", "You've just DISABLED part-o-magic workbench. Please restart FreeCAD. \n\n"
-                   "If you disabled it by accident, click this button again to re-enable part-o-magic now.")
+            msgbox("Part-o-Magic", "You've just DISABLED part-o-magic workbench. The workbench will disappear after you restart FreeCAD. \n\n"
+                   "If you disabled it by accident, click this button again to re-enable part-o-magic now. You can re-enable it by deleting configuration file.")
         else:
             Params.EnablePartOMagic.set(True)
             msgbox("Part-o-Magic", "You've just ENABLED part-o-magic workbench.")
