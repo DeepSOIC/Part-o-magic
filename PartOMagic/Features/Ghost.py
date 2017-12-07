@@ -70,7 +70,7 @@ class Ghost:
                 if prop.startswith('Placement'):
                     raise GhostError(
                         '{dep} has expression bound to its placement. {ghost} uses it, but is inside of the container, so it can\'t be properly recomputed.'
-                        .format(dep= dep.Label, ghost= ghost.Label)
+                        .format(dep= dep.Label, ghost= selfobj.Label)
                     )
     
     def execute(self,selfobj):
