@@ -52,7 +52,7 @@ def screen(feature):
 
 from Show.FrozenClass import FrozenClass
 class DelayedExecute(FrozenClass):
-    "DelayedExecuter(func, timeout = 30): sets up a timer, executes func, and self-destructs."
+    "DelayedExecute(func, delay = 30): sets up a timer, executes func, and self-destructs."
     def defineAttributes(self):
         self.func = None # function to run
         self.timer = None # the timer
