@@ -6,6 +6,7 @@ __all__ = [
 "Module",
 "ShapeGroup",
 "ShapeBinder",
+"Ghost",
 "Exporter",
 "Instance",
 "PartDesign",
@@ -16,6 +17,7 @@ def importAll():
     from . import Module
     from . import ShapeGroup
     from . import ShapeBinder
+    from . import Ghost
     from . import Exporter
     from . import Instance
     from . import PartDesign
