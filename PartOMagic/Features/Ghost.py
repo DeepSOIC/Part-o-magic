@@ -88,7 +88,12 @@ class Ghost:
         selfobj.Shape = selfobj.Base.Shape
         selfobj.Placement = transform.multiply(selfobj.Base.Placement)
         
-        selfobj.Label = '{label} ({name})'.format(label= selfobj.Base.Label, name= selfobj.Name)
+        path = ''
+        for cnt in toenter:
+            path += '../'
+        for cnt in toleave:
+            path += cnt.Name + '/'
+        selfobj.Label = '{name} {label} from {path}'.format(label= selfobj.Base.Label, name= selfobj.Name, path= path[:-1])
     
     def onChanged(self, selfobj, propname):
         if 'Restore' in selfobj.State:
