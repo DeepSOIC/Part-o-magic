@@ -112,7 +112,7 @@ class ViewProviderGhost:
         
     def getIcon(self):
         from PartOMagic.Gui.Utils import getIconPath
-        return getIconPath("PartDesign_ShapeBinder.svg")
+        return getIconPath("PartOMagic_Ghost.svg")
 
     def attach(self, vobj):
         self.ViewObject = vobj
@@ -211,7 +211,7 @@ class CommandGhost(AACommand):
     def GetResources(self):
         import PartDesignGui #needed for icon
         return {'CommandName': 'PartOMagic_Ghost',
-                'Pixmap'  : self.getIconPath("PartDesign_ShapeBinder.svg"),
+                'Pixmap'  : self.getIconPath("PartOMagic_Ghost.svg"),
                 'MenuText': "Make Ghost of selected object",
                 'Accel': "",
                 'ToolTip': "Make Ghost. Creates a ghost of a shape from another container. AKA Shapebinder."}
