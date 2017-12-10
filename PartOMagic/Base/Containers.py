@@ -251,7 +251,7 @@ def getContainerChain(feat):
         list_to_be_traversed_next = []
         for feat in list_traversing_now:
             for dep in feat.InList:
-                if isContainer(dep):
+                if isContainer(dep) and feat in getDirectChildren(dep):
                     if not (dep in set_of_deps):
                         set_of_deps.add(dep)
                         list_of_deps.append(screen(dep))
