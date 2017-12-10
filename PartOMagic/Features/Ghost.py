@@ -183,7 +183,7 @@ def onContainerPlacementChanged(cnt):
     for obj in cnt.Document.Objects:
         if not hasattr(obj, 'Proxy'): 
             continue
-        if hasattr(obj.Proxy, 'updateDeps'):
+        if hasattr(obj.Proxy, '_implicit_deps'):
             try:
                 if cnt in obj.Proxy._implicit_deps:
                     obj.touch()
