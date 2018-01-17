@@ -111,7 +111,8 @@ class CommandSnapView(AACommand):
                 'Pixmap'  : self.getIconPath("PartOMagic_SnapView.svg"),
                 'MenuText': "Straighten camera (tri-state)",
                 'Accel': "",
-                'ToolTip': "Straighten camera (tri-state). First click aligns camera upright without changing view direction. Second click snaps to nearest standard view. Third click restores original view."}
+                'ToolTip': "Straighten camera (tri-state). First click aligns camera upright without changing view direction. Second click snaps to nearest standard view. Third click restores original view.",
+                'CmdType': 'ForEdit'}
         
     def RunOrTest(self, b_run):
         import FreeCADGui as Gui
