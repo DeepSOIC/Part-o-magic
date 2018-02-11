@@ -16,6 +16,9 @@ def makeExporter(name):
     vp_proxy = ViewProviderExporter(obj.ViewObject)
     return obj
 
+def log(message):
+    App.Console.PrintLog(message+'\n')
+
 class Exporter:
     "Exporter feature python proxy object"
     def __init__(self,obj):
@@ -26,8 +29,8 @@ class Exporter:
         obj.setEditorMode('FullActualPath', 1)#read-only
         
         obj.addProperty('App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file. (double-click always works)")
-        obj.ExportingFrequency = ['On double-click only', 'Export once', 'Every recompute'] 
-        obj.ExportingFrequency = 'Every recompute'
+        obj.ExportingFrequency = ['On double-click only', 'Export once','When project is saved', 'Every recompute'] 
+        obj.ExportingFrequency = 'When project is saved'
         
         obj.addProperty('App::PropertyEnumeration', 'ContainerMode', "Exporter", "Sets what to export if exporting a container" )
         obj.ContainerMode = ['Feed straight to exporter', 'Feed tip features to exporter','Feed all children', '(Auto)']
@@ -40,7 +43,7 @@ class Exporter:
         
 
     def execute(self,selfobj):
-        if selfobj.ExportingFrequency == 'On double-click only': return
+        if selfobj.ExportingFrequency == 'On double-click only' or selfobj.ExportingFrequency == 'When project is saved': return
         
         self.export(selfobj)
         
@@ -109,9 +112,72 @@ class Exporter:
             selfobj.FullActualPath = thisfilepath
         else:
             raise NotImplementedError("Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
+    
+    def onDocumentSaved_POM(self, selfobj):
+        if selfobj.ExportingFrequency != 'When project is saved': return
+        log("Exporter {exporter} is saving a file...".format(exporter= selfobj.Label))
+        self.export(selfobj)
         
+class Observer(object):
+    _timer = None
+    lastMD = None #dict. Key = project name, value = whatever is returned by App.ActiveDocument.LastModifiedDate
+    
+    def start(self):
+        self.stop()
+        self.lastMD = {}
+        from PySide import QtCore
+        timer = QtCore.QTimer()
+        self._timer = timer
+        timer.setInterval(500)
+        timer.connect(QtCore.SIGNAL("timeout()"), self.poll)
+        timer.start()
         
- 
+    def stop(self):
+        if self._timer != None:
+            self._timer.stop()
+            self._timer = None
+            
+    def is_running(self):
+        return self._timer is not None
+    
+    def poll(self):
+        # detect document saves
+        if App.ActiveDocument is None: return
+        cur_lmd = App.ActiveDocument.LastModifiedDate
+        last_lmd = self.lastMD.get(App.ActiveDocument.Name, None)
+        if cur_lmd != last_lmd:
+            # LastModifiedDate has changed - document was just saved!
+            self.lastMD[App.ActiveDocument.Name] = cur_lmd
+            if last_lmd is not None: #filter out the apparent change that happens when there was no last-seen value
+                self.slotSavedDocument(App.ActiveDocument)
+    def slotSavedDocument(self, doc):
+        errs = []
+        log("Project was just saved: {doc}. Scanning for exporter objects...".format(doc= doc.Name))
+        for obj in doc.Objects:
+            if hasattr(obj, 'Proxy'):
+                if hasattr(obj.Proxy, 'onDocumentSaved_POM'):
+                    try:
+                        obj.Proxy.onDocumentSaved_POM(obj)
+                    except Exception as err:
+                        App.Console.PrintError("Exporting '{exporter}' failed with an error: {err}.\n"
+                            .format(exporter= obj.Label, err= str(err)))
+                        errs.append(err)
+        if errs:
+            if App.GuiUp:
+                from PartOMagic.Gui import Utils
+                if len(errs) == 1:
+                    Utils.msgError(errs[0])
+                else:
+                    Utils.msgError(RuntimeError('{n} exporters failed to save files. See Report view for more information.'))
+
+
+#stop old observer, if reloading this module
+if 'activeObserver' in vars():
+    activeObserver.stop()
+    activeObserver = None
+#start obsrever
+activeObserver = Observer()
+activeObserver.start()
 
 class ViewProviderExporter:
     "A View Provider for the Exporter object"
