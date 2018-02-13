@@ -194,16 +194,17 @@ class Observer(object):
                     try:
                         obj.Proxy.onDocumentSaved_POM(obj)
                     except Exception as err:
-                        App.Console.PrintError("Exporting '{exporter}' failed with an error: {err}.\n"
+                        App.Console.PrintError("Exporting '{exporter}' failed: {err}.\n"
                             .format(exporter= obj.Label, err= str(err)))
-                        errs.append(err)
+                        errs.append((obj, err))
         if errs:
             if App.GuiUp:
                 from PartOMagic.Gui import Utils
                 if len(errs) == 1:
-                    Utils.msgError(errs[0])
+                    obj, err = errs[0]
+                    Utils.msgError(err, "Exporter '{exporter}' failed to save file: {{err}}".format(exporter= obj.Label))
                 else:
-                    Utils.msgError(RuntimeError('{n} exporters failed to save files. See Report view for more information.'))
+                    Utils.msgError(RuntimeError('{n} exporters failed to save files. See Report view for more information.'.format(n= len(errs))))
 
 
 #stop old observer, if reloading this module
@@ -238,7 +239,7 @@ class ViewProviderExporter:
         except Exception as err:
             from PartOMagic.Gui.Utils import msgError
             msgError(err)
-      
+    
     def __getstate__(self):
         return None
 
