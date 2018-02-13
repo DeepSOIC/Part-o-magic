@@ -229,6 +229,9 @@ class ViewProviderExporter:
         self.Object = vobj.Object
     
     def doubleClicked(self, vobj):
+        self.exportNow()
+    
+    def exportNow(self):
         try:
             self.Object.Proxy.export(self.Object)
             self.Object.purgeTouched()
@@ -241,6 +244,13 @@ class ViewProviderExporter:
 
     def __setstate__(self,state):
         return None
+        
+    def setupContextMenu(self,vobj,menu):
+        from PySide import QtCore,QtGui
+        action1 = QtGui.QAction(QtGui.QIcon(":/icons/Part_Export.svg"),"Export now!",menu)
+        QtCore.QObject.connect(action1,QtCore.SIGNAL("triggered()"), self.exportNow)
+        menu.addAction(action1)
+
 
 def CreateExporter(name):
     App.ActiveDocument.openTransaction("Create Exporter")
