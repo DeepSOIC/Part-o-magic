@@ -97,21 +97,54 @@ class Exporter:
         else:
             objects_to_export.append(selfobj.ObjectToExport)
         
-        if selfobj.MultiMode == 'Write one file':
-            filepath = filepath.replace('%Label%', selfobj.ObjectToExport.Label)
-            mod.export(objects_to_export, filepath)
-            print("Exported {file}".format(file= filepath))
-            selfobj.FullActualPath = filepath
-        elif selfobj.MultiMode == 'Write many files':
-            if not '%Label%' in filepath:
-                raise ValueError("In multi-file export, you must include %Label% into the file name.")
-            for obj in objects_to_export:
-                thisfilepath = filepath.replace('%Label%', obj.Label)
-                mod.export([obj], thisfilepath)
-                print("Exported {file}".format(file= thisfilepath))
-            selfobj.FullActualPath = thisfilepath
-        else:
-            raise NotImplementedError("Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
+        
+        vardict = {
+            'project_name'               : selfobj.Document.Name,
+            'project_filetitle'          : path.splitext(path.basename(selfobj.Document.FileName))[0],
+            'project_filename'           : path.basename(selfobj.Document.FileName),
+            'project_folder'             : path.split(path.split(selfobj.Document.FileName)[0])[1],
+            'project_label'              : selfobj.Document.Label,
+            'exporter_label'             : selfobj.Label,
+            'exporter_name'              : selfobj.Name,
+            'exporter_container_label'   : Containers.getContainer(selfobj).Label,
+            'exporter_container_name'    : Containers.getContainer(selfobj).Name,
+        }
+        
+        def addObjectVars(obj):
+            vardict['object_name'             ] = obj.Name
+            vardict['object_label'            ] = obj.Label
+            vardict['object_container_label'  ] = Containers.getContainer(obj).Label
+            vardict['object_container_name'   ] = Containers.getContainer(obj).Name
+        
+        try:
+            if selfobj.MultiMode == 'Write one file':
+                addObjectVars(selfobj.ObjectToExport)
+                filepath = filepath.replace('%Label%', selfobj.ObjectToExport.Label).format(**vardict)
+                mod.export(objects_to_export, filepath)
+                print("Exported {file}".format(file= filepath))
+                selfobj.FullActualPath = filepath
+            elif selfobj.MultiMode == 'Write many files':
+                files_written = set()
+                for obj in objects_to_export:
+                    addObjectVars(obj)
+                    thisfilepath = filepath.replace('%Label%', obj.Label).format(**vardict)
+                    if thisfilepath in files_written:
+                        raise ValueError('Exporter {exporter} is supposed to write multiple files, but the filenames repeat: {fn}. Please make sure a variable is used in the file name, such as {{object_name}}, or {{object_label}}.'
+                            .format(exporter= selfobj.Label, fn= thisfilepath))
+                    mod.export([obj], thisfilepath)
+                    print("Exported {file}".format(file= thisfilepath))
+                selfobj.FullActualPath = thisfilepath
+            else:
+                raise NotImplementedError("Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
+        except KeyError as ke:
+            key = ke.args[0]
+            message = ('Variable name not recognized: {key}.\n\nVariables available:\n{varlist}'
+                .format(
+                    key= key,
+                    varlist = '\n'.join(['{' + var + '}' + ': ' + vardict[var] for var in vardict])
+                )
+            )
+            raise KeyError(message)
     
     def onDocumentSaved_POM(self, selfobj):
         if selfobj.ExportingFrequency != 'When project is saved': return
