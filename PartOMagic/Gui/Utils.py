@@ -1,5 +1,7 @@
 print("loading Utils")
 
+import sys
+
 #TODO: remove this:
 def getIconPath(icon_dot_svg):
     import PartOMagic.Gui.Icons.Icons
@@ -13,24 +15,52 @@ def msgbox(title, text):
     mb.setWindowTitle(title)
     mb.exec_()
     
-def msgError(err):
-    from PySide import QtGui
+def msgError(err = None, message = '{errmsg}'):
+    if err is None:
+        err = sys.exc_info()[1]
     if type(err) is CancelError: return
+
+    # can we get a traceback?
+    b_tb =  err is sys.exc_info()[1]
+    if b_tb:
+        import traceback
+        tb = traceback.format_exc()
+        import FreeCAD as App
+        App.Console.PrintError(tb+'\n')
+    
+    #make messagebox object
+    from PySide import QtGui
     mb = QtGui.QMessageBox()
     mb.setIcon(mb.Icon.Warning)
+    
+    #fill in message
+    errmsg = ''
     if hasattr(err,'message'):
         if isinstance(err.message, dict):
-            mb.setText(err.message['swhat'])
+            errmsg = err.message['swhat']
         else:
-            mb.setText(err.message)
+            errmsg = err.message
     else:
-        mb.setText(str(err))
+        errmsg = str(err)
+    mb.setText(message.format(errmsg= errmsg, err= err))
+    
+    # fill in title
     if hasattr(err, "title"):
         mb.setWindowTitle(err.title)
     else:
         mb.setWindowTitle("Error")
+        
+    #add traceback button
+    if b_tb:
+        btnClose = mb.addButton(QtGui.QMessageBox.StandardButton.Close)
+        btnCopy = mb.addButton("Copy traceback", QtGui.QMessageBox.ButtonRole.ActionRole)
+        mb.setDefaultButton(btnClose)
+        
     mb.exec_()
-    
+    if b_tb:
+        if mb.clickedButton() is btnCopy:
+            cb = QtGui.QClipboard()
+            cb.setText(tb)
     
 class CancelError(Exception):
     pass
