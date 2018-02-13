@@ -144,9 +144,11 @@ class Observer(object):
         # detect document saves
         if App.ActiveDocument is None: return
         cur_lmd = App.ActiveDocument.LastModifiedDate
+        if cur_lmd == 'Unknown': cur_lmd = None
         last_lmd = self.lastMD.get(App.ActiveDocument.Name, None)
         if cur_lmd != last_lmd:
             # LastModifiedDate has changed - document was just saved!
+            # print('mod date for doc {doc} changed from {last_lmd} to {cur_lmd}'.format(doc= App.ActiveDocument.Name, last_lmd= repr(last_lmd), cur_lmd= repr(cur_lmd)))
             self.lastMD[App.ActiveDocument.Name] = cur_lmd
             if last_lmd is not None: #filter out the apparent change that happens when there was no last-seen value
                 self.slotSavedDocument(App.ActiveDocument)
