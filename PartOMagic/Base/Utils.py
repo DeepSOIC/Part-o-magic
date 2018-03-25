@@ -73,3 +73,19 @@ def PlacementsFuzzyCompare(plm1, plm2):
                 abs(q1[2]-q2[2]) + 
                 abs(q1[3]-q2[3])  ) < 1e-12   # 1e-12 is OCC's Precision::Angular (in radians)
     return pos_eq and rot_eq
+
+def addProperty(docobj, proptype, propname, group, tooltip, defvalue = None, readonly = False):
+    """assureProperty(docobj, proptype, propname, defvalue, group, tooltip): adds
+    a property if one is missing, and sets its value to default. Does nothing if property 
+    already exists. Returns True if property was created, or False if not."""
+    
+    if hasattr(docobj, propname):
+        #todo: check type match
+        return False
+        
+    docobj.addProperty(proptype, propname, group, tooltip)
+    if defvalue is not None:
+        setattr(docobj, propname, defvalue)
+    if readonly:
+        docobj.setEditorMode(propname, 1)
+    return True

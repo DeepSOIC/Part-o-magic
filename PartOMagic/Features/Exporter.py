@@ -8,6 +8,8 @@ __author__ = "DeepSOIC"
 __url__ = ""
 
 print("loading Exporter")
+
+from PartOMagic.Base.Utils import addProperty
     
 def makeExporter(name):
     '''makeExporter(name): makes a Exporter object.'''
@@ -23,26 +25,38 @@ class Exporter:
     "Exporter feature python proxy object"
     def __init__(self,obj):
         self.Type = 'Exporter'
-        obj.addProperty('App::PropertyLink','ObjectToExport',"Exporter","Object to use to form the feature")
-        obj.addProperty('App::PropertyString', 'FilePath', "Exporter", "Relative or absolute path to file to write. Hint: type '%Label%.step'.")
-        obj.addProperty('App::PropertyString', 'FullActualPath', "Exporter", "Path to the last file that was written")        
-        obj.setEditorMode('FullActualPath', 1)#read-only
-        
-        obj.addProperty('App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file. (double-click always works)")
-        obj.ExportingFrequency = ['On double-click only', 'Export once','When project is saved', 'Every recompute'] 
-        obj.ExportingFrequency = 'When project is saved'
-        
-        obj.addProperty('App::PropertyEnumeration', 'ContainerMode', "Exporter", "Sets what to export if exporting a container" )
-        obj.ContainerMode = ['Feed straight to exporter', 'Feed tip features to exporter','Feed all children', '(Auto)']
-        obj.ContainerMode = '(Auto)'
-        
-        obj.addProperty('App::PropertyEnumeration', 'MultiMode', "Exporter", "Sets how to deal with multitude of objects, when exporting containers")
-        obj.MultiMode = ['Write one file', 'Write many files']
-        
+        self.initProperties(obj)
         obj.Proxy = self
+        
+    def initProperties(self, selfobj):
+        addProperty(selfobj, 'App::PropertyLink','ObjectToExport',"Exporter","Object to use to form the feature")
+        addProperty(selfobj, 'App::PropertyString', 'FilePath', "Exporter", "Relative or absolute path to file to write. Hint: type '%Label%.step'.")
+        addProperty(selfobj, 'App::PropertyString', 'FullActualPath', "Exporter", "Path to the last file that was written", readonly= True)        
+        
+        if addProperty(
+            selfobj, 'App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file. (double-click always works)",
+            ['On double-click only', 'Export once','When project is saved', 'Every recompute'] 
+        ):
+            selfobj.ExportingFrequency = 'When project is saved'
+        
+        if addProperty(
+            selfobj, 'App::PropertyEnumeration', 'ContainerMode', "Exporter", "Sets what to export if exporting a container",
+            ['Feed straight to exporter', 'Feed tip features to exporter','Feed all children', '(Auto)']
+        ):
+            selfobj.ContainerMode = '(Auto)'
+        
+        addProperty(selfobj, 'App::PropertyEnumeration', 'MultiMode', "Exporter", "Sets how to deal with multitude of objects, when exporting containers",
+            ['Write one file', 'Write many files']
+        )
+        
+        addProperty(selfobj, 'App::PropertyLength', 'MeshAccuracy', "Meshing", 
+            "Sets the accuracy of mesh export. The exported mesh should deviate from perfect shape by no more than specified value. If zero, visualization mesh is used."
+        )
         
 
     def execute(self,selfobj):
+        self.initProperties(selfobj) #to make sure MeshAccuracy is added to old objects
+        
         if selfobj.ExportingFrequency == 'On double-click only' or selfobj.ExportingFrequency == 'When project is saved': return
         
         self.export(selfobj)
@@ -97,6 +111,13 @@ class Exporter:
         else:
             objects_to_export.append(selfobj.ObjectToExport)
         
+        if selfobj.MeshAccuracy > 1e-7:
+            for obj in objects_to_export:
+                if hasattr(obj, 'Shape'):
+                    obj.Shape.tessellate(selfobj.MeshAccuracy)
+                else:
+                    App.Console.PrintWarning("Exporter {exporter}: object to export ({object}) has no b-rep shape. Can't re-tessellate."
+                                              .format(exporter= selfobj.Name, object= obj.Label))
         
         vardict = {
             'project_name'               : selfobj.Document.Name,
