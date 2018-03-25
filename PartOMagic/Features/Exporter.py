@@ -143,7 +143,8 @@ class Exporter:
                 filepath = filepath.replace('%Label%', selfobj.ObjectToExport.Label).format(**vardict)
                 mod.export(objects_to_export, filepath)
                 print("Exported {file}".format(file= filepath))
-                selfobj.FullActualPath = filepath
+                if selfobj.FullActualPath != filepath: #check, to avoid touching all exporters upon every file save
+                    selfobj.FullActualPath = filepath
             elif selfobj.MultiMode == 'Write many files':
                 files_written = set()
                 for obj in objects_to_export:
@@ -154,7 +155,8 @@ class Exporter:
                             .format(exporter= selfobj.Label, fn= thisfilepath))
                     mod.export([obj], thisfilepath)
                     print("Exported {file}".format(file= thisfilepath))
-                selfobj.FullActualPath = thisfilepath
+                if selfobj.FullActualPath != thisfilepath: #check, to avoid touching all exporters upon every file save
+                    selfobj.FullActualPath = thisfilepath
             else:
                 raise NotImplementedError("Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
         except KeyError as ke:
