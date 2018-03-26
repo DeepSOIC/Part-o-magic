@@ -46,7 +46,7 @@ class PartOMagicWorkbench (Workbench):
             + POM.Gui.Control.exportedCommands()
         )
         self.appendMenu('Part-o-Magic', cmdsControl)
-        cmdsControl.remove('PartOMagic_Power') #don't add this comand to toolbar
+        cmdsControl.remove('PartOMagic_Power') #don't add this command to toolbar
         self.appendToolbar('POMControl', cmdsControl)
         
         self.appendMenu('Part-o-Magic', ["Separator"])
