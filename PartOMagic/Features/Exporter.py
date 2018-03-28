@@ -142,7 +142,7 @@ class Exporter:
                 addObjectVars(selfobj.ObjectToExport)
                 filepath = filepath.replace('%Label%', selfobj.ObjectToExport.Label).format(**vardict)
                 mod.export(objects_to_export, filepath)
-                print("Exported {file}".format(file= filepath))
+                print(u"Exported {file}".format(file= filepath))
                 if selfobj.FullActualPath != filepath: #check, to avoid touching all exporters upon every file save
                     selfobj.FullActualPath = filepath
             elif selfobj.MultiMode == 'Write many files':
@@ -154,7 +154,7 @@ class Exporter:
                         raise ValueError('Exporter {exporter} is supposed to write multiple files, but the filenames repeat: {fn}. Please make sure a variable is used in the file name, such as {{object_name}}, or {{object_label}}.'
                             .format(exporter= selfobj.Label, fn= thisfilepath))
                     mod.export([obj], thisfilepath)
-                    print("Exported {file}".format(file= thisfilepath))
+                    print(u"Exported {file}".format(file= thisfilepath))
                 if selfobj.FullActualPath != thisfilepath: #check, to avoid touching all exporters upon every file save
                     selfobj.FullActualPath = thisfilepath
             else:
