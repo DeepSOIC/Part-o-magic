@@ -38,8 +38,10 @@ def msgError(err = None, message = '{errmsg}'):
     if hasattr(err,'message'):
         if isinstance(err.message, dict):
             errmsg = err.message['swhat']
-        else:
+        elif len(err.message) > 0:
             errmsg = err.message
+        else: 
+            errmsg = str(err)
     else:
         errmsg = str(err)
     mb.setText(message.format(errmsg= errmsg, err= err))
