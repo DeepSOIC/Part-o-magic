@@ -26,12 +26,12 @@ class CommandListUsages(AACommand):
             from PartOMagic.Base import LinkTools as LT
             uses = LT.findLinksTo(sel[0])
             uses_str = '\n'.join([
-                (lnk_from.Name + '.' + prop +' (' + kind + ')') for (lnk_from, kind, prop, lnk_to) in uses  ])
+                (rel.linking_object.Name + '.' + rel.linking_property +' (' + rel.kind + ')') for rel in uses  ])
             if len(uses_str) == 0: uses_str = "(nothing)"
                 
             links = LT.getDependencies(sel[0])
             links_str = '\n'.join([
-                (lnk_to.Name + " as " + prop +' (' + kind + ')') for (lnk_from, kind, prop, lnk_to) in links  ])
+                (rel.linked_object.Name + " as " + rel.linking_property +' (' + rel.kind + ')') for rel in links  ])
             if len(links_str) == 0: links_str = "(nothing)"
                 
             msg = ("==== {obj} uses: ====\n"
@@ -54,7 +54,7 @@ class CommandListUsages(AACommand):
                 cb = QtGui.QClipboard()
                 cb.setText(msg)
             if mb.clickedButton() is btnSelect:
-                objs = set([obj for obj,dummy,dummy,dummy in uses])
+                objs = set([rel.linking_object for rel in uses])
                 Gui.Selection.clearSelection()
                 for obj in objs:
                     Gui.Selection.addSelection(obj)
