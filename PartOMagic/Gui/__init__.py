@@ -8,6 +8,7 @@ __all__ = [
 "AACommand",
 "Control",
 "Tools",
+"LinkTools",
 "Icons",
 "CommandCollection1",
 "GlobalToolbar",
@@ -21,6 +22,7 @@ def importAll():
     from . import AACommand
     from . import Control
     from . import Tools
+    from . import LinkTools
     from . import Icons
     from . import CommandCollection1
     from . import GlobalToolbar
