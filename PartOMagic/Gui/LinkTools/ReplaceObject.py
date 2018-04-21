@@ -18,7 +18,7 @@ class CommandReplaceObject(AACommand):
         
     def RunOrTest(self, b_run):
         sel = Gui.Selection.getSelection()
-        if 2 < len(sel) < 3 :
+        if not 2 <= len(sel) <= 3 :
             raise CommandError(self, "Please select two or three objects. Currently selected {n}".format(n= len(sel)))
         if b_run:
             old = sel[0]
