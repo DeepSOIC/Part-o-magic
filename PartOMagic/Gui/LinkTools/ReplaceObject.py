@@ -26,25 +26,31 @@ class CommandReplaceObject(AACommand):
             parent = sel[2] if len(sel) > 2 else None
                 
             from PartOMagic.Base import LinkTools as LT
-            repls = LT.replaceObject(old, new, [parent])
-            with Transaction("Replace {old} with {new} in {scope}".format(old= old.Name, new= new.Name, scope= "project" if parent is None else parent.Name  )):
-                LT.mass_replace(repls)
+            rels = LT.findLinksTo(old)
+            avoid = LT.getAllDependencyObjects(new)
+            avoid.add(new)
+            repls = [LT.Replacement(rel, new) for rel in rels]
             
-            kinds = [repl.relation.kind for repl in repls if repl.replaced]
-                
-            msg = (
-                "Of total {n} links, replaced {n_links} regular links, {n_sublinks} subelement links, {n_expr} expression references. Failed: {n_fail}"
-                " Please recompute to see the changes."
-                .format(
-                  n= len(repls), 
-                  n_links= kinds.count('Link'), 
-                  n_sublinks= kinds.count('Sublink'),
-                  n_expr= kinds.count('Expression') + kinds.count('CellExpression'),
-                  n_fail= len(kinds) - len(repls)
-                )
-            )
+            n_checked = 0
+            for repl in repls:
+                if repl.relation.linking_object in avoid:
+                    repl.disable("dependency loop")
+                repl.checked = not(repl.disabled)
+                if parent:
+                    if repl.relation.linking_object is not parent:
+                        repl.checked = False
+                if repl.checked:
+                    n_checked += 1
+
+            if len(repls) == 0:
+                raise CommandError(self, u"Nothing depends on {old}, nothing to replace.".format(old= old.Label))
             
-            msgbox('Part-o-magic Replace Object', msg)
+            if n_checked == 0 and len(repls)>0:
+                msgBox("No regular replacable dependencies found, nothing uses {old}. Please pick wanted replacements manually in the dialog.".format(old= old.Label))
+            
+            
+            import TaskReplace
+            task = TaskReplace.TaskReplace(repls, old.Document, message= u"Replacing {old} with {new}".format(old= old.Label, new= new.Label))
             
 commands.append(CommandReplaceObject())
 

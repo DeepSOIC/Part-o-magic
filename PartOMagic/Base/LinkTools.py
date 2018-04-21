@@ -6,7 +6,10 @@ printLog = App.Console.PrintLog
 printWarn = App.Console.PrintWarning
 
 class Relation(object):
-    """linking_object.linking_property links to linked_object."""
+    """Relation object is a unified representation of any parametric relation between documentobjects.
+    linking_object.linking_property links to linked_object.
+    Constructor is not supposed to be used directly. Call getDependencies or getAllDependencies"""
+    
     linking_object = None #object that has the link. I.e. the dependent object. 
     linking_property = None #string - property name
     list_index = None #if property is a list, this is the index into the list.
@@ -14,6 +17,7 @@ class Relation(object):
     kind = None #either 'Link', 'Sublink', 'Child', 'Expression' or 'CellExpression'
     linked_object = None 
     sublist = None
+    value_repr = None #filled by self_check
     
     def __init__(self, linking_object, kind, linking_property, linked_object, **kwargs):
         self.linking_object = linking_object
@@ -57,8 +61,9 @@ class Relation(object):
             if not oldexpr.startswith('='): raise ExpressionGoneError()
             #check that the identifier is still at the indexes
             id = oldexpr[range[0]:range[1]]
-            if id != self.relation.linked_object.Name or id != self.relation.linked_object.Label:
+            if id != self.linked_object.Name or id != self.linked_object.Label:
                 raise ExpressionChangedError()
+            self.value_repr = oldexpr
         elif kind == 'Expression':
             range = self.expression_charrange
             ee = dict(obj.ExpressionEngine)
@@ -68,15 +73,18 @@ class Relation(object):
             id = oldexpr[range[0]:range[1]]
             if id != self.linked_object.Name or id != self.linked_object.Label:
                 raise ExpressionChangedError()
+            self.value_repr = oldexpr
         elif kind == 'Child' or kind == 'Link':
             typ = obj.getTypeIdOfProperty(prop)
             val = getattr(obj, prop)
             if typ.startswith('App::PropertyLinkList'):
                 if val[self.list_index] is not self.linked_object: 
                     raise LinkChangedError()
+                self.value_repr = '['+', '.join([obj.Name for obj in val]) + ']'
             elif typ.startswith('App::PropertyLink'):
                 if val is not self.linked_object:
                     raise LinkChangedError()
+                self.value_repr = val.Name
             else:
                 raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
         elif kind == 'Sublink':
@@ -85,9 +93,13 @@ class Relation(object):
             if typ.startswith('App::PropertyLinkSubList'):
                 if val[self.list_index][0] is not self.linked_object:
                     raise LinkChangedError()
+                obj, subs = val[self.list_index]
+                self.value_repr = obj.Name + "." + repr(subs)
             elif typ.startswith('App::PropertyLinkSub'):
                 if val[0] is not self.linked_object:
                     raise LinkChangedError()
+                obj, subs = val
+                self.value_repr = obj.Name + "." + repr(subs)                    
             else:
                 raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
         else:
@@ -95,27 +107,37 @@ class Relation(object):
 
     
 class Replacement(object):
+    """Replacement: holds data about a link change, a single piece in a replacement job.
+    The link to be replaced is in attribute .relation. .new_object is the replacement object.
+    Constructor: Replacement(relation, new_object, **kwargs):
+    **kwargs: additional attributes to set, like Replacement(rel, object_B, new_sublist= "somethingsomething")"""
+    
     relation = None #None means the link should be erased
     new_object = None
     new_sublist = None #None means "do not change the subelement"
     replaced = False
+    disabled = False #use to disable this replacement in replacement dialog (only works before dialog is created). This flag is initilized by checkSanity.
+    disabled_reason = "" #this will appear in status field
+    checked = True #use to define checkboxes in dialog (only works before dialog is created)
     
     def __init__(self, relation, new_object, **kwargs):
         self.relation = relation
         self.new_object = new_object
         for key in kwargs:
             setattr(self, key, kwargs[key])
-
+        self.checkSanity()
+        
     def __repr__(self):
-        if self.linking_object is None:
+        if self.relation is None:
             return '<empty Replace object>'
-        return '<Replace object, {self.relation.kind}, {self.relation.linking_object.Name}.{self.relation.linking_property} to set to {self.new_object}>'.format(self= self)
-    
+        target = "None" if self.new_object is None else self.new_object.Name
+        return '<Replace object, {self.relation.kind}, {self.relation.linking_object.Name}.{self.relation.linking_property} to set to {target}>'.format(self= self, target= target)
 
     def replace(self, check_dag = False):
-        """when doing mass-replacements, be extremely careful with expressions. Replacement 
+        """replace(check_dag = False): applies this replacement.
+        When doing mass-replacements, be extremely careful with expressions. Replacement 
         objects remember exact location of the identifier in string, and they must be done 
-        largest-index-first to ensure expressions are not corrupted. So use mass_replace 
+        largest-index-first to ensure expressions are not corrupted. So use massReplace 
         function.
         Same applies to removing a link from link list.
         
@@ -125,6 +147,7 @@ class Replacement(object):
             raise AlreadyReplacedError("Replacement already done, can't repeat.")
         self._replace(check_dag)
         self.replaced = True
+
 
     def _replace(self, check_dag):
         # does the business of replacing. But does not set self.replaced flag, so that I can use return statement without caution.
@@ -187,7 +210,7 @@ class Replacement(object):
             typ = obj.getTypeIdOfProperty(prop)
             val = getattr(obj, prop)
             if typ.startswith('App::PropertyLinkList'):
-                val = val[0:self.list_index] + ([] if new is None else [new]) + val[self.list_index+1:]
+                val = val[0:self.relation.list_index] + ([] if new is None else [new]) + val[self.relation.list_index+1:]
             elif typ.startswith('App::PropertyLink'):
                 val = new
             else:
@@ -202,7 +225,7 @@ class Replacement(object):
 
             sublist = self.new_sublist if self.new_sublist is not None else self.relation.sublist
             if typ.startswith('App::PropertyLinkSubList'):
-                val = val[0:self.list_index] + [(new, sublist)] + val[self.list_index+1:]
+                val = val[0:self.relation.list_index] + [(new, sublist)] + val[self.relation.list_index+1:]
             elif typ.startswith('App::PropertyLinkSub'):
                 val = (new, sublist)
             else:
@@ -213,7 +236,7 @@ class Replacement(object):
     
 
     def check_dag(self):
-        """returns True if DAG-compatible, and False otherwise. Note that it may be wrong for mass-replacements"""
+        """check_dag(): returns True if DAG-compatible, and False otherwise. Note that it may be wrong for mass-replacements"""
         if replaced:
             raise AlreadyReplacedError("Replacement already done, can't check.")
         if self.new_object is None: 
@@ -224,23 +247,50 @@ class Replacement(object):
             return False
         return True
     
+    def disable(self, message):
+        """disable(message): marks this replacement as disabled, and attaches a message as to 
+        why it is disabled. Use for GUI purposes only. Disabling the replacement won't make 
+        replace() method do nothing."""
+        
+        self.disabled = True
+        self.disabled_reason = message
+    
+    def isToBeAvoided(self):
+        """isToBeAvoided(): Checks the relation against a list of ones known to be unreplaceable, such as read-only 
+        link properties. 
+        Returns tuple (bool, message), bool is True if the link is unreplaceable, and message
+        is a string, explaining why."""
+        
+        obj = self.relation.linking_object
+        prop = self.relation.linking_property
+        readonly = "Read-only property"
+        if obj.isDerivedFrom('Spreadsheet::Sheet') and prop == 'docDeps':
+            return (True, readonly)
+        return (False, "")
+    
+    def checkSanity(self):
+        """checkSanity(): Checks that this replacement can potentially be done. In particular, checks if the 
+        property is known to be read-only. If found so, sets disabled flag.
+        Returns True if the replacement is OK."""
+        itba, message = self.isToBeAvoided()
+        if itba:
+            self.disable(message)
+        return not itba
 
-def mass_replace(replacements, check_dag = False):
-    """Does a number of replaces at once. Takes care to make sure the order is correct, so
-    that expression char indexes and link-list indexes are not mixed up in the process.
+def massReplace(replacements, check_dag = False):
+    """massReplace(replacements, check_dag = False): Does a number of replaces at once. 
+    Takes care to make sure the order is correct, so that expression char indexes and link-list 
+    indexes are not mixed up in the process.
     check_dag: tests for dependency loop before each replacement. It's quite stupid, it 
-    doesn't take into account the replacements that are pending."""
+    doesn't take into account the replacements that are pending. Slow."""
     
     if len(replacements) == 0:
         raise NothingToReplace("Nothing to replace")
     
-    def sort_func(repl):
-        i1 = 0 if repl.relation.list_index is None else repl.relation.list_index
-        i2 = 0 if repl.relation.expression_charrange is None else repl.relation.expression_charrange[0]
-        return (i1, i2)
-    order = sorted(replacements, sort_func)
+    order = sortForMassReplace(replacements)
+    
     errs = []
-    for repl in order[::-1]:
+    for repl in order:
         try:
             repl.replace()
         except Exception as err:
@@ -248,11 +298,20 @@ def mass_replace(replacements, check_dag = False):
             errs.append(err)
             repl.error = err
     if len(errs)>0:
-        raise ReplacementErrorList('{failed} of {total} replacements failed.', errs)
+        raise MassReplaceErrorList('{failed} of {total} replacements failed.', errs)
 
+def sortForMassReplace(replacements):
+    """sortForMassReplace(replacements): sorts replacements, so they can be applied one by one without invalidating each other
+    Returns: sorted list. Original list is not touched."""
+    def sort_func(repl):
+        i1 = 0 if repl.relation.list_index is None else repl.relation.list_index
+        i2 = 0 if repl.relation.expression_charrange is None else repl.relation.expression_charrange[0]
+        return (i1, i2)
+    return sorted(replacements, key= sort_func)[::-1]
+    
 
 def getDependencies(object, property = None):
-    """Returns list of dependencies as Relation objects, for @prop property of the object. 
+    """getDependencies(object, property = None): Returns list of object dependencies as Relation objects, for @prop property of the object. 
     If @prop is None, all properties are scanned, and this is an elaborate equivalent of OutList."""
     
     if property is None: 
@@ -303,7 +362,8 @@ def getDependencies(object, property = None):
         for itprop in props:
             try:
                 expr = object.getContents(itprop) #raises ValueError if not a cell
-                if not expr.startswith('='): continue
+                if not expr.startswith('='): 
+                    continue
             except ValueError:
                 continue
             deps = expressionDeps(expr, object.Document)
@@ -318,11 +378,12 @@ def getDependencies(object, property = None):
 
 
 def findLinksTo(obj, within = None):
-    """findLinksTo(obj, within): finds all uses of *obj* by objects in *within*. Like InList, but with details.
+    """findLinksTo(obj, within = None): finds all uses of *obj* by objects in *within*. Like InList, but with details.
     
     *within*: either None, an object, or list of objects. If None, all objects from document will be used.
     
     Returns list of Relation objects. """
+    
     if within is None:
         within = obj.Document.Objects
     if hasattr(within, 'isDerivedFrom'): #single object -> convert into list
@@ -340,6 +401,9 @@ def findLinksTo(obj, within = None):
 
 
 def allRelations(document):
+    """allRelations(document): Returns list of all parametric relations in the document.
+    returns: list of Relation objects."""
+    
     result = []
     for obj in document.Objects:
         result += getDependencies(obj)
@@ -347,9 +411,9 @@ def allRelations(document):
     
 
 def replaceObject(orig, new, within = None, do_it = True, child_links_too = False):
-    """replaceObject: redirects all uses of @orig to point to @new instead. If @do_it is 
-    True, just makes it happen, and returns list of replacements done. If @do_it is False, 
-    returns list of replacements to be done, which can then be applied by calling mass_replace.
+    """replaceObject(orig, new, within = None, do_it = True, child_links_too = False): redirects all uses of @orig to point to @new instead. 
+    If @do_it is True, just makes it happen, and returns list of replacements done. If @do_it is False, 
+    returns list of replacements to be done, which can then be applied by calling massReplace.
     @within is object or list where to search. If None, whole project is searched.
     @child_links_too: if true, will try to replace in childship links same as in regular links. 
     Note that it may fail, because FreeCAD won't allow same object be in two containers at 
@@ -357,7 +421,7 @@ def replaceObject(orig, new, within = None, do_it = True, child_links_too = Fals
     rels = findLinksTo(orig, within)
     repls = [Replacement(rel, new) for rel in rels if rel.kind != 'Child' or child_links_too]
     if do_it: 
-        mass_replace(repls, check_dag= True)
+        massReplace(repls, check_dag= True)
     else:
         return repls    
 
@@ -369,7 +433,10 @@ namechars += ['_']
 namechars = set(namechars)
 
 def replaceNameInExpression(expr, old_name, new_name):
-    'If not found, returns None. If replaced, returns new expression.'
+    """replaceNameInExpression(expr, old_name, new_name): replaces an identifier in an expression.
+    expr: expression (a string).
+    Return: If not found, returns None. If replaced, returns new expression."""
+ 
     #FIXME: prevent replacement of function names
     global namechars
 
@@ -401,9 +468,11 @@ def replaceNameInExpression(expr, old_name, new_name):
 
 
 def expressionDeps(expr, doc):
-    """expressionDeps(expr, doc): returns set of objects referenced by the expression, as list of Relations with unfilled linking_object."""
+    """expressionDeps(expr, doc): returns set of objects referenced by the expression, as list of Relations with unfilled linking_object.
+    expr: expression, as a string
+    doc: document where to look up objects by names/labels"""
     global namechars
-    startchars = set("+-*/(%^&\[<>;, ")
+    startchars = set("+-*/(%^&\[<>;, =")
     endchars = set(".")
     
     ids = [] #list of tuples: (identifier, (start, end_plus_1))
@@ -420,11 +489,7 @@ def expressionDeps(expr, doc):
         elif expr[i] not in namechars:
             finish = i
             start = len(expr)
-    
-    #debug
-    for id in ids: 
-        print(id)
-    
+        
     ret = []
     for id, id_range in ids:
         # try by name
@@ -442,6 +507,53 @@ def expressionDeps(expr, doc):
             
     return ret
     
+    
+    
+def getAllDependentObjects(feat):
+    '''getAllDependentObjects(feat): gets all features that depend on feat, directly or indirectly. 
+    Returns a set of document objects. feat is not included in the list, except 
+    if the feature depends on itself (dependency loop).'''
+
+    if feat.isDerivedFrom("App::Document"):
+        return set()
+
+    list_traversing_now = [feat]
+    set_of_deps = set()
+    
+    while len(list_traversing_now) > 0:
+        list_to_be_traversed_next = []
+        for feat in list_traversing_now:
+            for dep in feat.InList:
+                if not (dep in set_of_deps):
+                    set_of_deps.add(dep)
+                    list_to_be_traversed_next.append(dep)
+        
+        list_traversing_now = list_to_be_traversed_next
+    
+    return set_of_deps
+
+def getAllDependencyObjects(feat):
+    '''getAllDependencyObjects(feat): gets all features feat depends on, directly or indirectly. 
+    Returns a set. feat is not included in the list, except 
+    if the feature depends on itself (dependency loop).'''
+
+    if feat.isDerivedFrom("App::Document"):
+        return feat.Objects
+
+    list_traversing_now = [feat]
+    set_of_deps = set()
+    
+    while len(list_traversing_now) > 0:
+        list_to_be_traversed_next = []
+        for feat in list_traversing_now:
+            for dep in feat.OutList:
+                if not (dep in set_of_deps):
+                    set_of_deps.add(dep)
+                    list_to_be_traversed_next.append(dep)
+        
+        list_traversing_now = list_to_be_traversed_next
+    
+    return set_of_deps
     
 class ReplacementError(RuntimeError):
     """Base class for errors that arise when executing a Replacement object. Note that it may fire other types of errors, too."""
@@ -464,5 +576,5 @@ class MassReplaceError(RuntimeError):
 class MassReplaceErrorList(RuntimeError):
     """Thrown when some replacements in mass replace failed. List of errors available as self.args[1]"""
 class NothingToReplaceError(ReplacementError):
-    """Thrown when empty replacements list is supplied to mass_replace"""
+    """Thrown when empty replacements list is supplied to massReplace"""
     
