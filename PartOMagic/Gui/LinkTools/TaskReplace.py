@@ -26,6 +26,8 @@ class TaskReplace(QtCore.QObject):
         
         import os
         self.form = uic.loadUi(os.path.dirname(__file__) + os.path.sep + 'TaskReplace.ui')
+        self.form.setWindowIcon(QtGui.QIcon(':/icons/PartOMagic_ReplaceObject.svg'))
+        self.form.setWindowTitle("Replace object")
 
         self.replacements = replacements
         self.form.message.setText(message)
