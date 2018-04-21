@@ -142,15 +142,7 @@ class TaskReplace(QtCore.QObject):
                 App.Console.PrintError(tb+'\n\n')
                 path = "!" + str(err)
             item.setText(self.column['Path'], path)
-            try:
-                repl.relation.self_check() #to fill value_repr
-                value = repl.relation.value_repr
-            except Exception as err:
-                import traceback
-                tb = traceback.format_exc()
-                App.Console.PrintError(tb+'\n\n')
-                value = "!" + str(err)
-            item.setText(self.column['Value'], value)
+            item.setText(self.column['Value'], str(repl.relation.value_repr))
             
             repl.gui_item = item
             item.setData(0,256,repl)

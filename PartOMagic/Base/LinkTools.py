@@ -17,7 +17,7 @@ class Relation(object):
     kind = None #either 'Link', 'Sublink', 'Child', 'Expression' or 'CellExpression'
     linked_object = None 
     sublist = None
-    value_repr = None #filled by self_check
+    value_repr = None
     
     def __init__(self, linking_object, kind, linking_property, linked_object, **kwargs):
         self.linking_object = linking_object
@@ -63,7 +63,6 @@ class Relation(object):
             id = oldexpr[range[0]:range[1]]
             if id != self.linked_object.Name or id != self.linked_object.Label:
                 raise ExpressionChangedError()
-            self.value_repr = oldexpr
         elif kind == 'Expression':
             range = self.expression_charrange
             ee = dict(obj.ExpressionEngine)
@@ -73,18 +72,15 @@ class Relation(object):
             id = oldexpr[range[0]:range[1]]
             if id != self.linked_object.Name or id != self.linked_object.Label:
                 raise ExpressionChangedError()
-            self.value_repr = oldexpr
         elif kind == 'Child' or kind == 'Link':
             typ = obj.getTypeIdOfProperty(prop)
             val = getattr(obj, prop)
             if typ.startswith('App::PropertyLinkList'):
                 if val[self.list_index] is not self.linked_object: 
                     raise LinkChangedError()
-                self.value_repr = '['+', '.join([obj.Name for obj in val]) + ']'
             elif typ.startswith('App::PropertyLink'):
                 if val is not self.linked_object:
                     raise LinkChangedError()
-                self.value_repr = val.Name
             else:
                 raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
         elif kind == 'Sublink':
@@ -93,13 +89,9 @@ class Relation(object):
             if typ.startswith('App::PropertyLinkSubList'):
                 if val[self.list_index][0] is not self.linked_object:
                     raise LinkChangedError()
-                obj, subs = val[self.list_index]
-                self.value_repr = obj.Name + "." + repr(subs)
             elif typ.startswith('App::PropertyLinkSub'):
                 if val[0] is not self.linked_object:
                     raise LinkChangedError()
-                obj, subs = val
-                self.value_repr = obj.Name + "." + repr(subs)                    
             else:
                 raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
         else:
@@ -326,12 +318,13 @@ def getDependencies(object, property = None):
         if typ.startswith('App::PropertyLinkSubList'):
             for i in range(len(val)):
                 obj, sublist = val[i]
-                result.append(Relation(object, 'Sublink', prop, obj, sublist= sublist, list_index= i))
+                result.append(Relation(object, 'Sublink', prop, obj, sublist= sublist, list_index= i, value_repr= obj.Name + "." + repr(sublist)))
         elif typ.startswith('App::PropertyLinkSub'):
             if val is not None:
                 obj, sublist = val
-                result.append(Relation(object, 'Sublink', prop, obj, sublist= sublist))
+                result.append(Relation(object, 'Sublink', prop, obj, sublist= sublist, value_repr= obj.Name + "." + repr(sublist)))
         elif typ.startswith('App::PropertyLinkList'):
+            value_repr = '['+', '.join([obj.Name for obj in val]) + ']'
             for i in range(len(val)):
                 obj = val[i]
                 kind = 'Link'
@@ -339,13 +332,13 @@ def getDependencies(object, property = None):
                     kind = 'Child'
                 if prop == 'OriginFeatures' and object.isDerivedFrom('App::Origin'):
                     kind = 'Child'
-                result.append(Relation(object, kind, prop, obj, list_index= i))
+                result.append(Relation(object, kind, prop, obj, list_index= i, value_repr= value_repr))
         elif typ.startswith('App::PropertyLink'):
             if val is not None:
                 kind = 'Link'
                 if prop == 'Origin' and object.hasExtension('App::OriginGroupExtension'): 
                     kind = 'Child'
-                result.append(Relation(object, kind, prop, val))
+                result.append(Relation(object, kind, prop, val, value_repr= val.Name))
     
     #scan expressions bound to properties
     for itprop, expr in object.ExpressionEngine:
@@ -355,6 +348,7 @@ def getDependencies(object, property = None):
             if dep.linked_object is not object: #skip self-references
                 dep.linking_object = object
                 dep.linking_property = itprop
+                dep.value_repr = expr
                 result.append(dep)
     
     #scan expressions in spreadsheet cells
@@ -372,6 +366,7 @@ def getDependencies(object, property = None):
                     dep.linking_object = object
                     dep.linking_property = itprop
                     dep.kind = 'CellExpression'
+                    dep.value_repr = expr
                     result.append(dep)
 
     return result
@@ -557,6 +552,12 @@ def getAllDependencyObjects(feat):
     
 class ReplacementError(RuntimeError):
     """Base class for errors that arise when executing a Replacement object. Note that it may fire other types of errors, too."""
+    def __str__(self):
+        if self.args:
+            return self.args[0]
+        else:
+            return type(self).__name__
+            
 class AlreadyReplacedError(ReplacementError):
     """Thrown when Replacement object is executed twice"""
 class DAGError(ReplacementError):
@@ -573,8 +574,20 @@ class LinkChangedError(RelationOutdatedError):
     
 class MassReplaceError(RuntimeError):
     """base class for mass-replace errors"""
+    def __str__(self):
+        if self.args:
+            return self.args[0]
+        else:
+            return type(self).__name__
+
 class MassReplaceErrorList(RuntimeError):
     """Thrown when some replacements in mass replace failed. List of errors available as self.args[1]"""
+    def __str__(self):
+        if self.args:
+            return self.args[0]
+        else:
+            return type(self).__name__
+
 class NothingToReplaceError(ReplacementError):
     """Thrown when empty replacements list is supplied to massReplace"""
     
