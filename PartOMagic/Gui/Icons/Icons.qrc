@@ -4,11 +4,13 @@
         <file>icons/PartOMagic_DisableObserver.svg</file>
         <file>icons/PartOMagic_EnableObserver.svg</file>
         <file>icons/PartOMagic_Ghost.svg</file>
+        <file>icons/PartOMagic_ListUsages.svg</file>
         <file>icons/PartOMagic_MorphContainer.svg</file>
         <file>icons/PartOMagic_PauseObserver.svg</file>        
         <file>icons/PartOMagic_Power.svg</file>
         <file>icons/PartOMagic_PDShapeFeature_Additive.svg</file>
         <file>icons/PartOMagic_PDShapeFeature_Subtractive.svg</file>
+        <file>icons/PartOMagic_ReplaceObject.svg</file>
         <file>icons/PartOMagic_ShapeGroup.svg</file>
         <file>icons/PartOMagic_SnapView.svg</file>
         <file>icons/PartOMagic_TransferObject.svg</file>
