@@ -136,8 +136,8 @@ class TaskReplace(QtCore.QObject):
             item.setText(self.column['Object'], repl.relation.linking_object.Label)
             item.setText(self.column['Property'], repl.relation.linking_property)
             try:
-                chain = Containers.getContainerChain(repl.relation.linking_object)
-                path = '.'.join([cnt.Name for cnt in chain] + [repl.relation.linking_object.Name])
+                chain = Containers.getContainerChain(repl.relation.linking_object)[1:] + [repl.relation.linking_object] #[1:] strips off project name, to unclutter the column.
+                path = '.'.join([cnt.Name for cnt in chain])
             except Exception as err:
                 import traceback
                 tb = traceback.format_exc()
