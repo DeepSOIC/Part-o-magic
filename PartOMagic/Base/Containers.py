@@ -186,7 +186,8 @@ def addObjectTo(container, feature, b_advance_tip = True):
         raise ContainerError("Attempting to add {feat} to itself. Feature can't contain itself.".format(feat= feature.Label))
 
     if container.hasExtension("App::GroupExtension"):
-        container.addObject(feature)
+        #container.addObject(feature)
+        container.Group = container.Group + [feature]
         if b_advance_tip:
             try:
                 container.Proxy.advanceTip(container, feature)
@@ -216,7 +217,8 @@ def withdrawObject(feature):
     if container.hasExtension("App::GroupExtension"):
         if feature not in container.Group:
             raise SpecialChildError("{feat} is a special child of {container} and can't be withdrawn.".format(feat= feature.Label, container= container.Label))
-        container.removeObject(feature)
+        #container.removeObject(feature)
+        container.Group = [child for child in container.Group if child is not feature]
         assert(feature not in container.Group) #test it was actually removed
     
 
