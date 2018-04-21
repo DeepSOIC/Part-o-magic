@@ -39,6 +39,8 @@ class CommandReplaceObject(AACommand):
                 if parent:
                     if repl.relation.linking_object is not parent:
                         repl.checked = False
+                if repl.relation.kind == 'Child':
+                    repl.checked = False
                 if repl.checked:
                     n_checked += 1
 
