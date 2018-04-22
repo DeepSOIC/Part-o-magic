@@ -199,6 +199,10 @@ class Replacement(object):
             if self.relation.linked_object is self.new_object:
                 printWarn("Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
                 return #nothing to do
+            if kind == 'Child':
+                #when replacing child links, make sure the new object is not in a container. Otherwise FreeCAD throws an error.
+                from PartOMagic.Base import Containers
+                Containers.withdrawObject(new)
             typ = obj.getTypeIdOfProperty(prop)
             val = getattr(obj, prop)
             if typ.startswith('App::PropertyLinkList'):
