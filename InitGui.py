@@ -17,9 +17,14 @@ if Params.EnablePartOMagic.get():
         App.Console.PrintError("Part-o-magic is disabled.\n    {err}".format(err= str(err)))
 
 if Params.EnablePartOMagic.get():
-    # substitute TempoVis's isContainer with a more modern one
-    import Show.TempoVis 
-    Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
+    try:
+        import Show.Containers
+        # good tempovis, do not replace.
+    except ImportError:
+        # old TempoVis
+        # substitute TempoVis's isContainer with a more modern one
+        import Show.TempoVis 
+        Show.TempoVis = PartOMagic.Gui.TempoVis.TempoVis
 
 if Params.EnablePartOMagic.get():
     # global toolbar - update only if missing
