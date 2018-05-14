@@ -36,12 +36,12 @@ class CommandShapeBinder(AACommand):
             sel = screen(sel[0])
             ac = Containers.activeContainer()
             if sel in Containers.getDirectChildren(ac):
-                raise CommandError(self, "{feat} is from active container ({cnt}). Please select an object belonging to another container.".format(feat= sel.Label, cnt= ac.Label))
+                raise CommandError(self, u"{feat} is from active container ({cnt}). Please select an object belonging to another container.".format(feat= sel.Label, cnt= ac.Label))
             if sel in (Containers.getAllDependent(ac)+ [ac]):
                 raise CommandError(self, "Can't create a shapebinder, because a circular dependency will result.")
             if b_run: CreateShapeBinder(sel)
         else:
-            raise CommandError(self, "Shapebinder command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))
+            raise CommandError(self, u"Shapebinder command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))
 commands.append(CommandShapeBinder())
 
 exportedCommands = AACommand.registerCommands(commands)

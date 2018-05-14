@@ -22,7 +22,7 @@ class _CommandEnter(AACommand):
         if Gui.ActiveDocument:
             in_edit = Gui.ActiveDocument.getInEdit()
             if in_edit is not None:
-                raise CommandError(self, "{object} is currently being edited. Can't enter anything.".format(object= in_edit.Object.Label))
+                raise CommandError(self, u"{object} is currently being edited. Can't enter anything.".format(object= in_edit.Object.Label))
         sel = Gui.Selection.getSelection()
         if len(sel)==0 :
             raise CommandError(self, "Enter Object command. Please select an object to enter, first. It can be a container, or a sketch.")
@@ -41,7 +41,7 @@ class _CommandEnter(AACommand):
                 else:
                     if b_run: Containers.setActiveContainer(cnt)
         else:
-            raise CommandError(self, "Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))            
+            raise CommandError(self, u"Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))            
 commandEnter = _CommandEnter()
 commands.append(commandEnter)
 

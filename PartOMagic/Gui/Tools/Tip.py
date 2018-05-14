@@ -31,7 +31,7 @@ class CommandSetTip(AACommand):
         if len(sel)==0 :
             ac = Containers.activeContainer()
             if not hasattr(ac, "Tip"):
-                raise CommandError(self,"{cnt} can't have Tip object (it is not a module or a body).".format(cnt= ac.Label))
+                raise CommandError(self,u"{cnt} can't have Tip object (it is not a module or a body).".format(cnt= ac.Label))
             if type(ac.Tip) is list:
                 if Gui.ActiveDocument.getInEdit() is not None: 
                     raise CommandError(self,"Please leave editing mode.")
@@ -42,19 +42,19 @@ class CommandSetTip(AACommand):
             sel = screen(sel[0])
             ac = Containers.getContainer(sel)
             if not hasattr(ac, "Tip"):
-                raise CommandError(self,"{cnt} can't have Tip object (it is not a module or a body).".format(cnt= ac.Label))
+                raise CommandError(self,u"{cnt} can't have Tip object (it is not a module or a body).".format(cnt= ac.Label))
             if type(ac.Tip) is list:
                 if Gui.ActiveDocument.getInEdit() is not None: 
                     raise CommandError(self,"Please leave editing mode.")
                 if b_run: Gui.ActiveDocument.setEdit(ac, 0)
             else:
                 if not sel in Containers.getDirectChildren(ac):
-                    raise CommandError(self, "{feat} is not from active container ({cnt}). Please select an object belonging to active container.".format(feat= sel.Label, cnt= ac.Label))
+                    raise CommandError(self, u"{feat} is not from active container ({cnt}). Please select an object belonging to active container.".format(feat= sel.Label, cnt= ac.Label))
                 if screen(ac.Tip) is sel:
-                    raise CommandError(self, "{feat} is already a Tip of ({cnt}).".format(feat= sel.Label, cnt= ac.Label))
+                    raise CommandError(self, u"{feat} is already a Tip of ({cnt}).".format(feat= sel.Label, cnt= ac.Label))
                 if b_run: ac.Tip = sel
         else:
-            raise CommandError(self, "Set as Tip command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))
+            raise CommandError(self, u"Set as Tip command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))
 commands.append(CommandSetTip())
 
 exportedCommands = AACommand.registerCommands(commands)

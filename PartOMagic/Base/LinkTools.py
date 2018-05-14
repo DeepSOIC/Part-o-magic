@@ -44,7 +44,7 @@ class Relation(object):
         if self.list_index is not None:
             linkfrom = linkfrom + '['+str(self.list_index)+']'
         
-        return '<Relation object, {self.kind}, {linkfrom} links to {linkto}>'.format(self= self, linkfrom= linkfrom, linkto= linkto)
+        return u'<Relation object, {self.kind}, {linkfrom} links to {linkto}>'.format(self= self, linkfrom= linkfrom, linkto= linkto)
     
     def is_empty(self):
         return self.linking_object is None     or     self.linked_object is None
@@ -82,7 +82,7 @@ class Relation(object):
                 if val is not self.linked_object:
                     raise LinkChangedError()
             else:
-                raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
+                raise TypeError(u"Unexpected type of property: {typ}".format(typ= typ))
         elif kind == 'Sublink':
             typ = obj.getTypeIdOfProperty(prop)
             val = getattr(obj, prop)
@@ -93,9 +93,9 @@ class Relation(object):
                 if val[0] is not self.linked_object:
                     raise LinkChangedError()
             else:
-                raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
+                raise TypeError(u"Unexpected type of property: {typ}".format(typ= typ))
         else:
-            raise TypeError("Unexpected kind of dependency: {kind}".format(kind= kind))
+            raise TypeError(u"Unexpected kind of dependency: {kind}".format(kind= kind))
 
     
 class Replacement(object):
@@ -123,7 +123,7 @@ class Replacement(object):
         if self.relation is None:
             return '<empty Replace object>'
         target = "None" if self.new_object is None else self.new_object.Name
-        return '<Replace object, {self.relation.kind}, {self.relation.linking_object.Name}.{self.relation.linking_property} to set to {target}>'.format(self= self, target= target)
+        return u'<Replace object, {self.relation.kind}, {self.relation.linking_object.Name}.{self.relation.linking_property} to set to {target}>'.format(self= self, target= target)
 
     def replace(self, check_dag = False):
         """replace(check_dag = False): applies this replacement.
@@ -148,10 +148,10 @@ class Replacement(object):
         obj = self.relation.linking_object 
         kind = self.relation.kind                 
         
-        printLog("  replacing: {self}\n".format(self= self))
+        printLog(u"  replacing: {self}\n".format(self= self))
         if check_dag:
             if self.check_dag() == False:
-                raise DAGError("Replacement will cause a cycle: {repl}".format(repl= repr(self)))
+                raise DAGError(u"Replacement will cause a cycle: {repl}".format(repl= repr(self)))
         
         try:        
             self.relation.self_check()
@@ -161,7 +161,7 @@ class Replacement(object):
         
         if kind == 'CellExpression':
             if self.relation.linked_object is self.new_object:
-                printWarn("Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
+                printWarn(u"Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
                 return #nothing to do
             range = self.relation.expression_charrange
             oldexpr = obj.getContents(prop) #raises ValueError if not a cell
@@ -173,13 +173,13 @@ class Replacement(object):
                 newexpr = ''
                 
             if newexpr is not None:
-                printLog("    '{oldexpr}' -> '{newexpr}'\n"
+                printLog(u"    '{oldexpr}' -> '{newexpr}'\n"
                          .format(oldexpr= oldexpr,
                                  newexpr= newexpr))
                 obj.set(prop, newexpr)
         elif kind == 'Expression':
             if self.relation.linked_object is self.new_object:
-                printWarn("Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
+                printWarn(u"Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
                 return #nothing to do
             ee = dict(obj.ExpressionEngine)
             if not prop in ee and new is None: return #during mass-replacements with no new object, expression may have been gone already as a result of previous replacement. Skip this.
@@ -191,13 +191,13 @@ class Replacement(object):
             else:
                 newexpr = ''
             if newexpr is not None:
-                printLog("    '{oldexpr}' -> '{newexpr}'\n"
+                printLog(u"    '{oldexpr}' -> '{newexpr}'\n"
                          .format(oldexpr= oldexpr,
                                  newexpr= newexpr))
                 obj.setExpression(prop, newexpr)
         elif kind == 'Child' or kind == 'Link':
             if self.relation.linked_object is self.new_object:
-                printWarn("Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
+                printWarn(u"Replacement invoked, but nothing to do. {self}".format(self= repr(self)))
                 return #nothing to do
             if kind == 'Child':
                 #when replacing child links, make sure the new object is not in a container. Otherwise FreeCAD throws an error.
@@ -210,13 +210,13 @@ class Replacement(object):
             elif typ.startswith('App::PropertyLink'):
                 val = new
             else:
-                raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
+                raise TypeError(u"Unexpected type of property: {typ}".format(typ= typ))
             setattr(obj, prop, val)
         elif kind == 'Sublink':
             typ = obj.getTypeIdOfProperty(prop)
             val = getattr(obj, prop)
             if self.relation.linked_object is self.new_object and (self.new_sublist is None or self.relation.sublist == self.new_sublist):
-                printWarn('Replacement invoked, but nothing to do. {self}'.format(self= repr(self)))
+                printWarn(u'Replacement invoked, but nothing to do. {self}'.format(self= repr(self)))
                 return #nothing to do
 
             sublist = self.new_sublist if self.new_sublist is not None else self.relation.sublist
@@ -225,10 +225,10 @@ class Replacement(object):
             elif typ.startswith('App::PropertyLinkSub'):
                 val = (new, sublist)
             else:
-                raise TypeError("Unexpected type of property: {typ}".format(typ= typ))
+                raise TypeError(u"Unexpected type of property: {typ}".format(typ= typ))
             setattr(obj, prop, val)
         else:
-            raise TypeError("Unexpected kind of dependency: {kind}".format(kind= kind))
+            raise TypeError(u"Unexpected kind of dependency: {kind}".format(kind= kind))
     
 
     def check_dag(self):
@@ -502,7 +502,7 @@ def expressionDeps(expr, doc):
         if obj is not None:
             ret.append(Relation(None, 'Expression', None, obj, expression_charrange= id_range))
         else:
-            printWarn("identifier in expression not recognized: {id}".format(id= id))
+            printWarn(u"identifier in expression not recognized: {id}".format(id= id))
             
     return ret
     

@@ -44,7 +44,7 @@ def is_in_3Dview(obj):
         n = sa.getPath().getTail().getNumChildren()
         return n > 0
     except Exception as err:
-        App.Console.PrintWarning("Show.TempoVis.isIn3DView error: {err}".format(err= str(err)))
+        App.Console.PrintWarning(u"Show.TempoVis.isIn3DView error: {err}".format(err= str(err)))
         return True #assume.
 
 class TempoVis(FrozenClass):
@@ -91,7 +91,7 @@ class TempoVis(FrozenClass):
                 if not is_in_3Dview(doc_obj): continue
                 
                 if not hasattr(doc_obj.ViewObject, prop_name):
-                    App.Console.PrintWarning("TempoVis: object {obj} has no attribute {attr}. Skipped.\n"
+                    App.Console.PrintWarning(u"TempoVis: object {obj} has no attribute {attr}. Skipped.\n"
                                              .format(obj= doc_obj.Name, attr= prop_name))
                     continue # silently ignore if object doesn't have the property...
 
@@ -163,7 +163,7 @@ class TempoVis(FrozenClass):
             try:
                 setattr(self.document.getObject(obj_name).ViewObject, prop_name, self.data[(obj_name, prop_name)])
             except Exception as err:
-                App.Console.PrintWarning("TempoVis: failed to restore {obj}.{prop}. {err}\n"
+                App.Console.PrintWarning(u"TempoVis: failed to restore {obj}.{prop}. {err}\n"
                                          .format(err= err.message,
                                                  obj= obj_name,
                                                  prop= prop_name))
@@ -173,7 +173,7 @@ class TempoVis(FrozenClass):
         try:
             self.restoreCamera()
         except Exception as err:
-            App.Console.PrintWarning("TempoVis: failed to restore camera. {err}\n"
+            App.Console.PrintWarning(u"TempoVis: failed to restore camera. {err}\n"
                                      .format(err= err.message))
         self.restore_on_delete = False
 
@@ -262,6 +262,6 @@ class TempoVis(FrozenClass):
             try:
                 self._setPickStyle(self.document.getObject(obj_name).ViewObject, self.data_pickstyle[obj_name])
             except Exception as err:
-                App.Console.PrintWarning("TempoVis: failed to restore pickability of {obj}. {err}\n"
+                App.Console.PrintWarning(u"TempoVis: failed to restore pickability of {obj}. {err}\n"
                                          .format(err= err.message,
                                                  obj= obj_name))

@@ -69,7 +69,7 @@ class Exporter:
         from PartOMagic.Base import Containers
         for obj in Containers.getAllDependencies(selfobj):
             if 'Invalid' in obj.State:
-                raise RuntimeError("File not exported, because {feat} is in error state.".format(feat= obj.Label))
+                raise RuntimeError(u"File not exported, because {feat} is in error state.".format(feat= obj.Label))
     
         #form absolute path
         filepath = selfobj.FilePath
@@ -107,7 +107,7 @@ class Exporter:
             elif containermode == 'Feed all children':
                 objects_to_export += selfobj.ObjectToExport.Group
             else: 
-                raise NotImplementedError("Unexpected contaner mode {mode}".format(mode= repr(containermode)))
+                raise NotImplementedError(u"Unexpected contaner mode {mode}".format(mode= repr(containermode)))
         else:
             objects_to_export.append(selfobj.ObjectToExport)
         
@@ -116,7 +116,7 @@ class Exporter:
                 if hasattr(obj, 'Shape'):
                     obj.Shape.tessellate(selfobj.MeshAccuracy)
                 else:
-                    App.Console.PrintWarning("Exporter {exporter}: object to export ({object}) has no b-rep shape. Can't re-tessellate."
+                    App.Console.PrintWarning(u"Exporter {exporter}: object to export ({object}) has no b-rep shape. Can't re-tessellate."
                                               .format(exporter= selfobj.Name, object= obj.Label))
         
         vardict = {
@@ -151,17 +151,17 @@ class Exporter:
                     addObjectVars(obj)
                     thisfilepath = filepath.replace('%Label%', obj.Label).format(**vardict)
                     if thisfilepath in files_written:
-                        raise ValueError('Exporter {exporter} is supposed to write multiple files, but the filenames repeat: {fn}. Please make sure a variable is used in the file name, such as {{object_name}}, or {{object_label}}.'
+                        raise ValueError(u'Exporter {exporter} is supposed to write multiple files, but the filenames repeat: {fn}. Please make sure a variable is used in the file name, such as {{object_name}}, or {{object_label}}.'
                             .format(exporter= selfobj.Label, fn= thisfilepath))
                     mod.export([obj], thisfilepath)
                     print(u"Exported {file}".format(file= thisfilepath))
                 if selfobj.FullActualPath != thisfilepath: #check, to avoid touching all exporters upon every file save
                     selfobj.FullActualPath = thisfilepath
             else:
-                raise NotImplementedError("Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
+                raise NotImplementedError(u"Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
         except KeyError as ke:
             key = ke.args[0]
-            message = ('Variable name not recognized: {key}.\n\nVariables available:\n{varlist}'
+            message = (u'Variable name not recognized: {key}.\n\nVariables available:\n{varlist}'
                 .format(
                     key= key,
                     varlist = '\n'.join(['{' + var + '}' + ': ' + vardict[var] for var in vardict])
@@ -171,7 +171,7 @@ class Exporter:
     
     def onDocumentSaved_POM(self, selfobj):
         if selfobj.ExportingFrequency != 'When project is saved': return
-        log("Exporter {exporter} is saving a file...".format(exporter= selfobj.Label))
+        log(u"Exporter {exporter} is saving a file...".format(exporter= selfobj.Label))
         self.export(selfobj)
         
 class Observer(object):
@@ -210,14 +210,14 @@ class Observer(object):
                 self.slotSavedDocument(App.ActiveDocument)
     def slotSavedDocument(self, doc):
         errs = []
-        log("Project was just saved: {doc}. Scanning for exporter objects...".format(doc= doc.Name))
+        log(u"Project was just saved: {doc}. Scanning for exporter objects...".format(doc= doc.Name))
         for obj in doc.Objects:
             if hasattr(obj, 'Proxy'):
                 if hasattr(obj.Proxy, 'onDocumentSaved_POM'):
                     try:
                         obj.Proxy.onDocumentSaved_POM(obj)
                     except Exception as err:
-                        App.Console.PrintError("Exporting '{exporter}' failed: {err}.\n"
+                        App.Console.PrintError(u"Exporting '{exporter}' failed: {err}.\n"
                             .format(exporter= obj.Label, err= str(err)))
                         errs.append((obj, err))
         if errs:
@@ -225,9 +225,9 @@ class Observer(object):
                 from PartOMagic.Gui import Utils
                 if len(errs) == 1:
                     obj, err = errs[0]
-                    Utils.msgError(err, "Exporter '{exporter}' failed to save file: {{err}}".format(exporter= obj.Label))
+                    Utils.msgError(err, u"Exporter '{exporter}' failed to save file: {{err}}".format(exporter= obj.Label))
                 else:
-                    Utils.msgError(RuntimeError('{n} exporters failed to save files. See Report view for more information.'.format(n= len(errs))))
+                    Utils.msgError(RuntimeError(u'{n} exporters failed to save files. See Report view for more information.'.format(n= len(errs))))
 
 
 #stop old observer, if reloading this module
@@ -281,7 +281,7 @@ def CreateExporter(name):
     Gui.addModule('PartOMagic.Features.Exporter')
     Gui.doCommand('sel = Gui.Selection.getSelection()[0]')
     Gui.doCommand('f = PartOMagic.Features.Exporter.makeExporter(name = {name})'.format(name= repr(name)))
-    Gui.doCommand('f.Label = "Export {obj}".format(obj= sel.Label)')
+    Gui.doCommand('f.Label = u"Export {obj}".format(obj= sel.Label)')
     Gui.doCommand('f.ObjectToExport = sel')
     Gui.doCommand('Gui.Selection.clearSelection()')
     Gui.doCommand('Gui.Selection.addSelection(f)')

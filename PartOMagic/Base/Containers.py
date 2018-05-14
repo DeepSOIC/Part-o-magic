@@ -173,17 +173,16 @@ def addObjectTo(container, feature, b_advance_tip = True):
     container = screen(container)
     feature = screen(feature)
     
-    print("adding {feat} to {container}".format(feat= feature.Label, container= container.Label))
     cnt_old = getContainer(feature)
     if not cnt_old.isDerivedFrom('App::Document') and cnt_old is not container:
-        raise AlreadyInContainerError("Object '{obj}' is already in '{cnt_old}'. Cannot add it to '{cnt_new}'"
+        raise AlreadyInContainerError(u"Object '{obj}' is already in '{cnt_old}'. Cannot add it to '{cnt_new}'"
                         .format(obj= feature.Label, cnt_old= cnt_old.Label, cnt_new= container.Label))
         
     if cnt_old is container:
         return #nothing to do
         
     if feature is container :
-        raise ContainerError("Attempting to add {feat} to itself. Feature can't contain itself.".format(feat= feature.Label))
+        raise ContainerError(u"Attempting to add {feat} to itself. Feature can't contain itself.".format(feat= feature.Label))
 
     if container.hasExtension("App::GroupExtension"):
         #container.addObject(feature)
@@ -194,7 +193,7 @@ def addObjectTo(container, feature, b_advance_tip = True):
             except AttributeError:
                 pass
             except Exception as err:
-                App.Console.printError("Tip advancement routine failed with an error when adding {feat} to {cnt}. {err}"
+                App.Console.printError(u"Tip advancement routine failed with an error when adding {feat} to {cnt}. {err}"
                                        .format(feat= feature.Label, 
                                                cnt= container.Label,
                                                err= err.message))
@@ -216,7 +215,7 @@ def withdrawObject(feature):
         return
     if container.hasExtension("App::GroupExtension"):
         if feature not in container.Group:
-            raise SpecialChildError("{feat} is a special child of {container} and can't be withdrawn.".format(feat= feature.Label, container= container.Label))
+            raise SpecialChildError(u"{feat} is a special child of {container} and can't be withdrawn.".format(feat= feature.Label, container= container.Label))
         #container.removeObject(feature)
         container.Group = [child for child in container.Group if child is not feature]
         assert(feature not in container.Group) #test it was actually removed

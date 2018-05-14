@@ -14,7 +14,7 @@ if Params.EnablePartOMagic.get():
             PartOMagic.Gui.Observer.start()
     except compat.CompatibilityError as err:
         Params.EnablePartOMagic.set_volatile(False)
-        App.Console.PrintError("Part-o-magic is disabled.\n    {err}".format(err= str(err)))
+        App.Console.PrintError(u"Part-o-magic is disabled.\n    {err}".format(err= str(err)))
 
 if Params.EnablePartOMagic.get():
     try:

@@ -21,7 +21,7 @@ class CommandListUsages(AACommand):
     def RunOrTest(self, b_run):
         sel = Gui.Selection.getSelection()
         if len(sel)!=1 :
-            raise CommandError(self, "Please select one object. Currently selected {n}".format(n= len(sel)))
+            raise CommandError(self, u"Please select one object. Currently selected {n}".format(n= len(sel)))
         if b_run:
             from PartOMagic.Base import LinkTools as LT
             uses = LT.findLinksTo(sel[0])
@@ -34,7 +34,7 @@ class CommandListUsages(AACommand):
                 (rel.linked_object.Name + " as " + rel.linking_property +' (' + rel.kind + ')') for rel in links  ])
             if len(links_str) == 0: links_str = "(nothing)"
                 
-            msg = ("==== {obj} uses: ====\n"
+            msg = (u"==== {obj} uses: ====\n"
                    "{links_str}\n\n"
                    "====Links to {obj}:====\n"
                    "{uses_str}").format(obj= sel[0].Label, uses_str= uses_str, links_str= links_str)

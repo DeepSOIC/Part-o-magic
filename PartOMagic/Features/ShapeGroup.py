@@ -45,7 +45,7 @@ class ShapeGroup:
             if hasattr(obj, 'Shape'):
                 shapes.append(obj.Shape)
             else:
-                App.Console.PrintWarning("Object {obj} has no shape, skipped for making a compound.\n".format(obj= obj.Label))
+                App.Console.PrintWarning(u"Object {obj} has no shape, skipped for making a compound.\n".format(obj= obj.Label))
         result_shape = Part.Shape()
         opmode = selfobj.Operation
         if opmode == 'None':
@@ -70,7 +70,6 @@ class ShapeGroup:
         selfobj.Shape = result_shape
             
     def advanceTip(self, selfobj, new_object):
-        print("advanceTip")
         if new_object.Name.startswith("ShapeBinder"): return
         import copy
         # general idea: New object is always added to the tip. If new object is an operation applied to an old object, old object is withdrawn from tip.
@@ -82,9 +81,7 @@ class ShapeGroup:
             if obj in old_tip:
                 new_tip.remove(obj)
         
-        print("advanceTip pre-compare. len = {num}".format(num= len(new_tip)))
         if new_tip == old_tip: return
-        print("advanceTip write")
         selfobj.Tip = new_tip
 
     def onDocumentRestored(self, selfobj):
@@ -154,7 +151,7 @@ class ViewProviderShapeGroup:
                     from PartOMagic.Gui import Observer
                     Observer.activateContainer(container)
 
-                selfobj.Document.openTransaction('Edit Tip of {sg}'.format(sg= selfobj.Label))
+                selfobj.Document.openTransaction(u'Edit Tip of {sg}'.format(sg= selfobj.Label))
                 
                 #prepare scene
                 from PartOMagic.Gui.TempoVis import TempoVis
@@ -175,7 +172,7 @@ class ViewProviderShapeGroup:
                 #start editing
                 self.observer = VisibilityObserver(selfobj.Group, self.editCallback)
             except Exception as err:
-                App.Console.PrintError("Error in ShapeGroup setEdit: {err}\n".format(err= err.message))
+                App.Console.PrintError(u"Error in ShapeGroup setEdit: {err}\n".format(err= err.message))
                 return False
             return True
         raise NotImplementedError()

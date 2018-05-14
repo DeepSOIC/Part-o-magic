@@ -15,7 +15,7 @@ def msgbox(title, text):
     mb.setWindowTitle(title)
     mb.exec_()
     
-def msgError(err = None, message = '{errmsg}'):
+def msgError(err = None, message = u'{errmsg}'):
     if err is None:
         err = sys.exc_info()[1]
     if type(err) is CancelError: return

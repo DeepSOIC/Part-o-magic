@@ -29,7 +29,7 @@ class CommandEnter(AACommand):
             if b_run: Containers.setActiveContainer(sel) # !!! <---- check for b_run is very important! otherwise the command will run every half a second, and screw everything up!
             if b_run: Gui.Selection.clearSelection()
         else:
-            raise CommandError(self, "Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))            
+            raise CommandError(self, u"Enter Object command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))            
         
         # Returning without any error is the signal that the command is active! Return value is ignored.
         # Any error thrown when b_run is True will pop up as error message (except CancelError).
@@ -92,7 +92,7 @@ class AACommand(object):
     def register(self):
         if self.isRegistered():
             import FreeCAD as App
-            App.Console.PrintWarning("Re-registering command {cmd}\n".format(cmd= self.command_name))
+            App.Console.PrintWarning(u"Re-registering command {cmd}\n".format(cmd= self.command_name))
             
         if self.command_name is None:
             self.command_name = self.GetResources()['CommandName']

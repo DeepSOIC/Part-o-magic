@@ -19,7 +19,7 @@ class CommandReplaceObject(AACommand):
     def RunOrTest(self, b_run):
         sel = Gui.Selection.getSelection()
         if not 2 <= len(sel) <= 3 :
-            raise CommandError(self, "Please select two or three objects. Currently selected {n}".format(n= len(sel)))
+            raise CommandError(self, u"Please select two or three objects. Currently selected {n}".format(n= len(sel)))
         if b_run:
             old = sel[0]
             new = sel[1]
@@ -48,7 +48,7 @@ class CommandReplaceObject(AACommand):
                 raise CommandError(self, u"Nothing depends on {old}, nothing to replace.".format(old= old.Label))
             
             if n_checked == 0 and len(repls)>0:
-                msgbox("Replace", "No regular replacable dependencies found, nothing uses {old}. Please pick wanted replacements manually in the dialog.".format(old= old.Label))
+                msgbox("Replace", u"No regular replacable dependencies found, nothing uses {old}. Please pick wanted replacements manually in the dialog.".format(old= old.Label))
             
             
             import TaskReplace

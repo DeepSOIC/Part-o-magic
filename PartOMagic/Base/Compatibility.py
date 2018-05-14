@@ -9,7 +9,7 @@ def check_POM_compatible():
     try:
         rev = get_fc_revision_nr()
     except Exception as err:
-        App.Console.PrintWarning("PartOMagic failed to detect FC version number.\n"
+        App.Console.PrintWarning(u"PartOMagic failed to detect FC version number.\n"
                                  "    {err}\n".format(err= str(err)))
         #keep going, assume the version is good enough...
         return

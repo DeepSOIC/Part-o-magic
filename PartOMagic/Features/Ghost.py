@@ -59,7 +59,7 @@ class Ghost:
                     enter_deps.append(cnt)
         if selfobj.PlacementLinks != leave_deps or not hasattr(self, '_implicit_deps') or self._implicit_deps != enter_deps:
             if check_only:
-                App.Console.PrintError("Placement dependencies of {feat} are out of sync!\n".format(feat= selfobj.Name))
+                App.Console.PrintError(u"Placement dependencies of {feat} are out of sync!\n".format(feat= selfobj.Name))
             else:
                 selfobj.PlacementLinks = leave_deps
                 self._implicit_deps = enter_deps
@@ -69,7 +69,7 @@ class Ghost:
             for (prop, expr) in dep.ExpressionEngine:
                 if prop.startswith('Placement'):
                     raise GhostError(
-                        '{dep} has expression bound to its placement. {ghost} uses it, but is inside of the container, so it can\'t be properly recomputed.'
+                        u'{dep} has expression bound to its placement. {ghost} uses it, but is inside of the container, so it can\'t be properly recomputed.'
                         .format(dep= dep.Label, ghost= selfobj.Label)
                     )
     
@@ -93,7 +93,7 @@ class Ghost:
             path += '../'
         for cnt in toleave:
             path += cnt.Name + '/'
-        selfobj.Label = '{name} {label} from {path}'.format(label= selfobj.Base.Label, name= selfobj.Name, path= path[:-1])
+        selfobj.Label = u'{name} {label} from {path}'.format(label= selfobj.Base.Label, name= selfobj.Name, path= path[:-1])
     
     def onChanged(self, selfobj, propname):
         if 'Restore' in selfobj.State:
@@ -174,7 +174,7 @@ def updateAllGhosts(doc):
                 obj.Proxy.updateDeps(obj)
             except Exception as err:
                 App.Console.PrintError(
-                        "Updating dependencies of ghost '{obj}' failed:\n    {err}\n"
+                        u"Updating dependencies of ghost '{obj}' failed:\n    {err}\n"
                         .format(err= str(err),
                                 obj= obj.Label) 
                 )
@@ -189,7 +189,7 @@ def onContainerPlacementChanged(cnt):
                     obj.touch()
             except Exception as err:
                 App.Console.PrintError(
-                        "Tracking moves of containers for ghost '{obj}' failed:\n    {err}\n"
+                        u"Tracking moves of containers for ghost '{obj}' failed:\n    {err}\n"
                         .format(err= str(err),
                                 obj= obj.Label) 
                 )
@@ -230,7 +230,7 @@ class CommandGhost(AACommand):
             ac = Containers.activeContainer()
             if sel in Containers.getDirectChildren(ac):
                 raise CommandError(self, 
-                    "{feat} is from active container ({cnt}). Please select an object belonging to another container."
+                    u"{feat} is from active container ({cnt}). Please select an object belonging to another container."
                     .format(feat= sel.Label, cnt= ac.Label)
                 )
             if sel in (Containers.getAllDependent(ac)+ [ac]):
@@ -238,7 +238,7 @@ class CommandGhost(AACommand):
             if b_run: 
                 CreateGhost('Ghost', sel)
         else:
-            raise CommandError(self, "Make Ghost command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))    
+            raise CommandError(self, u"Make Ghost command. You need to select exactly one object (you selected {num}).".format(num= len(sel)))    
         
 commands.append(CommandGhost())
 # -------------------------- /Gui command --------------------------------------------------

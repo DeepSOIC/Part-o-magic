@@ -8,11 +8,11 @@ from PartOMagic.Gui.Utils import DelayedExecute, Transaction
 
 def morphContainer(src_container, dst_container):
     if not Containers.isContainer(src_container):
-        raise TypeError("{obj} is not a container".format(obj= src_container.Label))
+        raise TypeError(u"{obj} is not a container".format(obj= src_container.Label))
     if not Containers.isContainer(dst_container):
-        raise TypeError("{obj} is not a container".format(obj= dst_container.Label))
+        raise TypeError(u"{obj} is not a container".format(obj= dst_container.Label))
     if src_container in Containers.getContainerChain(dst_container):
-        raise Containers.ContainerTreeError("Cannot morph {src} into {dst}, because {src} contains {dst}"
+        raise Containers.ContainerTreeError(u"Cannot morph {src} into {dst}, because {src} contains {dst}"
                                             .format(src= src_container.Label, dst= dst_container.Label))
     
     doc = dst_container.Document
@@ -50,7 +50,7 @@ def morphContainer(src_container, dst_container):
             elif len(tip_list) == 1:
                 dst_container.Tip = tip_list[0]
             else:
-                App.Console.PrintWarning("Target Tip can only point to one object. Source Tip points to {num}. Last object from source tip was taken.\n"
+                App.Console.PrintWarning(u"Target Tip can only point to one object. Source Tip points to {num}. Last object from source tip was taken.\n"
                                          .format(num= len(tip_list)))
                 dst_container.Tip = tip_list[-1]
     
@@ -102,15 +102,15 @@ def copyProperty(src, dst, prop):
         try:
             setattr(dst, prop, getattr(src, prop))
         except Exception as err:
-            App.Console.PrintError("Failed to copy property {prop}: {err}\n".format(err= err.message, prop= prop))
+            App.Console.PrintError(u"Failed to copy property {prop}: {err}\n".format(err= err.message, prop= prop))
     else:
-        App.Console.PrintWarning("Target property missing: {prop}\n".format(prop= prop))
+        App.Console.PrintWarning(u"Target property missing: {prop}\n".format(prop= prop))
 
 def substituteObjectInProperties(orig, new, within):
     """substituteObjectInProperties(orig, new, within): finds all links to orig in within, and redirects them to new. Skips containership links."""
     if hasattr(within, "isDerivedFrom") :
         within = [within]
-    print("replacing {orig} with {new} within {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
+    print(u"replacing {orig} with {new} within {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
     for obj in within:
         for prop in obj.PropertiesList:
             if prop == "Group": continue #leave containership management to PoM/FreeCAD...
@@ -137,22 +137,22 @@ def substituteObjectInProperties(orig, new, within):
             if valchanged:
                 try:
                     setattr(obj, prop, val)
-                    print("  replaced in {obj}.{prop}".format(obj= obj.Name, prop= prop))
+                    print(u"  replaced in {obj}.{prop}".format(obj= obj.Name, prop= prop))
                 except Exception as err:
-                    App.Console.PrintError("  not replaced in {obj}.{prop}. {err}\n".format(obj= obj.Name, prop= prop, err= err.message))
+                    App.Console.PrintError(u"  not replaced in {obj}.{prop}. {err}\n".format(obj= obj.Name, prop= prop, err= err.message))
 
                 
 
 def substituteObjectInExpressions(orig, new, within):
     if hasattr(within, "isDerivedFrom") :
         within = [within]
-    print("replacing {orig} with {new} within expressions in {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
+    print(u"replacing {orig} with {new} within expressions in {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
     for obj in within:
         for prop, expr in obj.ExpressionEngine:
             oldexpr = expr
             newexpr = replaceNameInExpression(expr, orig.Name, new.Name)
             if newexpr is not None:
-                print("  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
+                print(u"  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
                       .format(obj= obj.Name,
                               prop= prop,
                               oldexpr= oldexpr,
@@ -166,7 +166,7 @@ def substituteObjectInSpreadsheets(orig, new, within):
     if hasattr(within, "isDerivedFrom") :
         within = [within]
     within = [obj for obj in within if obj.isDerivedFrom('Spreadsheet::Sheet')]
-    print("replacing {orig} with {new} within expressions in {n} spreadsheets...".format(orig= orig.Name, new= new.Name, n= len(within)))
+    print(u"replacing {orig} with {new} within expressions in {n} spreadsheets...".format(orig= orig.Name, new= new.Name, n= len(within)))
     for obj in within:
         for prop in obj.PropertiesList:
             try:
@@ -177,7 +177,7 @@ def substituteObjectInSpreadsheets(orig, new, within):
             oldexpr = expr
             newexpr = replaceNameInExpression(expr, orig.Name, new.Name)
             if newexpr is not None:
-                print("  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
+                print(u"  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
                       .format(obj= obj.Name,
                               prop= prop,
                               oldexpr= oldexpr,
@@ -297,7 +297,7 @@ class CommandMorphContainer(AACommand):
                     
                 #check
                 if not Containers.isContainer(waiter.target_container): 
-                    raise CommandError(self, "You created {obj}, which isn't a container. Can't morph {src} into {objt}. Morphing canceled."
+                    raise CommandError(self, u"You created {obj}, which isn't a container. Can't morph {src} into {objt}. Morphing canceled."
                                               .format(obj= waiter.target_container, 
                                                       objt= waiter.target_container,
                                                       src= waiter.source_container))
@@ -327,7 +327,7 @@ class CommandMorphContainer(AACommand):
             if b_run: self.waiter = WaitForNewContainer(self, sel)
             if b_run: Gui.Selection.clearSelection()
         else:
-            raise CommandError(self, "You need to select exactly one object (you selected {num}), ad it must be a container.".format(num= len(sel)))
+            raise CommandError(self, u"You need to select exactly one object (you selected {num}), ad it must be a container.".format(num= len(sel)))
 commands.append(CommandMorphContainer(waiter= None))
 
 

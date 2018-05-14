@@ -70,7 +70,7 @@ def addObjectTo(container, feature):
             #try adding to upper level container. Until Document is reached, which should never fail with FreeCADError
             actual_container = GT.getContainer(actual_container)
     if actual_container is not container:
-        msgbox("Part-o-magic","Cannot add the new object of type {typ} to '{container}'. Feature added to '{actual_container}' instead."
+        msgbox("Part-o-magic",u"Cannot add the new object of type {typ} to '{container}'. Feature added to '{actual_container}' instead."
                               .format(container= container.Label, actual_container= actual_container.Label, typ= feature.TypeId))
         
     # re-open editing that we had closed...
@@ -117,7 +117,7 @@ class Observer(FrozenClass):
           )
 
     def slotDeletedObject(self, feature):
-        print ("deleted {feat}. container chain: {chain}"
+        print (u"deleted {feat}. container chain: {chain}"
                 .format(feat= feature.Name, chain= ".".join([cnt.Name for cnt in GT.getContainerChain(feature)])))
         ac = activeContainer()
         if feature in GT.getContainerChain(ac)+[ac]:
@@ -176,7 +176,7 @@ class Observer(FrozenClass):
             n1 = oldContainer.Name
         if newContainer:
             n2 = newContainer.Name
-        print "container changed from {c1} to {c2}".format(c1= n1, c2= n2)
+        print(u"container changed from {c1} to {c2}".format(c1= n1, c2= n2))
         
         if oldContainer is None: #happens when creating new document
             return
@@ -187,23 +187,23 @@ class Observer(FrozenClass):
                 gc = GenericContainer(cnt)
                 gc.ViewObject.call(gc.ViewObject.activationChanged, oldContainer, newContainer, event= -1)
             except Exception as err:
-                App.Console.PrintError("Error deactivating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
+                App.Console.PrintError(u"Error deactivating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
             self.leaveContainer(cnt)
         for cnt in chain_to:
             try:
                 gc = GenericContainer(cnt)
                 gc.ViewObject.call(gc.ViewObject.activationChanged, oldContainer, newContainer, event= +1)
             except Exception as err:
-                App.Console.PrintError("Error activating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
+                App.Console.PrintError(u"Error activating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
             self.enterContainer(cnt)
         
         self.updateVPs()
         
     def slotStartEditing(self, feature):
-        print("Start Editing {f}".format(f= feature.Name))
+        print(u"Start Editing {f}".format(f= feature.Name))
         cnt = GT.getContainer(feature)
         if GT.activeContainer() is not cnt:
-            print("Feature being edited is not in active container. Activating {cnt}...".format(cnt= cnt.Name))
+            print(u"Feature being edited is not in active container. Activating {cnt}...".format(cnt= cnt.Name))
             Gui.ActiveDocument.resetEdit()
             GT.setActiveContainer(cnt)
             return
@@ -222,7 +222,7 @@ class Observer(FrozenClass):
             self.edit_TVs[feature.Document.Name] = tv
         
     def slotFinishEditing(self, feature):
-        print("Finish Editing {f}".format(f= feature.Name))
+        print(u"Finish Editing {f}".format(f= feature.Name))
         tv = self.edit_TVs.pop(App.ActiveDocument.Name, None)
         if tv is not None:
             tv.restore()
