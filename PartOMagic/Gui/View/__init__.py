@@ -3,10 +3,12 @@ print("loading View")
 
 __all__ = [
 "SnapView",
+"XRay"
 ]
 
 def importAll():
     from . import SnapView
+    from . import XRay
 
 def reloadAll():
     for modstr in __all__:
