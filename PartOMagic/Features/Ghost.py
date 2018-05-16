@@ -23,9 +23,13 @@ def makeGhost(name, type= 'Part::FeaturePython'):
     vp_proxy = ViewProviderGhost(obj.ViewObject)
     return obj
 
-class Ghost:
+class Ghost(object):
     "The Ghost object, an alternative shapebinder"
     def __init__(self,selfobj):
+        selfobj.addProperty('App::PropertyString', 'IAm')
+        selfobj.IAm = 'PartOMagic.Ghost'
+        selfobj.setEditorMode('IAm', 2) #hidden
+        
         selfobj.addProperty('App::PropertyLinkGlobal','Base',"Ghost","Shape of ghost")
         selfobj.addProperty('App::PropertyLinkListGlobal','PlacementLinks',"Ghost", "Extra dependencies, for ensuring recompute order")
         selfobj.setEditorMode('PlacementLinks', 1) #read-only
@@ -74,6 +78,18 @@ class Ghost:
                     )
     
     def execute(self,selfobj):
+        transform = self.getTransform(selfobj)
+        selfobj.Shape = selfobj.Base.Shape
+        selfobj.Placement = transform.multiply(selfobj.Base.Placement)
+        
+        path = ''
+        for cnt in toenter:
+            path += '../'
+        for cnt in toleave:
+            path += cnt.Name + '/'
+        selfobj.Label = u'{name} {label} from {path}'.format(label= selfobj.Base.Label, name= selfobj.Name, path= path[:-1])
+    
+    def getTransform(self, selfobj):
         self.updateDeps(selfobj, check_only= True)
         toleave,toenter = Containers.getContainerRelativePath(Containers.getContainer(selfobj.Base), Containers.getContainer(selfobj))
         transform = App.Placement()
@@ -85,15 +101,8 @@ class Ghost:
             for cnt in toenter:
                 if hasattr(cnt, 'Placement'):
                     transform = cnt.Placement.inverse().multiply(transform)
-        selfobj.Shape = selfobj.Base.Shape
-        selfobj.Placement = transform.multiply(selfobj.Base.Placement)
+        return transform
         
-        path = ''
-        for cnt in toenter:
-            path += '../'
-        for cnt in toleave:
-            path += cnt.Name + '/'
-        selfobj.Label = u'{name} {label} from {path}'.format(label= selfobj.Base.Label, name= selfobj.Name, path= path[:-1])
     
     def onChanged(self, selfobj, propname):
         if 'Restore' in selfobj.State:
