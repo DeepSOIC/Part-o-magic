@@ -25,6 +25,9 @@ def makeGhost(name, type= 'Part::FeaturePython'):
 
 class Ghost(object):
     "The Ghost object, an alternative shapebinder"
+    
+    path = None #filled by getTransform. Tuple (toleave, toenter), container relative path
+    
     def __init__(self,selfobj):
         selfobj.addProperty('App::PropertyString', 'IAm')
         selfobj.IAm = 'PartOMagic.Ghost'
@@ -35,7 +38,7 @@ class Ghost(object):
         selfobj.setEditorMode('PlacementLinks', 1) #read-only
         selfobj.addProperty('App::PropertyBool', 'UseForwardPlacements', "Ghost", "If true, applies placements of containers base object is in.")
         selfobj.UseForwardPlacements = True
-        selfobj.addProperty('App::PropertyBool', 'UseInversePlacements', "Ghost", "If true, applies invese placements of containers the ghost is in.")
+        selfobj.addProperty('App::PropertyBool', 'UseInversePlacements', "Ghost", "If true, applies inverse placements of containers the ghost is in.")
         selfobj.UseInversePlacements = True
 
         for prop in ['Placement', ]:
@@ -82,6 +85,7 @@ class Ghost(object):
         selfobj.Shape = selfobj.Base.Shape
         selfobj.Placement = transform.multiply(selfobj.Base.Placement)
         
+        toleave,toenter = self.path
         path = ''
         for cnt in toenter:
             path += '../'
@@ -92,6 +96,7 @@ class Ghost(object):
     def getTransform(self, selfobj):
         self.updateDeps(selfobj, check_only= True)
         toleave,toenter = Containers.getContainerRelativePath(Containers.getContainer(selfobj.Base), Containers.getContainer(selfobj))
+        self.path = (toleave, toenter) #save for future reference...
         transform = App.Placement()
         if selfobj.UseForwardPlacements:
             for cnt in toleave[::-1]:
@@ -112,6 +117,12 @@ class Ghost(object):
             
     def onDocumentRestored(self, selfobj):
         self.updateDeps(selfobj)
+
+    def __getstate__(self):
+        return None
+
+    def __setstate__(self,state):
+        return None
 
 class ViewProviderGhost:
     "A View Provider for the Ghost object"
