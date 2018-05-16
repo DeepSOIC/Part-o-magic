@@ -106,7 +106,6 @@ commands = []
 class CommandSnapView(AACommand):
     "Command to straighten up view"
     def GetResources(self):
-        import PartDesignGui
         return {'CommandName': 'PartOMagic_SnapView',
                 'Pixmap'  : self.getIconPath("PartOMagic_SnapView.svg"),
                 'MenuText': "Straighten camera (tri-state)",
