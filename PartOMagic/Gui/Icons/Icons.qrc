@@ -14,5 +14,6 @@
         <file>icons/PartOMagic_ShapeGroup.svg</file>
         <file>icons/PartOMagic_SnapView.svg</file>
         <file>icons/PartOMagic_TransferObject.svg</file>
+        <file>icons/PartOMagic_XRay.svg</file>
     </qresource>
 </RCC> 
