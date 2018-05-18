@@ -29,9 +29,8 @@ class Ghost(object):
     path = None #filled by getTransform. Tuple (toleave, toenter), container relative path
     
     def __init__(self,selfobj):
-        selfobj.addProperty('App::PropertyString', 'IAm')
-        selfobj.IAm = 'PartOMagic.Ghost'
-        selfobj.setEditorMode('IAm', 2) #hidden
+        
+        self.addMissingProperties(selfobj)
         
         selfobj.addProperty('App::PropertyLinkGlobal','Base',"Ghost","Shape of ghost")
         selfobj.addProperty('App::PropertyLinkListGlobal','PlacementLinks',"Ghost", "Extra dependencies, for ensuring recompute order")
@@ -50,6 +49,11 @@ class Ghost(object):
         selfobj.Proxy = self
         
         self._implicit_deps = None #complete list of containers whose placements are being used
+    
+    def addMissingProperties(self, selfobj):
+        if not hasattr(selfobj, 'IAm'):
+            selfobj.addProperty('App::PropertyString', 'IAm',"","", 0, True, True)
+            selfobj.IAm = 'PartOMagic.Ghost'    
     
     def updateDeps(self, selfobj, check_only = False):
         """update PlacementLinks to match with container path"""
@@ -116,7 +120,9 @@ class Ghost(object):
             self.updateDeps(selfobj)
             
     def onDocumentRestored(self, selfobj):
+        self.addMissingProperties(selfobj)
         self.updateDeps(selfobj)
+        
 
     def __getstate__(self):
         return None
