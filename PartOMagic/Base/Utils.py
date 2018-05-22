@@ -79,7 +79,7 @@ def addProperty(docobj, proptype, propname, group, tooltip, defvalue = None, rea
     a property if one is missing, and sets its value to default. Does nothing if property 
     already exists. Returns True if property was created, or False if not."""
     
-    if hasattr(docobj, propname):
+    if propname in docobj.PropertiesList:
         #todo: check type match
         return False
         

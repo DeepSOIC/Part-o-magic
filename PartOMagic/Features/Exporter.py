@@ -53,6 +53,10 @@ class Exporter:
             "Sets the accuracy of mesh export. The exported mesh should deviate from perfect shape by no more than specified value. If zero, visualization mesh is used."
         )
         
+        addProperty(selfobj, 'App::PropertyEnumeration', 'UsingModule', "Exporter",
+            "Sets, which FreeCAD module to use for export. Set file name with extension first, to pick the module."
+        )
+        
 
     def execute(self,selfobj):
         self.initProperties(selfobj) #to make sure MeshAccuracy is added to old objects
@@ -64,6 +68,28 @@ class Exporter:
         if selfobj.ExportingFrequency == 'Export once':
             selfobj.ExportingFrequency == 'On double-click only'
 
+    def onChanged(self, selfobj, propname):
+        if propname == 'FilePath':
+            try:
+                self.fetchModule(selfobj)
+            except Exception:
+                pass
+                
+    def fetchModule(self, selfobj):
+        from os import path
+        filepath = selfobj.FilePath
+        extension = path.splitext(filepath)[1][1:]
+        if len(extension)<1:
+            raise ValueError("File has no extension, can't determine export type.")
+        modules = App.getExportType(extension)
+        try:
+            oldval = selfobj.UsingModule
+        except Exception:
+            oldval = ''
+        selfobj.UsingModule = modules
+        if oldval in modules:
+            selfobj.UsingModule = oldval
+    
     def export(self, selfobj):
         #check the model
         from PartOMagic.Base import Containers
@@ -78,9 +104,11 @@ class Exporter:
         extension = path.splitext(filepath)[1][1:]
         if len(extension)<1:
             raise ValueError("File has no extension, can't determine export type.")
-
+        
+        self.fetchModule(selfobj)
         import importlib
-        mod = importlib.import_module(App.getExportType(extension)[0])
+        mod = importlib.import_module(selfobj.UsingModule)
+        
         
         if not path.isabs(filepath):
             if len(selfobj.Document.FileName)==0:
