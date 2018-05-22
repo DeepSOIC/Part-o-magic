@@ -1,9 +1,16 @@
 # Part-o-magic
-PoM is an experimental add-on module for FreeCAD v0.17. (It won't work with FC v0.16.)
+PoM is an experimental add-on module for FreeCAD v0.17. (It won't work with FC v0.16.) 
 
-The goal is to experiment with UI and ways to bring assembly infrastructure into the whole FreeCAD. Sure you have seen that new PartDesign things called Part and Body. The aim of Part-o-magic is to bring similar things to every workbench in FreeCAD, and make working with them more convenient.
+PoM's main goals are:
 
-With Part-o-magic, organizing a multi-part project (i.e. an assembly) is much easier.
+* Usability improvements of Part and Body containers, to simplify working with projects with 
+multiple parts with deep hierarchy. This includes automatic object addition to active 
+container, visibility automation, and other.
+
+* Expand PartDesign-like workflow to Part workbench, and all other workbenches centered around 
+making shapes. Module container is the Body-like thing for Part workbench.
+
+Part-o-magic does not provide assembly features, such as constraints. It is aimed at in-place modeling, but it is supposed to be useful in conjunction with assembly.
 
 Beware. Part-o-magic is an epic hack. It will collide with similar functionality in FreeCAD as it is introduced. In case of doubt, you can always switch to Part-o-magic workbench, and disable Observer.
 
@@ -66,24 +73,30 @@ It also can do an operation between objects to be exposed, for example fusing th
 ### PartDesign Additive shape, PartDesign Subtractive shape containers
 These are just like Modules, but they integrate themselves as PartDesign features. They allow to integrate other workbench tools into PartDesign workflow.
 
-## Misc features
+### Ghost
+Ghost is a placement-aware version of shapebinder. It is a tool to bring a copy of a shape from one container into another, applying a proper transform.
 
-* tool for altering Tip. Works on PartDesign Bodies and Module-like things.
+Ghost supports both extracting an object from a container, and importing an object from a higher-level container. The latter is somewhat limited: it will not work properly if Placement of the container the Ghost is in, changes as a result of a recompute (for example if therte is an expression bound to the placement).
 
-* buttons to enter and leave objects. Work on almost everything (can be used to enter/leave containers, and edit objects (e.g. open a sketch)).
+### Morph container tool
+Created a Module, but later realized you want ShapeGroup instead? Of course, you can create a new container, drag-drop stuff... The "Morph container" tool is for simplifying the process. It takes care of moving stuff, redirecting links, and deletion of the remaining old empty container.
 
-* button to create Part container
+## Other features
 
-* button to create Shapebinders (works outside of PartDesign, too). ShapeBinders are a mean to import geometry from one container to another.
+* Set Tip. Works on PartDesign Bodies and Module-like things.
+
+* Enter and Leave. Work on almost everything (can be used to enter/leave containers, and edit objects (e.g. open a sketch)).
 
 * Exporter feature, for keeping exported files up to date with project.
 
-* buttons to disable Part-o-magic (there's a good chance part-o-magic will break soon). If PoM is disabled, PoM containers should still work, albeit not very useful because they rely on part-o-magic's automatic object addition.
+* an advanced Object Replacement tool, with container support, and UI to pick specific replacements.
+
+* X-ray tool. For getting through objects to select concealed objects.
+
+* Align View, a one-button replacement for standard view buttons.
 
 # Should I use PoM?
 
 If you are into FreeCAD projects with multiple parts, you should definitely try out Part-o-magic. Even though it doesn't yet offer actual assembly capabilities, it can help you organize your in-place modeled parts.
-
-If you want to be on the bleeding edge of assembly capabilities of FreeCAD, you should check it out for getting a general feel of where it may be going, and give valuable feedback on what is done right in part-o-magic and you'd like to see that in assembly, and what is wrong.
 
 Part-o-magic's tools to disable Observer were made to allow you continue to use projects you made with PoM, even when FreeCAD progress renders PoM obsolete. So you can at least be a little bit confident that ShapeGroup feature won't quickly go bust.
