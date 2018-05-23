@@ -69,6 +69,7 @@ class Exporter:
             selfobj.ExportingFrequency == 'On double-click only'
 
     def onChanged(self, selfobj, propname):
+        if 'Restore' in selfobj.State: return
         if propname == 'FilePath':
             try:
                 self.fetchModule(selfobj)
@@ -89,6 +90,9 @@ class Exporter:
         selfobj.UsingModule = modules
         if oldval in modules:
             selfobj.UsingModule = oldval
+        else:
+            if extension == 'stl' and 'Mesh' in modules:
+                selfobj.UsingModule = 'Mesh'
     
     def export(self, selfobj):
         #check the model
