@@ -76,7 +76,7 @@ These are just like Modules, but they integrate themselves as PartDesign feature
 ### Ghost
 Ghost is a placement-aware version of shapebinder. It is a tool to bring a copy of a shape from one container into another, applying a proper transform.
 
-Ghost supports both extracting an object from a container, and importing an object from a higher-level container. The latter is somewhat limited: it will not work properly if Placement of the container the Ghost is in, changes as a result of a recompute (for example if therte is an expression bound to the placement).
+Ghost supports both extracting an object from a container, and importing an object from a higher-level container. The latter is somewhat limited: it will not work properly if Placement of the container the Ghost is in, changes as a result of a recompute (for example if there is an expression bound to the placement).
 
 ### Morph container tool
 Created a Module, but later realized you want ShapeGroup instead? Of course, you can create a new container, drag-drop stuff... The "Morph container" tool is for simplifying the process. It takes care of moving stuff, redirecting links, and deletion of the remaining old empty container.
