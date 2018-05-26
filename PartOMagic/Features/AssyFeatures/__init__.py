@@ -2,25 +2,13 @@ print("loading Features")
 
 
 __all__ = [
-"PartContainer",
-"Module",
-"ShapeGroup",
-"ShapeBinder",
-"Ghost",
-"Exporter",
-"PartDesign",
-"AssyFeatures"
+"Instance",
+"MuxAssembly",
 ]
 
 def importAll():
-    from . import PartContainer
-    from . import Module
-    from . import ShapeGroup
-    from . import ShapeBinder
-    from . import Ghost
-    from . import Exporter
-    from . import PartDesign
-    from . import AssyFeatures
+    from . import Instance
+    from . import MuxAssembly
 
     for modstr in __all__:
         mod = globals()[modstr]
@@ -38,7 +26,7 @@ def exportedCommands():
     result = []
     for modstr in __all__:
         mod = globals()[modstr]
-        if not hasattr(mod, 'reloadAll'): #do not add subpackages (PartDesign)
+        if not hasattr(mod, 'reloadAll'): #do not add subpackages
             if hasattr(mod, "exportedCommands"):
                 result += mod.exportedCommands()
     return result

@@ -79,6 +79,16 @@ class PartOMagicWorkbench (Workbench):
         self.appendToolbar('POMLinkTools', cmdsLinkTools)
         self.appendMenu('Part-o-Magic', cmdsLinkTools)
 
+        
+        self.appendMenu('Part-o-Magic', ["Separator"])
+        
+        cmdsAssy = ([]  
+            + POM.Features.AssyFeatures.exportedCommands()
+        )
+        self.appendToolbar('POMAssembly', cmdsAssy)
+        self.appendMenu('Part-o-Magic', cmdsAssy)
+
+
         self.appendMenu('Part-o-Magic', ["Separator"])
 
         cmdsView = ([]
