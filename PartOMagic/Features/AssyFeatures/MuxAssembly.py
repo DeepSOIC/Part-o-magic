@@ -30,7 +30,7 @@ def compoundFromAssembly(root, flatten, exclude, recursive = True, visit_set = N
         children = Containers.getDirectChildren(root)
         shapes = []
         for child in children:
-            if child.Name in exclude:
+            if child in exclude:
                 continue
             if child.isDerivedFrom('App::Origin'):
                 continue #otherwise, origins create empty compounds - undesirable.
@@ -64,7 +64,7 @@ class MUX(Ghost):
         selfobj.IAm = 'PartOMagic.MUX'
         
         selfobj.addProperty('App::PropertyBool','FlattenCompound',"MUX","If true, compound nesting does not follow nesting of Parts. If False, compound nesting follows nexting of parts.")
-        selfobj.addProperty('App::PropertyStringList', 'ExclusionList', "MUX", 'List of names of objects to exclude from compound')
+        selfobj.addProperty('App::PropertyLinkListGlobal', 'ExclusionList', "MUX", 'List of objects to exclude from compound')
         selfobj.addProperty('App::PropertyEnumeration', 'Traversal', "MUX", 'Sets if to look for shapes in nested containers')
         selfobj.Traversal = ['Direct children', 'Recursive']
         selfobj.Traversal = 'Recursive'
