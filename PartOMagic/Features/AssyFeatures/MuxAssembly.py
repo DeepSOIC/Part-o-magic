@@ -112,8 +112,8 @@ class ViewProviderMUX:
 def Create(sel):
     from PartOMagic.Gui.Utils import Transaction
     with Transaction("Create MUX"):
-        Gui.addModule("PartOMagic.Features.MuxAssembly")
-        Gui.doCommand("f = PartOMagic.Features.MuxAssembly.make()")
+        Gui.addModule("PartOMagic.Features.AssyFeatures.MuxAssembly")
+        Gui.doCommand("f = PartOMagic.Features.AssyFeatures.MuxAssembly.make()")
         Gui.doCommand("f.Base = App.ActiveDocument.{objname}".format(objname= sel.Name))
         Gui.doCommand("Gui.Selection.clearSelection()")
         Gui.doCommand("Gui.Selection.addSelection(f)")
