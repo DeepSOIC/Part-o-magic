@@ -12,9 +12,9 @@ print("loading PDShapeFeature")
 from PartOMagic.Base.Utils import transformCopy, shallowCopy
 from PartOMagic.Base.Utils import PlacementsFuzzyCompare
 
-def makePDShapeFeature(name):
+def makePDShapeFeature(name, body):
     '''makePDShapeFeature(name): makes a PDShapeFeature object.'''
-    obj = App.ActiveDocument.addObject("PartDesign::FeaturePython",name)
+    obj = body.newObject('PartDesign::FeaturePython',name)
     proxy = PDShapeFeature(obj)
     vp_proxy = ViewProviderPDShapeFeature(obj.ViewObject)
     return obj
@@ -150,9 +150,7 @@ def CreatePDShapeFeature(name, add_sub_type= 'Additive'):
     App.ActiveDocument.openTransaction("Create PDShapeFeature")
     Gui.addModule('PartOMagic.Features.PDShapeFeature')
     Gui.doCommand('body = PartOMagic.Base.Containers.activeContainer()')
-    Gui.doCommand('f = PartOMagic.Features.PDShapeFeature.makePDShapeFeature(name = {name})'.format(name= repr(name)))
-    if not hasattr(App, 'ActiveContainer'):
-        Gui.doCommand('PartOMagic.Base.Containers.addObjectTo(body, f)')
+    Gui.doCommand('f = PartOMagic.Features.PDShapeFeature.makePDShapeFeature(name = {name}, body= body)'.format(name= repr(name)))
     Gui.doCommand('if f.BaseFeature:\n'
                   '    f.BaseFeature.ViewObject.hide()')
     Gui.doCommand('f.AddSubType = {t}'.format(t= repr(add_sub_type)))
