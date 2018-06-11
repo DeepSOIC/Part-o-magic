@@ -89,3 +89,11 @@ def addProperty(docobj, proptype, propname, group, tooltip, defvalue = None, rea
     if readonly:
         docobj.setEditorMode(propname, 1)
     return True
+    
+def compoundLeaves(compound):
+    result = []
+    if compound.ShapeType != 'Compound':
+        return compound
+    for shape in compound.childShapes():
+        result.extend(compoundLeaves(shape))
+    return result
