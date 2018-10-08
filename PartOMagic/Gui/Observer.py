@@ -5,7 +5,7 @@ import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Gui.TempoVis import TempoVis
 from AttachmentEditor.FrozenClass import FrozenClass
-from Utils import msgbox
+from .Utils import msgbox
 
 print("loading Observer")
 
@@ -345,7 +345,7 @@ class Observer(FrozenClass):
     
     def enterContainer(self, cnt):
         '''enterContainer(self, cnt): when cnt either directly is being activated, or one of its child containers is being activated. Assumes container of cnt is already entered.'''
-        print "entering "+cnt.Name
+        print ("entering "+cnt.Name)
         if cnt.isDerivedFrom("App::Document"): # may happen when creating new document. Ignoring.
             return
         key = cnt.Document.Name+"."+cnt.Name
@@ -360,7 +360,7 @@ class Observer(FrozenClass):
         tv.show(cnt)
         
     def leaveContainer(self, cnt):
-        print "leaving "+cnt.Name
+        print ("leaving "+cnt.Name)
         assert(not cnt.isDerivedFrom("App::Document"))
         key = cnt.Document.Name+"."+cnt.Name
         tv = self.TVs[key]
