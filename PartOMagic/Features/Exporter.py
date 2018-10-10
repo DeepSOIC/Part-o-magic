@@ -87,12 +87,10 @@ class Exporter:
             oldval = selfobj.UsingModule
         except Exception:
             oldval = ''
+        if not oldval in modules:
             selfobj.UsingModule = modules
-            if oldval in modules:
-                selfobj.UsingModule = oldval
-            else:
-                if extension == 'stl' and 'Mesh' in modules:
-                    selfobj.UsingModule = 'Mesh'
+            if extension == 'stl' and 'Mesh' in modules:
+                selfobj.UsingModule = 'Mesh'
     
     def export(self, selfobj):
         #check the model
