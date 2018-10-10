@@ -12,7 +12,6 @@ def findToolbar(name, label, workbench, create = False):
     tb_root = "User parameter:BaseApp/Workbench/{workbench}/Toolbar".format(workbench= workbench)
     pp = App.ParamGet(tb_root)
     if pp.HasGroup(name):
-        print("has!")
         return [tb_root, name]
     
     for i in range(10):
@@ -21,7 +20,6 @@ def findToolbar(name, label, workbench, create = False):
             print("has custom!")
             return [tb_root, g]
     if create:
-        print("new!")
         return [tb_root, name]
     return None
 
