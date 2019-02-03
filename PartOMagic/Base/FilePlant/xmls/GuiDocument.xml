@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+ FreeCAD Document, see http://www.freecadweb.org for more information...
+-->
+<Document SchemaVersion="1">
+    <ViewProviderData Count="27">
+        <ViewProvider name="Body001" expanded="1" Extensions="True">
+            <Extensions Count="1">
+                <Extension type="Gui::ViewProviderOriginGroupExtension" name="ViewProviderOriginGroupExtension">
+                </Extension>
+            </Extensions>
+            <Properties Count="22">
+                <Property name="AngularDeflection" type="App::PropertyAngle">
+                    <Float value="28.500000000000"/>
+                </Property>
+            </Properties>
+        </ViewProvider>
+    </ViewProviderData>
+    <Camera settings="  OrthographicCamera {   viewportMapping ADJUST_CAMERA   position 36.782261 39.582581 -0.63276672   orientation 0.87723827 0.3215276 -0.35647196  0.50139832   nearDistance -24.112284   farDistance 45.171619   aspectRatio 1   focalDistance 5   height 101.6172  } "/>
+</Document>

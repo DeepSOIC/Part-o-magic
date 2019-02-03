@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+ FreeCAD Document, see http://www.freecadweb.org for more information...
+-->
+<Document SchemaVersion="4" ProgramVersion="0.18R14726 (Git)" FileVersion="1">
+    <Properties Count="14">
+        <Property name="Comment" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+    </Properties>
+    <Objects Count="27">
+        <Object type="PartDesign::Body" name="Body001" />
+        <Object type="App::Origin" name="Origin003" />
+        <Object type="PartDesign::FeaturePython" name="SubtractiveShape" Invalid="1" />
+    </Objects>
+    <ObjectData Count="27">
+        <Object name="Body001" Extensions="True">
+            <Extensions Count="1">
+                <Extension type="App::OriginGroupExtension" name="OriginGroupExtension">
+                </Extension>
+            </Extensions>
+            <Properties Count="8">
+                <Property name="BaseFeature" type="App::PropertyLink">
+                    <Link value=""/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape.brp"/>
+                </Property>
+                <Property name="Tip" type="App::PropertyLink">
+                    <Link value="AdditivePipe"/>
+                </Property>
+            </Properties>
+        </Object>
+    </ObjectData>
+</Document>
