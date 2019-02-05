@@ -46,6 +46,12 @@ object_vp_entry = (
 '''
 )
 
+content_base_xml = (
+"""<Content>
+</Content>
+"""
+)
+
 def FC_version():
     try:
         import FreeCAD
@@ -104,10 +110,11 @@ class FCProject(object):
         
         
     def readFile(self,filename):
-        self.filename = filename
-        self.zip = zipfile.ZipFile(filename)
-        
+        zip = zipfile.ZipFile(filename)
         self.empty(init_xml = False)
+
+        self.filename = filename
+        self.zip = zip
         
         filelist = self.zip.namelist()
         self.document_xml = ElementTree.parse(self.zip.open('Document.xml'))
@@ -259,8 +266,8 @@ class FCProject(object):
         self.document_xml.getroot().set('ProgramVersion', version_string)
     
     def listObjects(self):
-        "listObjects(): returns list of tuples ('ObjectName', 'Namespace::Type')"
-        return [(obj.get('name'), obj.get('type')) for obj in self.node_objectlist]
+        "listObjects(): returns list of object names"
+        return [obj.get('name') for obj in self.node_objectlist]
     
     def listObjectsOfType(self, type_id):
         "getObjectsOfType(type_id): returns list of object names with type equal to type_id (string). Note that exact comparison is done, isDerivedFrom is not supported"
@@ -277,81 +284,132 @@ class FCProject(object):
             raise KeyError("There is no object named {name} in this project".format(name= object_name))
         data_node = self.node_objectdata.find('Object[@name="{name}"]'.format(name= object_name))
         assert(data_node is not None)
-        return DocumentObject(object_node, data_node)
+        return DocumentObject(object_name, object_node, data_node, self)
+
+    def getViewProvider(self, object_name):
+        object_node = self.node_objectlist.find('Object[@name="{name}"]'.format(name= object_name))
+        if object_node is None:
+            raise KeyError("There is no object named {name} in this project".format(name= object_name))
+        if self.guidocument_xml is None: return None
+        data_node = self.node_vpdata.find('ViewProvider[@name="{name}"]'.format(name= object_name))
+        if data_node is None:
+            warn("Failed to find viewprovider for object {obj}".format(obj= object_name))
+            return None
+        return ViewProvider(object_name, None, data_node, self)
     
-    def _Objects(self):
+    @property
+    def Objects(self):
         # this is probably somewhat inefficient, but we'll stick with it for a while
-        return [self.getObject(object_name) for (object_name, object_type) in self.getObjectsList()]
+        return [self.getObject(object_name) for object_name in self.listObjects()]
     
-    def addObjectFromStream(self, name, type, bs_app, bs_vp = None):
-        import io
-        zip_app = zipfile.ZipFile(io.BytesIO(bs_app))
-        xml_string = zip_app.read('Persistence.xml')
-        
-        renametable = dict()
-        import uuid
-        for f in zip.namelist:
-            if f == 'Persistence.xml':
-                continue
-            
-            title, ext = f.rsplit('.',1)
-            i = 0
-            f2 = f
-            #while f2 in self._app_filelist:
-            #    i += 1
-            #    f2 = title + str(i) + '.' + ext
-            # ugh, too difficult! let's just use a uuid.
-            if f2 in self._app_filelist:
-                f2 = str(uuid.uuid4()) + '.' + ext
-            if f != f2:
-                renametable[f] = f2
-        quoted = lambda s: '"' + s + '"'
-        for f in renametable:
-            xml_string = xml_string.replace(quoted(f), quoted(renametable[f]))
-        
-        
-                        
-    
-        
-class DocumentObject(object):
+    def loadObjectsToFC(self, doc, namelist):
+        emu_objs = [self.getObject(name) for name in namelist]
+        target_objs = [doc.addObject(emu_obj.TypeId, emu_obj.Name) for emu_obj in emu_objs]
+        for i in range(len(namelist)):
+            if emu_objs[i].Name != target_objs[i].Name:
+                raise NameCollisionError("name {name} already taken".format(name= emu_objs[i].Name))
+        for i in range(len(namelist)):
+            emu_objs[i].updateFCObject(target_objs[i])
+
+
+class PropertyContainer(object):
+    """Either a DocumentObject or ViewProvider"""
     datanode = None
     objectnode = None
     Name = ''
+    project = None # reference to a project this object is part of
     
-    def __init__(self, objectnode, datanode):
+    def __init__(self, name, objectnode, datanode, project):
+        """__init__(name, objectnode, datanode, project): (object_node should be None for a viewprovider)"""
         self.objectnode = objectnode
         self.datanode = datanode
-        self.Name = objectnode.get('name')
+        self.Name = name
+        self.project = project
     
-    def __getattr__(self, attr_name):
-        if attr_name == 'PropertiesList':
-            return self._PropertiesList()
-        return self.getPropertyNode(attr_name)
-        
     def getPropertyNode(self, prop_name):
         prop = self.datanode.find('Properties/Property[@name="{propname}"]'.format(propname= prop_name))
         if prop is None:
             raise AttributeError("Object {obj} has no property named '{prop}'".format(obj= self.Name, prop= attr_name))
         return prop
     
-    def typeId(self):
+    @property
+    def TypeId(self):
         return self.objectnode.get("type")
     
-    def setTypeId(self, new_type_id):
+    @TypeId.setter
+    def TypeId(self, new_type_id):
         self.objectnode.set('type', new_type_id)
     
     def getPropertiesNodes(self):
         return self.datanode.findall('Properties/Property')
 
-    def _PropertiesList(self):
+    @property
+    def PropertiesList(self):
         propsnodes = self.getPropertiesNodes()
         return [prop.get('name') for prop in propsnodes]
     
     def renameProperty(self, old_name, new_name):
         node = self.getPropertyNode(old_name)
         node.set('name', new_name)
+    
+    def files(self):
+        file_set = set()
+        file_list = list()
+        def scanNode(node):
+            attribs = node.attrib #dict of attributes
+            for attr_name in attribs:
+                if attr_name == 'file':
+                    file_set.add(attribs[attr_name])
+                    file_list.append(attribs[attr_name])
+            for subnode in node:
+                scanNode(subnode)
+        scanNode(self.datanode)
+        return file_set
+    
+    def dumpContent(self):
+        rootnode = ElementTree.fromstring(content_base_xml)
+        rootnode.extend(self.datanode)
+        zipdata = io.BytesIO()
+        with zipfile.ZipFile(zipdata, 'w') as zipout:
+            fileorder = ['Persistence.xml'] + list(self.files())
+            for fn in fileorder:
+                if fn == 'Persistence.xml':
+                    data = ElementTree.tostring(rootnode, encoding= 'utf-8')
+                else:
+                    data = self.project.readSubfile(fn)
+                zipout.writestr(fn, data)
+        return zipdata.getvalue()
+
+
+class DocumentObject(PropertyContainer):
+    @property
+    def ViewObject(self):
+        return self.project.getViewProvider(self.Name)
+        
+    def updateFCObject(self, object):
+        object.restoreContent(self.dumpContent())
+        if object.ViewObject:
+            object.ViewObject.restoreContent(self.ViewObject.dumpContent())
+
+class ViewProvider(PropertyContainer):
+    @property
+    def Object(self):
+        return self.project.getObject(self.Name)
 
 def load(project_filename):
     "load(project_filename): reads an FCStd file and returns FCProject object"
     project = FCProject(project_filename)
     return project
+
+def warn(message):
+    import sys
+    freecad = sys.modules.get('FreeCAD', None)
+    if freecad is None:
+        print(message)
+    else:
+        freecad.Console.PrintWarning(message + '\n')
+
+class FileplantError(RuntimeError):
+    pass
+class NameCollisionError(FileplantError):
+    pass
