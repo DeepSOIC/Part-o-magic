@@ -3,6 +3,10 @@ import zipfile
 from xml.etree import ElementTree
 import io
 
+from .Errors import *
+
+from .FCObject import DocumentObject, ViewProvider
+
 empty_project_document_xml = (
 """<?xml version='1.0' encoding='utf-8'?>
 <!--
@@ -205,18 +209,26 @@ class FCProject(object):
             for subfn in fileorder:
                 zipout.writestr(subfn, self.readSubfile(subfn))
     
-    def readSubfile(self, subfn):
-        """readSubfile(subfn): returns/generates data of file in a project. Returns a bytestring."""
+    def readSubfile(self, subfn, just_check = False):
+        """readSubfile(subfn, just_check = False): returns/generates data of file in a project. Returns a bytestring. If just_check is True, a boolean value is returned, telling if the file exists or not."""
         if subfn == 'Document.xml':
-            return ElementTree.tostring(self.document_xml.getroot(), encoding= 'utf-8')
+            if not just_check:
+                return ElementTree.tostring(self.document_xml.getroot(), encoding= 'utf-8')
         elif subfn == 'GuiDocument.xml':
-            return ElementTree.tostring(self.guidocument_xml.getroot(), encoding= 'utf-8')
+            if not just_check:
+                return ElementTree.tostring(self.guidocument_xml.getroot(), encoding= 'utf-8')
         elif subfn in self.files:
-            return self.files[subfn]
+            if not just_check:
+                return self.files[subfn]
         elif self.zip is not None:
-            return self.zip.read(subfn)
+            if not just_check:
+                return self.zip.read(subfn)
         else:
-            raise FileNotFoundError('{id} has no file named {fn} in it'.format(name= repr(self)))
+            if not just_check:        
+                raise FileNotFoundError('{id} has no file named {fn} in it'.format(name= repr(self)))
+            else:
+                return False
+        return True
 
         
     @property
@@ -310,106 +322,32 @@ class FCProject(object):
                 raise NameCollisionError("name {name} already taken".format(name= emu_objs[i].Name))
         for i in range(len(namelist)):
             emu_objs[i].updateFCObject(target_objs[i])
-
-
-class PropertyContainer(object):
-    """Either a DocumentObject or ViewProvider"""
-    datanode = None
-    objectnode = None
-    Name = ''
-    project = None # reference to a project this object is part of
     
-    def __init__(self, name, objectnode, datanode, project):
-        """__init__(name, objectnode, datanode, project): (object_node should be None for a viewprovider)"""
-        self.objectnode = objectnode
-        self.datanode = datanode
-        self.Name = name
-        self.project = project
-    
-    def getPropertyNode(self, prop_name):
-        prop = self.datanode.find('Properties/Property[@name="{propname}"]'.format(propname= prop_name))
-        if prop is None:
-            raise AttributeError("Object {obj} has no property named '{prop}'".format(obj= self.Name, prop= attr_name))
-        return prop
-    
-    @property
-    def TypeId(self):
-        return self.objectnode.get("type")
-    
-    @TypeId.setter
-    def TypeId(self, new_type_id):
-        self.objectnode.set('type', new_type_id)
-    
-    def getPropertiesNodes(self):
-        return self.datanode.findall('Properties/Property')
-
-    @property
-    def PropertiesList(self):
-        propsnodes = self.getPropertiesNodes()
-        return [prop.get('name') for prop in propsnodes]
-    
-    def renameProperty(self, old_name, new_name):
-        node = self.getPropertyNode(old_name)
-        node.set('name', new_name)
-    
-    def files(self):
-        file_set = set()
-        file_list = list()
-        def scanNode(node):
-            attribs = node.attrib #dict of attributes
-            for attr_name in attribs:
-                if attr_name == 'file':
-                    file_set.add(attribs[attr_name])
-                    file_list.append(attribs[attr_name])
-            for subnode in node:
-                scanNode(subnode)
-        scanNode(self.datanode)
-        return file_set
-    
-    def dumpContent(self):
-        rootnode = ElementTree.fromstring(content_base_xml)
-        rootnode.extend(self.datanode)
-        zipdata = io.BytesIO()
-        with zipfile.ZipFile(zipdata, 'w') as zipout:
-            fileorder = ['Persistence.xml'] + list(self.files())
-            for fn in fileorder:
-                if fn == 'Persistence.xml':
-                    data = ElementTree.tostring(rootnode, encoding= 'utf-8')
-                else:
-                    data = self.project.readSubfile(fn)
-                zipout.writestr(fn, data)
-        return zipdata.getvalue()
-
-
-class DocumentObject(PropertyContainer):
-    @property
-    def ViewObject(self):
-        return self.project.getViewProvider(self.Name)
+    def renameFile(self, rename_dict):
+        """renameFile(rename_dict): renames subfiles"""
+        def replace_in_list(a_list, replacements):
+            for i in range(len(a_list)):
+                a_list[i] = replacements.get(a_list[i], a_list[i])
         
-    def updateFCObject(self, object):
-        object.restoreContent(self.dumpContent())
-        if object.ViewObject:
-            object.ViewObject.restoreContent(self.ViewObject.dumpContent())
+        from copy import copy
+        cache = copy(self.files)
+        for old_fn in rename_dict:
+            cache.pop(old_fn, None)
+        for old_fn in rename_dict:
+            new_fn = rename_dict[orig_fn]
+            data = self.readSubfile(old_fn)
+            cache[new_fn] = data
+            
+        self.files = cache
+        replace_in_list(self._app_filelist, rename_dict)
+        replace_in_list(self._gui_filelist, rename_dict)
+                        
+        for obj in self.Objects():
+            obj._rename_file(self, rename_dict)
 
-class ViewProvider(PropertyContainer):
-    @property
-    def Object(self):
-        return self.project.getObject(self.Name)
 
 def load(project_filename):
     "load(project_filename): reads an FCStd file and returns FCProject object"
     project = FCProject(project_filename)
     return project
 
-def warn(message):
-    import sys
-    freecad = sys.modules.get('FreeCAD', None)
-    if freecad is None:
-        print(message)
-    else:
-        freecad.Console.PrintWarning(message + '\n')
-
-class FileplantError(RuntimeError):
-    pass
-class NameCollisionError(FileplantError):
-    pass
