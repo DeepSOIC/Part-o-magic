@@ -51,7 +51,7 @@ class CommandReplaceObject(AACommand):
                 msgbox("Replace", u"No regular replacable dependencies found, nothing uses {old}. Please pick wanted replacements manually in the dialog.".format(old= old.Label))
             
             
-            import TaskReplace
+            from . import TaskReplace
             task = TaskReplace.TaskReplace(repls, old.Document, message= u"Replacing {old} with {new}".format(old= old.Label, new= new.Label))
             
 commands.append(CommandReplaceObject())
