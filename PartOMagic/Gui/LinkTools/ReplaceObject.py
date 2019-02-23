@@ -17,7 +17,7 @@ class CommandReplaceObject(AACommand):
                 'ToolTip': "Replace object. Select new, old, and parent. Order matters. Parent is optional."}
         
     def RunOrTest(self, b_run):
-        sel = Gui.Selection.getSelection()
+        sel = [it.Object for it in Gui.Selection.getSelectionEx()]
         if not 2 <= len(sel) <= 3 :
             raise CommandError(self, u"Please select two or three objects. Currently selected {n}".format(n= len(sel)))
         if b_run:
