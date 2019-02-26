@@ -1,0 +1,392 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+ FreeCAD Document, see http://www.freecadweb.org for more information...
+-->
+<Document SchemaVersion="4" ProgramVersion="0.17R13509 (Git)" FileVersion="1">
+    <Properties Count="14">
+        <Property name="Comment" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+        <Property name="Company" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+        <Property name="CreatedBy" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+        <Property name="CreationDate" type="App::PropertyString">
+            <String value="2015-12-17T03:03:10+03:00"/>
+        </Property>
+        <Property name="Id" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+        <Property name="Label" type="App::PropertyString">
+            <String value="replaceobject preset 2"/>
+        </Property>
+        <Property name="LastModifiedBy" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+        <Property name="LastModifiedDate" type="App::PropertyString">
+            <String value="2018-04-21T03:32:49+03:00"/>
+        </Property>
+        <Property name="License" type="App::PropertyString">
+            <String value="All rights reserved"/>
+        </Property>
+        <Property name="LicenseURL" type="App::PropertyString">
+            <String value="http://en.wikipedia.org/wiki/All_rights_reserved"/>
+        </Property>
+        <Property name="Material" type="App::PropertyMap">
+            <Map count="0">
+            </Map>
+        </Property>
+        <Property name="Meta" type="App::PropertyMap">
+            <Map count="0">
+            </Map>
+        </Property>
+        <Property name="TipName" type="App::PropertyString">
+            <String value=""/>
+        </Property>
+        <Property name="Uid" type="App::PropertyUUID">
+            <Uuid value="32f3032b-d8b4-4e3c-be85-3d65e43e6e0c"/>
+        </Property>
+    </Properties>
+    <Objects Count="8">
+        <Object type="Part::Box" name="Box" />
+        <Object type="Part::Cylinder" name="Cylinder" />
+        <Object type="Part::MultiFuse" name="Fusion" />
+        <Object type="Part::Sphere" name="Sphere" />
+        <Object type="Part::Cut" name="Cut" />
+        <Object type="Part::Box" name="Box001" />
+        <Object type="Spreadsheet::Sheet" name="Spreadsheet" />
+        <Object type="Part::FeaturePython" name="Cylinder_Edge0" />
+    </Objects>
+    <ObjectData Count="8">
+        <Object name="Box" Extensions="True">
+            <Extensions Count="1">
+                <Extension type="Part::AttachExtension" name="AttachExtension">
+                </Extension>
+            </Extensions>
+            <Properties Count="13">
+                <Property name="AttacherType" type="App::PropertyString">
+                    <String value="Attacher::AttachEngine3D"/>
+                </Property>
+                <Property name="AttachmentOffset" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Height" type="App::PropertyLength">
+                    <Float value="10.000000000000"/>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Cube"/>
+                </Property>
+                <Property name="Length" type="App::PropertyLength">
+                    <Float value="10.000000000000"/>
+                </Property>
+                <Property name="MapMode" type="App::PropertyEnumeration">
+                    <Integer value="0"/>
+                </Property>
+                <Property name="MapPathParameter" type="App::PropertyFloat">
+                    <Float value="0.000000000000"/>
+                </Property>
+                <Property name="MapReversed" type="App::PropertyBool">
+                    <Bool value="false"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape.brp"/>
+                </Property>
+                <Property name="Support" type="App::PropertyLinkSubList">
+                    <LinkSubList count="0">
+                    </LinkSubList>
+                </Property>
+                <Property name="Width" type="App::PropertyLength">
+                    <Float value="10.000000000000"/>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Cylinder" Extensions="True">
+            <Extensions Count="1">
+                <Extension type="Part::AttachExtension" name="AttachExtension">
+                </Extension>
+            </Extensions>
+            <Properties Count="13">
+                <Property name="Angle" type="App::PropertyAngle">
+                    <Float value="360.000000000000"/>
+                </Property>
+                <Property name="AttacherType" type="App::PropertyString">
+                    <String value="Attacher::AttachEngine3D"/>
+                </Property>
+                <Property name="AttachmentOffset" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Height" type="App::PropertyLength">
+                    <Float value="10.000000000000"/>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Cylinder"/>
+                </Property>
+                <Property name="MapMode" type="App::PropertyEnumeration">
+                    <Integer value="0"/>
+                </Property>
+                <Property name="MapPathParameter" type="App::PropertyFloat">
+                    <Float value="0.000000000000"/>
+                </Property>
+                <Property name="MapReversed" type="App::PropertyBool">
+                    <Bool value="false"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Radius" type="App::PropertyLength">
+                    <Float value="2.000000000000"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape1.brp"/>
+                </Property>
+                <Property name="Support" type="App::PropertyLinkSubList">
+                    <LinkSubList count="0">
+                    </LinkSubList>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Fusion">
+            <Properties Count="6">
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Fusion"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Refine" type="App::PropertyBool">
+                    <Bool value="false"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape2.brp"/>
+                </Property>
+                <Property name="Shapes" type="App::PropertyLinkList">
+                    <LinkList count="2">
+                        <Link value="Cylinder"/>
+                        <Link value="Box"/>
+                    </LinkList>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Sphere" Extensions="True">
+            <Extensions Count="1">
+                <Extension type="Part::AttachExtension" name="AttachExtension">
+                </Extension>
+            </Extensions>
+            <Properties Count="14">
+                <Property name="Angle1" type="App::PropertyAngle">
+                    <Float value="-90.000000000000"/>
+                </Property>
+                <Property name="Angle2" type="App::PropertyAngle">
+                    <Float value="90.000000000000"/>
+                </Property>
+                <Property name="Angle3" type="App::PropertyAngle">
+                    <Float value="360.000000000000"/>
+                </Property>
+                <Property name="AttacherType" type="App::PropertyString">
+                    <String value="Attacher::AttachEngine3D"/>
+                </Property>
+                <Property name="AttachmentOffset" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Sphere"/>
+                </Property>
+                <Property name="MapMode" type="App::PropertyEnumeration">
+                    <Integer value="0"/>
+                </Property>
+                <Property name="MapPathParameter" type="App::PropertyFloat">
+                    <Float value="0.000000000000"/>
+                </Property>
+                <Property name="MapReversed" type="App::PropertyBool">
+                    <Bool value="false"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Radius" type="App::PropertyLength">
+                    <Float value="5.000000000000"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape3.brp"/>
+                </Property>
+                <Property name="Support" type="App::PropertyLinkSubList">
+                    <LinkSubList count="0">
+                    </LinkSubList>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Cut">
+            <Properties Count="7">
+                <Property name="Base" type="App::PropertyLink">
+                    <Link value="Cylinder"/>
+                </Property>
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Cut"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Refine" type="App::PropertyBool">
+                    <Bool value="false"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape4.brp"/>
+                </Property>
+                <Property name="Tool" type="App::PropertyLink">
+                    <Link value="Sphere"/>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Box001" Extensions="True">
+            <Extensions Count="1">
+                <Extension type="Part::AttachExtension" name="AttachExtension">
+                </Extension>
+            </Extensions>
+            <Properties Count="13">
+                <Property name="AttacherType" type="App::PropertyString">
+                    <String value="Attacher::AttachEngine3D"/>
+                </Property>
+                <Property name="AttachmentOffset" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="3">
+                        <Expression path="Height" expression="Length"/>
+                        <Expression path="Width" expression="Length"/>
+                        <Expression path="Length" expression="Cylinder.Shape.Volume ^ (1 / 3)"/>
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Height" type="App::PropertyLength">
+                    <Float value="5.008833798856"/>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Cube001"/>
+                </Property>
+                <Property name="Length" type="App::PropertyLength">
+                    <Float value="5.008833798856"/>
+                </Property>
+                <Property name="MapMode" type="App::PropertyEnumeration">
+                    <Integer value="0"/>
+                </Property>
+                <Property name="MapPathParameter" type="App::PropertyFloat">
+                    <Float value="0.000000000000"/>
+                </Property>
+                <Property name="MapReversed" type="App::PropertyBool">
+                    <Bool value="false"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape5.brp"/>
+                </Property>
+                <Property name="Support" type="App::PropertyLinkSubList">
+                    <LinkSubList count="0">
+                    </LinkSubList>
+                </Property>
+                <Property name="Width" type="App::PropertyLength">
+                    <Float value="5.008833798856"/>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Spreadsheet">
+            <Properties Count="5">
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Spreadsheet"/>
+                </Property>
+                <Property name="cells" type="Spreadsheet::PropertySheet">
+                    <Cells Count="2">
+                        <Cell address="B2" content="volume" />
+                        <Cell address="C2" content="=Cylinder.Shape.Volume" alias="Vol" />
+                    </Cells>
+                </Property>
+                <Property name="columnWidths" type="Spreadsheet::PropertyColumnWidths">
+                    <ColumnInfo Count="0">
+                    </ColumnInfo>
+                </Property>
+                <Property name="rowHeights" type="Spreadsheet::PropertyRowHeights">
+                    <RowInfo Count="0">
+                    </RowInfo>
+                </Property>
+            </Properties>
+        </Object>
+        <Object name="Cylinder_Edge0">
+            <Properties Count="10">
+                <Property name="CompoundTraversal" type="App::PropertyEnumeration" group="Lattice SubLink" doc="Sets how to unpack compounds if Looping is not &apos;Single&apos;." attr="0" ro="0" hide="0">
+                    <Integer value="0" CustomEnum="true"/>
+                    <CustomEnumList count="2">
+                        <Enum value="Compund children"/>
+                        <Enum value="Compound leaves"/>
+                    </CustomEnumList>
+                </Property>
+                <Property name="ExpressionEngine" type="App::PropertyExpressionEngine">
+                    <ExpressionEngine count="0">
+                    </ExpressionEngine>
+                </Property>
+                <Property name="Label" type="App::PropertyString">
+                    <String value="Edge0 of Cylinder"/>
+                </Property>
+                <Property name="Looping" type="App::PropertyEnumeration" group="Lattice SubLink" doc="Sets wether to collect just the element, or all similar from array." attr="0" ro="0" hide="0">
+                    <Integer value="0" CustomEnum="true"/>
+                    <CustomEnumList count="4">
+                        <Enum value="Single"/>
+                        <Enum value="Till end"/>
+                        <Enum value="All around"/>
+                        <Enum value="All from first"/>
+                    </CustomEnumList>
+                </Property>
+                <Property name="Object" type="App::PropertyLink" group="Lattice SubLink" doc="Object to extract an element from" attr="0" ro="0" hide="0">
+                    <Link value="Cylinder"/>
+                </Property>
+                <Property name="Placement" type="App::PropertyPlacement">
+                    <PropertyPlacement Px="0.000000000000" Py="0.000000000000" Pz="0.000000000000" Q0="0.000000000000" Q1="0.000000000000" Q2="0.000000000000" Q3="1.000000000000" A="0.000000000000" Ox="0.000000000000" Oy="0.000000000000" Oz="1.000000000000"/>
+                </Property>
+                <Property name="Proxy" type="App::PropertyPythonObject">
+                    <Python value="bnVsbA==" encoded="yes" module="lattice2SubLink" class="LatticeSubLink"/>
+                </Property>
+                <Property name="Shape" type="Part::PropertyPartShape">
+                    <Part file="PartShape6.brp"/>
+                </Property>
+                <Property name="SubLink" type="App::PropertyLinkSub" group="Lattice SubLink" doc="Mirror of Object+SubNames properties" attr="0" ro="0" hide="0">
+                    <LinkSub value="Cylinder" count="1">
+                        <Sub value="Edge0"/>
+                    </LinkSub>
+                </Property>
+                <Property name="SubNames" type="App::PropertyStringList" group="Lattice SubLink" doc="List of elements to extract. Example: Edge5,Edge8" attr="0" ro="0" hide="0">
+                    <StringList count="1">
+                        <String value="Edge0"/>
+                    </StringList>
+                </Property>
+            </Properties>
+        </Object>
+    </ObjectData>
+</Document>
