@@ -3,10 +3,16 @@ print("loading FilePlant")
 
 __all__ = [
 'FCProject',
+'FCObject',
+'FCProperty',
+'PropertyExpressionEngine',
 ]
 
 def importAll():
     from . import FCProject
+    from . import FCObject
+    from . import FCProperty
+    from . import PropertyExpressionEngine
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, 'importAll'):

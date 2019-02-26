@@ -4,6 +4,7 @@ from xml.etree import ElementTree
 import io
 
 from .Errors import *
+from . import FCProperty
 
 class PropertyContainer(object):
     """Either a DocumentObject or ViewProvider"""
@@ -22,7 +23,7 @@ class PropertyContainer(object):
     def getPropertyNode(self, prop_name):
         prop = self.datanode.find('Properties/Property[@name="{propname}"]'.format(propname= prop_name))
         if prop is None:
-            raise AttributeError("Object {obj} has no property named '{prop}'".format(obj= self.Name, prop= attr_name))
+            raise AttributeError("Object {obj} has no property named '{prop}'".format(obj= self.Name, prop= prop_name))
         return prop
     
     @property
@@ -44,6 +45,9 @@ class PropertyContainer(object):
     def renameProperty(self, old_name, new_name):
         node = self.getPropertyNode(old_name)
         node.set('name', new_name)
+    
+    def Property(self, prop_name):
+        return FCProperty.CastProperty(self.getPropertyNode(prop_name), self)
     
     def files(self):
         """files(): returns set of filenames used by properties of this object"""
@@ -89,17 +93,42 @@ class PropertyContainer(object):
                     data = self.project.readSubfile(fn)
                 zipout.writestr(fn, data)
         return zipdata.getvalue()
+        
+    @property
+    def Label(self):
+        return self.Property('Label').value
+    
+    @Label.setter
+    def Label(self, new_value):
+        self.Property('Label').value = new_value
+    
+    def fetchAttributes(self):
+        """fetchAttributes(self): makes object properties accessible as attributes. """
+        pass
+        #doesn't work - descriptors are only applied when the attribute is a class attribute =(
+        #for prop_name in self.PropertiesList:
+        #    if prop_name != 'Label': #Label is defined explicitly
+        #        self.__dict__[prop_name] = PropertyAsAttribute(prop_name, self) #use instance dictionary instead of setattr, using setattr over a descriptor will do a different thing.
 
+#class PropertyAsAttribute(object):
+#    prop_name = None
+#    object = None
+#    def __init__(self, prop_name, obj):
+#        self.prop_name = prop_name 
+#        self.object = obj
+#    
+#    def __get__(self, obj, type = None):
+#        return self.object.Property(self.prop_name).getAsAttribute()
 
 class DocumentObject(PropertyContainer):
     @property
     def ViewObject(self):
         return self.project.getViewProvider(self.Name)
         
-    def updateFCObject(self, object):
-        object.restoreContent(self.dumpContent())
-        if object.ViewObject:
-            object.ViewObject.restoreContent(self.ViewObject.dumpContent())
+    def updateFCObject(self, obj):
+        obj.restoreContent(self.dumpContent())
+        if obj.ViewObject:
+            obj.ViewObject.restoreContent(self.ViewObject.dumpContent())
 
 class ViewProvider(PropertyContainer):
     @property

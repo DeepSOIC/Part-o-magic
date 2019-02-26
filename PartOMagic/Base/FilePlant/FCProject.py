@@ -290,13 +290,31 @@ class FCProject(object):
         'findObjects(type_id): returns list of App objects by C++ type'
         return [self.getObject(obj_name) for obj_name in self.listObjectsOfType(type_id)]
     
-    def getObject(self, object_name):
+    
+    def Object(self, object_name):
+        """Object(object_name): faster, because it doesn't fetch properties to be available as attributes. Raises KeyError if object not found."""
         object_node = self.node_objectlist.find('Object[@name="{name}"]'.format(name= object_name))
         if object_node is None:
             raise KeyError("There is no object named {name} in this project".format(name= object_name))
         data_node = self.node_objectdata.find('Object[@name="{name}"]'.format(name= object_name))
         assert(data_node is not None)
         return DocumentObject(object_name, object_node, data_node, self)
+
+    def getObject(self, object_name):
+        """getObject(object_name): emulates behavior of FreeCAD's Document.getObject"""
+        try:
+            obj = self.Object(object_name)
+            obj.fetchAttributes()
+            return obj
+        except KeyError as err:
+            return None
+    
+    def getObjectsByLabel(self, label, fetch_attribs = True):
+        objs = [obj for obj in self.Objects if obj.Label == label]
+        if fetch_attribs:
+            for obj in objs:
+                obj.fetchAttributes()
+        return objs        
 
     def getViewProvider(self, object_name):
         object_node = self.node_objectlist.find('Object[@name="{name}"]'.format(name= object_name))
@@ -312,10 +330,10 @@ class FCProject(object):
     @property
     def Objects(self):
         # this is probably somewhat inefficient, but we'll stick with it for a while
-        return [self.getObject(object_name) for object_name in self.listObjects()]
+        return [self.Object(object_name) for object_name in self.listObjects()]
     
     def loadObjectsToFC(self, doc, namelist):
-        emu_objs = [self.getObject(name) for name in namelist]
+        emu_objs = [self.Object(name) for name in namelist]
         target_objs = [doc.addObject(emu_obj.TypeId, emu_obj.Name) for emu_obj in emu_objs]
         for i in range(len(namelist)):
             if emu_objs[i].Name != target_objs[i].Name:
