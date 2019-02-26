@@ -495,8 +495,8 @@ def expressionDeps(expr, doc):
         
         obj = doc.getObject(id)
         if obj is None:
-            # try by labe
-            objs = App.ActiveDocument.getObjectsByLabel(id)
+            # try by label
+            objs = doc.getObjectsByLabel(id)
             if len(objs) == 1:
                 obj = objs[0]
         if obj is not None:
