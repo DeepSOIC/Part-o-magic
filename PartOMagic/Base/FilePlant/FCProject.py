@@ -518,4 +518,5 @@ def fromFC(doc, namelist = None):
     """fromFC(doc, namelist = None): creates a project from an open FC document."""
     project = FCProject()
     project.mergeFromFC(doc, namelist, rename_on_collision = False)
+    return project
 
