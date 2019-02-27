@@ -5,6 +5,8 @@ printErr = App.Console.PrintError
 printLog = App.Console.PrintLog
 printWarn = App.Console.PrintWarning
 
+from .ExpressionParser import expressionDeps
+
 class Relation(object):
     """Relation object is a unified representation of any parametric relation between documentobjects.
     linking_object.linking_property links to linked_object.
@@ -424,89 +426,7 @@ def replaceObject(orig, new, within = None, do_it = True, child_links_too = Fals
     else:
         return repls    
 
-
-namechars = [chr(c) for c in range(ord('a'), ord('z')+1)]
-namechars += [chr(c) for c in range(ord('A'), ord('Z')+1)]
-namechars += [chr(c) for c in range(ord('0'), ord('9')+1)]
-namechars += ['_']
-namechars = set(namechars)
-
-def replaceNameInExpression(expr, old_name, new_name):
-    """replaceNameInExpression(expr, old_name, new_name): replaces an identifier in an expression.
-    expr: expression (a string).
-    Return: If not found, returns None. If replaced, returns new expression."""
- 
-    #FIXME: prevent replacement of function names
-    global namechars
-
-    valchanged = False
-    n = len(old_name)
-    i = len(expr)
-    while True:
-        i = expr.rfind(old_name, 0,i)
-        if i == -1:
-            break
-        
-        #match found, but that can be a match inside of a different name. Test if characters around are non-naming.
-        match = True
-        if i > 0:
-            if expr[i-1] in namechars:
-                match = False
-        if i+n < len(expr):
-            if expr[i+n] in namechars:
-                match = False
-        
-        #replace it
-        if match:
-            valchanged = True
-            expr = expr[0:i] + new_name + expr[i+n : ]
-    if valchanged:
-        return expr
-    else:
-        return None
-
-
-def expressionDeps(expr, doc):
-    """expressionDeps(expr, doc): returns set of objects referenced by the expression, as list of Relations with unfilled linking_object.
-    expr: expression, as a string
-    doc: document where to look up objects by names/labels"""
-    global namechars
-    startchars = set("+-*/(%^&\[<>;, =")
-    endchars = set(".")
-    
-    ids = [] #list of tuples: (identifier, (start, end_plus_1))
-    start = 0
-    finish = 0
-    for i in range(len(expr)):
-        if expr[i] in startchars:
-            start = i+1
-        elif expr[i] in endchars:
-            finish = i
-            if finish - start > 0:
-                ids.append((expr[start:finish], (start, finish)))
-            start = len(expr)
-        elif expr[i] not in namechars:
-            finish = i
-            start = len(expr)
-        
-    ret = []
-    for id, id_range in ids:
-        # try by name
-        
-        obj = doc.getObject(id)
-        if obj is None:
-            # try by label
-            objs = doc.getObjectsByLabel(id)
-            if len(objs) == 1:
-                obj = objs[0]
-        if obj is not None:
-            ret.append(Relation(None, 'Expression', None, obj, expression_charrange= id_range))
-        else:
-            printWarn(u"identifier in expression not recognized: {id}".format(id= id))
-            
-    return ret
-    
-    
+  
     
 def getAllDependentObjects(feat):
     '''getAllDependentObjects(feat): gets all features that depend on feat, directly or indirectly. 
