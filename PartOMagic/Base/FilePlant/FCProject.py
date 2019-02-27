@@ -162,6 +162,7 @@ class FCProject(object):
         if obj.ViewObject is not None:
             bs_vp = obj.ViewObject.dumpContent()
         self.fromStream(obj.Name, obj.TypeId, bs_app, bs_vp)
+        self.setCameraFromFC(obj.Document)
     
     def _updateLengths(self):
         n_objects = len(self.node_objectlist)
@@ -482,11 +483,39 @@ class FCProject(object):
             tmp_prj.fromFCObject(doc.getObject(n))
             project1.merge(tmp_prj, rename_on_collision= False)
         
+        self.setCameraFromFC(doc)
+        
         # and merge we do!!
         return self.merge(project1, rename_on_collision)
+    
+    @property
+    def camera(self, camstring):
+        return self.guidocument_xml.find('Camera').get('settings')
+
+    @camera.setter
+    def camera(self, camstring):
+        self.guidocument_xml.find('Camera').set('settings', camstring)
+    
+    def setCameraFromFC(self, doc):
+        try:
+            import FreeCAD
+            if not FreeCAD.GuiUp: return
+            import FreeCADGui
+            gdoc = FreeCADGui.getDocument(doc.Name)
+            camstring = gdoc.mdiViewsOfType('Gui::View3DInventor')[0].getCamera()
+            camstring = camstring[21:].replace('\n', ' ')
+            self.camera = camstring
+        except Exception as err:
+            from .Misc import warn
+            warn("Can't get camera settings: {err}".format(err= str(err)))        
 
 def load(project_filename):
     "load(project_filename): reads an FCStd file and returns FCProject object"
     project = FCProject(project_filename)
     return project
+
+def fromFC(doc, namelist = None):
+    """fromFC(doc, namelist = None): creates a project from an open FC document."""
+    project = FCProject()
+    project.mergeFromFC(doc, namelist, rename_on_collision = False)
 
