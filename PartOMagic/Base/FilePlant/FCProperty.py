@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 import io
 
+from .Misc import ReplaceTask, recursiveNodeIterator
 property_xml = """<Property name="{name}" type="{type_id}"></Property>"""
 
 class Property(object):
@@ -47,16 +48,57 @@ class Property(object):
         """inputs(): returns list of object names linked by this property"""
         return []
     
-    def replace(self, replacement_dict):
-        """replace(replacement_dict): replaces links to objects. The dict should be old_name->new_name mapping. Returns number of replacements done."""
-        pass
+    def replace(self, replace_task):
+        """replace(replace_task): replaces links to objects. Should be a ReplaceTask object. Returns number of replacements done."""
+        return 0
+    
+    def _rename_file(self, rename_dict):
+        n_renamed = 0
+        for node in recursiveNodeIterator(self.node):
+            attribs = node.attrib #dict of attributes
+            for attr_name in attribs:
+                if attr_name == 'file':
+                    fn = attribs[attr_name]
+                    if fn in rename_dict:
+                        n_renamed += 1
+                        node.set(attr_name, rename_dict[fn])
+            
+        return n_renamed
+
+    def files(self):
+        """files(): returns set of filenames used by properties of this object"""
+        file_set = set()
+        file_list = list()
+        for node in recursiveNodeIterator(self.node):
+            attribs = node.attrib #dict of attributes
+            for attr_name in attribs:
+                if attr_name == 'file':
+                    file_set.add(attribs[attr_name])
+                    file_list.append(attribs[attr_name])
+        return file_set
+    
+    def purgeDeadLinks(self):
+        return 0
+
     
 class PropertyLink_Abstract(Property):
     def inputs():
         raise NotImplementedError()
     
-    def replace(self, replacement_dict):
+    def replace(self, replace_task):
         raise NotImplementedError()
+    
+    def purgeDeadLinks(self):
+        ins = self.inputs()
+        
+        task = ReplaceTask
+        for it in ins:
+            if not self.object.project.has(it):
+                task[it] = None
+        if len(task) > 0:
+            return self.replace(task)
+        else:
+            return 0
 
 #<Property name="link" type="App::PropertyLink" group="" doc="" attr="0" ro="0" hide="0">
 #    <Link value="Box"/>
@@ -88,10 +130,16 @@ class PropertyLink(PropertyLink_Abstract):
         v = self.value
         return [v] if v is not None else []
     
-    def replace(self, replacement_dict):
-        if self.value in replacement_dict:
+    def replace(self, replace_task):
+        if self.value in replace_task:
             self.value = replacementdict[self.value]
             return 1
+        else:
+            return 0
+    
+    def purgeDeadLinks():
+        if not self.object.project.has(self.value):
+            self.value = None
     
     
 #<Property name="Group" type="App::PropertyLinkList">
@@ -111,6 +159,9 @@ class PropertyLinkList(PropertyLink):
     
     @value.setter
     def value(self, new_val):
+        #purge out Nones.
+        new_val = [it for it in new_val if it is not None]
+
         lnn = self.node.find('LinkList')
         lnn.clear() #removes attributes too, bastard =(
         lnn.set('count', str(len(new_val)))
@@ -123,12 +174,12 @@ class PropertyLinkList(PropertyLink):
     def inputs(self):
         return self.value
     
-    def replace(self, replacement_dict):
+    def replace(self, replace_task):
         n_replaced = 0
         new_val = []
         for v in self.value:
-            if v in replacement_dict:
-                v = replacement_dict[v]
+            if v in replace_task:
+                v = replace_task[v]
                 n_replaced += 1
             new_val.append(v)
         if n_replaced:
@@ -155,8 +206,9 @@ class PropertyLinkSub(PropertyLink):
     
     @value.setter
     def value(self, new_val):
-        if new_val == None:
+        if new_val == None or new_val[0] is None:
             new_val = ('', [])
+
         name, sublist = new_val
         lnn = self.node.find('LinkSub')
         lnn.clear() #removes attributes too, bastard =(
@@ -176,12 +228,14 @@ class PropertyLinkSub(PropertyLink):
         else:
             return []
     
-    def replace(self, replacement_dict):
+    def replace(self, replace_task):
         name,subs = self.value
-        if name in replacement_dict:
-            v = (replacement_dict[name], subs)
+        if name in replace_task:
+            v = (replace_task[name], subs)
             self.value = v
             return 1
+        else:
+            return 0
 
 #<Property name="linksublist" type="App::PropertyLinkSubList" group="" doc="" attr="0" ro="0" hide="0">
 #    <LinkSubList count="3">
@@ -200,6 +254,10 @@ class PropertyLinkSubList(PropertyLink):
     
     @value.setter
     def value(self, new_val):
+        #purge out Nones (may come from a replacement).
+        new_val = [it for it in new_val if it is not None]
+        new_val = [it for it in new_val if it[0] is not None]
+
         lnn = self.node.find('LinkSubList')
         lnn.clear() #removes attributes too, bastard =(
         lnn.set('count', str(len(new_val)))
@@ -212,12 +270,12 @@ class PropertyLinkSubList(PropertyLink):
     def inputs(self):
         return [name for name,sub in self.value]
     
-    def replace(self, replacement_dict):
+    def replace(self, replace_task):
         n_replaced = 0
         new_val = []
         for v in self.value:
-            if v[0] in replacement_dict:
-                v = (replacement_dict[v[0]], v[1])
+            if v[0] in replace_task:
+                v = (replace_task[v[0]], v[1])
                 n_replaced += 1
             new_val.append(v)
         if n_replaced:

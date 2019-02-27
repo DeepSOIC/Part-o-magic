@@ -6,6 +6,7 @@ import io
 from .Errors import *
 
 from .FCObject import DocumentObject, ViewProvider
+from .Misc import ReplaceTask, generateNewName, FC_version
 
 empty_project_document_xml = (
 """<?xml version='1.0' encoding='utf-8'?>
@@ -49,35 +50,7 @@ object_vp_entry = (
 </ViewProvider>
 '''
 )
-
-content_base_xml = (
-"""<Content>
-</Content>
-"""
-)
-
-def FC_version():
-    try:
-        import FreeCAD
-        vertup = FreeCAD.Version()
-        # ['0', '18', '15518 (Git)', 'git://github.com/FreeCAD/FreeCAD.git master', '2018/12/29 16:41:25', 'master', 'e83c44200ab428b753a1e08a2e4d95
-        # target format: '0.18R14726 (Git)'
-        return '{0}.{1}R{2}'.format(*vertup)
-    except Exception:
-        return '0.18R14726 (Git)'
         
-def generateNewName(wanted_name, existing_names):
-    """generateNewName(wanted_name, existing_names): returns a unique name (by adding digits to wanted_name). Suitable for file names (but not full paths)"""
-    title, ext = wanted_name.rsplit('.',1) + ['']
-    if ext:
-        ext = '.' + ext
-    i = 0
-    f2 = f
-    while f2 in existing_names:
-        i += 1
-        f2 = title + str(i) + ext
-    return f2
-
 class FCProject(object):
     document_xml = None #ElementTree object of parsed Document.xml 
     guidocument_xml = None #ElementTree object of parsed GuiDocument.xml
@@ -132,8 +105,15 @@ class FCProject(object):
                 curlist = self._gui_filelist
             else:
                 curlist.append(fn)
-                
+
+    def listFiles(self):
+        return self._app_filelist + self._gui_filelist
+        
     def fromStream(self, name, typeid, bs_app, bs_vp = None):
+        """Initializes this project from a stram of data of one object. 
+        Warning: this does not add an object to the project, - all existing objects will 
+        be wiped, and the stramed object becomes the ONLY object of the project."""
+        
         self.empty()
 
         def fetchFiles(z, filelist_ref):           
@@ -176,7 +156,8 @@ class FCProject(object):
             self.node_vpdata.append(objvpnode)
         self._updateLengths()
         
-    def fromObject(self, obj):
+    def fromFCObject(self, obj):
+        """fromFCObject(self, obj): creates a project containing data of an object, from a FreeCAD DocumentObject instance."""
         bs_app = obj.dumpContent()
         if obj.ViewObject is not None:
             bs_vp = obj.ViewObject.dumpContent()
@@ -196,8 +177,11 @@ class FCProject(object):
         z = self.zip
         filelist = z.namelist()
         for filename in filelist:
-            data = z.open(filename).read()
-            self.files[filename] = data
+            if not filename in self.files: #self.files has priority over zip files 
+                data = z.open(filename).read()
+                self.files[filename] = data
+            
+        self.zip = None
     
     def writeFile(self, filename):
         """writeFile(filename): writes out an FCStd file"""
@@ -295,10 +279,10 @@ class FCProject(object):
         """Object(object_name): faster, because it doesn't fetch properties to be available as attributes. Raises KeyError if object not found."""
         object_node = self.node_objectlist.find('Object[@name="{name}"]'.format(name= object_name))
         if object_node is None:
-            raise KeyError("There is no object named {name} in this project".format(name= object_name))
+            raise ObjectNotFoundError("There is no object named {name} in this project".format(name= object_name))
         data_node = self.node_objectdata.find('Object[@name="{name}"]'.format(name= object_name))
         assert(data_node is not None)
-        return DocumentObject(object_name, object_node, data_node, self)
+        return DocumentObject(object_node, data_node, self)
 
     def getObject(self, object_name):
         """getObject(object_name): emulates behavior of FreeCAD's Document.getObject"""
@@ -306,9 +290,12 @@ class FCProject(object):
             obj = self.Object(object_name)
             obj.fetchAttributes()
             return obj
-        except KeyError as err:
+        except ObjectNotFoundError as err:
             return None
-    
+
+    def hasObject(self, object_name):
+        return object_name in self.listObjects()
+
     def getObjectsByLabel(self, label, fetch_attribs = True):
         objs = [obj for obj in self.Objects if obj.Label == label]
         if fetch_attribs:
@@ -325,22 +312,13 @@ class FCProject(object):
         if data_node is None:
             warn("Failed to find viewprovider for object {obj}".format(obj= object_name))
             return None
-        return ViewProvider(object_name, None, data_node, self)
+        return ViewProvider(None, data_node, self)
     
     @property
     def Objects(self):
         # this is probably somewhat inefficient, but we'll stick with it for a while
         return [self.Object(object_name) for object_name in self.listObjects()]
-    
-    def loadObjectsToFC(self, doc, namelist):
-        emu_objs = [self.Object(name) for name in namelist]
-        target_objs = [doc.addObject(emu_obj.TypeId, emu_obj.Name) for emu_obj in emu_objs]
-        for i in range(len(namelist)):
-            if emu_objs[i].Name != target_objs[i].Name:
-                raise NameCollisionError("name {name} already taken".format(name= emu_objs[i].Name))
-        for i in range(len(namelist)):
-            emu_objs[i].updateFCObject(target_objs[i])
-    
+        
     def renameFile(self, rename_dict):
         """renameFile(rename_dict): renames subfiles"""
         def replace_in_list(a_list, replacements):
@@ -352,7 +330,7 @@ class FCProject(object):
         for old_fn in rename_dict:
             cache.pop(old_fn, None)
         for old_fn in rename_dict:
-            new_fn = rename_dict[orig_fn]
+            new_fn = rename_dict[old_fn]
             data = self.readSubfile(old_fn)
             cache[new_fn] = data
             
@@ -360,9 +338,152 @@ class FCProject(object):
         replace_in_list(self._app_filelist, rename_dict)
         replace_in_list(self._gui_filelist, rename_dict)
                         
-        for obj in self.Objects():
-            obj._rename_file(self, rename_dict)
+        for obj in self.Objects:
+            obj._rename_file(rename_dict)
+            vp = obj.ViewObject
+            if vp:
+                vp._rename_file(rename_dict)
+    
+    def renameObject(self, old_name, new_name, update_links = True):
+        """renameObject(old_name, new_name, update_links = True): renames an object in a project, and updates links (optional). Returns a ReplaceTask object, that can be used to update links in other projects."""
+        obj = self.Object(old_name)
+        replace_task = ReplaceTask()
+        replace_task.addObject(obj.Name, obj.Label)
+        replace_task[old_name] = new_name
+        
+        obj.rename(new_name)
+        
+        replace_task.addObject(obj.Name, obj.Label)
+        
+        if update_links:
+            self.replaceInLinks(replace_task)
+        return replace_task
+    
+    def replaceInLinks(self, replace_task):
+        cnt = 0
+        for obj in self.Objects:
+            cnt += obj.replace(replace_task)
+        return cnt
+    
+    def purgeDeadLinks(self):
+        cnt = 0
+        for obj in self.Objects:
+            cnt += obj.purgeDeadLinks()
+        return cnt
+    
+    def merge(self, other_project, rename_on_collision = True, rename_files_on_collision = True):
+        """merge(self, other_project, rename_on_collision = True, rename_files_on_collision = True): merges other_project into this one. 
+        Other_project may be modified in the process (objects and files are renamed on 
+        collisions; zip data may be fetched into memory).
+        Returns map of names (a dict), how names we had in other_project correspond to
+        names in merged project. Note that names in other project will change, and the 
+        map can be used to track these changes."""
+        
+        other = other_project
+        
+        # check/eliminate object name collisions
+        my_names = self.listObjects()
+        other_names = other.listObjects(); s_other_names = set(other_names)
+        taken_names = set(my_names)
+        name_map = {}
+        for n in other_names:
+            old_name = n
+            new_name = n
+            if old_name in taken_names:
+                if not rename_on_collision:
+                    raise NameCollisionError("Object '{name}' exists in both projects, can't merge".format(name= n))
+                new_name = generateNewName(old_name, taken_names, s_other_names) #should not collide with names in other project as well...
+                other.renameObject(old_name, new_name)
+            taken_names.add(new_name)
+            name_map[old_name] = new_name
+        
+        #prepare for merge...
+        if self.zip is not None:
+            if other.zip is not None:
+                other._fetchInternalFiles()
 
+        # check/eliminate file name collisions
+        my_files = self.listFiles()
+        other_files = other.listFiles(); s_other_files = set(other_files)
+        taken_files = set(my_files)
+        for file in other_files:
+            if file in taken_files:
+                if not rename_files_on_collision:
+                    raise NameCollisionError("File '{name}' exists in both projects, can't merge".format(file= file))
+                new_name = generateNewName(file, taken_files, s_other_files)
+                other.renameFile({file : new_name})
+            taken_files.add(file)
+        
+        #merge files
+        if self.zip is None:
+            self.zip = other.zip
+        else: 
+            assert(other.zip is None)
+        self.files.update(other.files)
+        assert(0 == len(set(self._app_filelist) & set(other._app_filelist))) #file collisions should have been eliminated by now
+        self._app_filelist.extend(other._app_filelist)
+        assert(0 == len(set(self._gui_filelist) & set(other._gui_filelist)))
+        self._gui_filelist.extend(other._gui_filelist)
+        
+        #merge objects/viewproviders
+        self.node_objectlist.extend(other.node_objectlist)
+        self.node_objectdata.extend(other.node_objectdata)
+        if self.guidocument_xml and other.guidocument_xml:
+            self.node_vpdata.extend(other.node_vpdata)
+        self._updateLengths()
+        
+        return name_map
+    
+    def mergeToFC(self, doc, namelist = None, rename_on_collision = True):
+        """mergeToFC(self, doc, namelist = None, rename_on_collision = True): merges this project into a FreeCAD Document. 
+        Returns rename map. 
+        Objects in this project will be renamed to eliminate collisions."""
+        
+        if namelist is None: namelist = self.listObjects()
+        other = doc
+
+        # check/eliminate object name collisions
+        my_names = self.listObjects(); s_my_names = set(my_names)
+        other_names = [obj.Name for obj in other.Objects]
+        taken_names = set(other_names)
+        name_map = {}
+        for n in namelist:
+            old_name = n
+            new_name = n
+            if old_name in taken_names:
+                if not rename_on_collision:
+                    raise NameCollisionError("Object '{name}' exists in both projects, can't merge".format(name= n))
+                new_name = generateNewName(old_name, taken_names, s_my_names)
+                self.renameObject(old_name, new_name)
+            taken_names.add(new_name)
+            name_map[old_name] = new_name
+
+        # and merge we do!
+        emu_objs = [self.Object(name_map[name]) for name in namelist]
+        target_objs = [doc.addObject(emu_obj.TypeId, emu_obj.Name) for emu_obj in emu_objs]
+        for i in range(len(namelist)):
+            assert(emu_objs[i].Name == target_objs[i].Name)
+        for i in range(len(namelist)):
+            emu_objs[i].updateFCObject(target_objs[i])
+        
+        return name_map
+
+    def mergeFromFC(self, doc, namelist = None, rename_on_collision = True):
+        """mergeFromFC(doc, namelist = None, rename_on_collision = True): merges a FreeCAD Document into this project."""
+        
+        if namelist is None: namelist = [obj.Name for obj in doc.Objects]
+
+        # Collect objects onto a standalone project, then merge it into self. This is needed 
+        # for correct link replacement during renaming - we can't just merge in the objects one by one.
+        name_map = dict()
+        project1 = FCProject()
+        for n in namelist:
+            tmp_prj = FCProject()
+            tmp_prj.fromFCObject(doc.getObject(n))
+            project1.merge(tmp_prj, rename_on_collision= False)
+        
+        # and merge we do!!
+        return self.merge(project1, rename_on_collision)
 
 def load(project_filename):
     "load(project_filename): reads an FCStd file and returns FCProject object"

@@ -6,20 +6,48 @@ import io
 from .Errors import *
 from . import FCProperty
 
+content_base_xml = (
+"""<Content>
+</Content>
+"""
+)
+
+
+#objectnode:
+#<Object type="PartDesign::Body" name="Body001" />
+
+#datanode:
+#<Object name="Body001" Extensions="True">
+#    <Extensions Count="1">
+#        <Extension type="App::OriginGroupExtension" name="OriginGroupExtension">
+#        </Extension>
+#    </Extensions>
+#    <Properties Count="8">
+#        <Property name="BaseFeature" type="App::PropertyLink">
+#            <Link value=""/>
+#        </Property>
+
 class PropertyContainer(object):
     """Either a DocumentObject or ViewProvider"""
     datanode = None
     objectnode = None
-    Name = ''
     project = None # reference to a project this object is part of
     
-    def __init__(self, name, objectnode, datanode, project):
-        """__init__(name, objectnode, datanode, project): (object_node should be None for a viewprovider)"""
+    def __init__(self, objectnode, datanode, project):
         self.objectnode = objectnode
         self.datanode = datanode
-        self.Name = name
         self.project = project
     
+    @property
+    def Name(self):
+        """Name: a writable property. Writing to Name will rename the object and its viewprovider, but not update links to the object. To rename and update links, use renameObject method of a Project."""
+        return self.datanode.get('name')
+    
+    def _rename(self, new_name):
+        if self.objectnode is not None:
+            self.objectnode.set('name', new_name)
+        self.datanode.set('name', new_name)
+            
     def getPropertyNode(self, prop_name):
         prop = self.datanode.find('Properties/Property[@name="{propname}"]'.format(propname= prop_name))
         if prop is None:
@@ -49,35 +77,23 @@ class PropertyContainer(object):
     def Property(self, prop_name):
         return FCProperty.CastProperty(self.getPropertyNode(prop_name), self)
     
+    @property
+    def Properties(self):
+        #fixme: inefficient!
+        return [self.Property(prop_name) for prop_name in self.PropertiesList]
+    
     def files(self):
         """files(): returns set of filenames used by properties of this object"""
         file_set = set()
-        file_list = list()
-        def scanNode(node):
-            attribs = node.attrib #dict of attributes
-            for attr_name in attribs:
-                if attr_name == 'file':
-                    file_set.add(attribs[attr_name])
-                    file_list.append(attribs[attr_name])
-            for subnode in node:
-                scanNode(subnode)
-        scanNode(self.datanode)
+        for prop in self.Properties:
+            file_set |= prop.files()
         return file_set
     
     def _rename_file(self, rename_dict):
         """substitutes file references in properties. does not rename actual files. Returns number of occurences replaced."""
         n_renamed = 0
-        def scanNode(node):
-            attribs = node.attrib #dict of attributes
-            for attr_name in attribs:
-                if attr_name == 'file':
-                    fn = attribs[attr_name]
-                    if fn in rename_dict:
-                        n_renamed += 1
-                        node.set(attr_name, rename_dict[fn])
-            for subnode in node:
-                scanNode(subnode)
-        scanNode(self.datanode)
+        for prop in self.Properties:
+            n_renamed += prop._rename_file(rename_dict)
         return n_renamed
     
     def dumpContent(self):
@@ -109,6 +125,19 @@ class PropertyContainer(object):
         #for prop_name in self.PropertiesList:
         #    if prop_name != 'Label': #Label is defined explicitly
         #        self.__dict__[prop_name] = PropertyAsAttribute(prop_name, self) #use instance dictionary instead of setattr, using setattr over a descriptor will do a different thing.
+    
+    def replace(self, replace_task):
+        cnt = 0
+        for prop in self.Properties:
+            cnt += prop.replace(replace_task)
+        return cnt
+
+    def purgeDeadLinks(self):
+        cnt = 0
+        for prop in self.Properties:
+            cnt += prop.purgeDeadLinks()
+        return cnt
+        
 
 #class PropertyAsAttribute(object):
 #    prop_name = None
@@ -124,6 +153,23 @@ class DocumentObject(PropertyContainer):
     @property
     def ViewObject(self):
         return self.project.getViewProvider(self.Name)
+    
+    @property
+    def Name(self):
+        return super(DocumentObject, self).Name
+
+    @Name.setter
+    def Name(self, new_name):
+        vp = self.ViewObject
+        self._rename(new_name)
+        if vp:
+            vp._rename(new_name)
+
+    def rename(self, new_name, update_label = True):
+        old_name = self.Name
+        self.Name = new_name
+        if update_label:
+            self.Label = self.Label.replace(old_name, new_name)
         
     def updateFCObject(self, obj):
         obj.restoreContent(self.dumpContent())
