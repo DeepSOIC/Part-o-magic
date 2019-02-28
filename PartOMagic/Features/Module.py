@@ -15,6 +15,8 @@ def makeModule(name):
     '''makeModule(name): makes a Module object.'''
     obj = App.ActiveDocument.addObject("Part::FeaturePython",name)
     proxy = _Module(obj)
+    origin = App.ActiveDocument.addObject('App::Origin', 'Origin')
+    obj.Origin = origin
     vp_proxy = _ViewProviderModule(obj.ViewObject)
     return obj
 
@@ -71,7 +73,7 @@ class _ViewProviderModule:
     "A View Provider for the Module object"
 
     def __init__(self,vobj):
-        vobj.addExtension("Gui::ViewProviderGeoFeatureGroupExtensionPython", self)
+        vobj.addExtension("Gui::ViewProviderOriginGroupExtensionPython", self)
         vobj.Proxy = self
         
     def getIcon(self):
