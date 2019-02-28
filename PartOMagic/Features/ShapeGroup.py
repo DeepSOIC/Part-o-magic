@@ -21,7 +21,7 @@ class ShapeGroup:
     "The ShapeGroup object"
     def __init__(self,obj):
         self.Type = "ShapeGroup"
-        obj.addExtension("App::OriginGroupExtensionPython", self)
+        obj.addExtension("App::GeoFeatureGroupExtensionPython", self)
         
         obj.addProperty('App::PropertyEnumeration', 'Operation', 'ShapeGroup', 'Sets how to group up the shapes.')
         obj.Operation = ['None', 'Compound', 'Fusion', 'Common', 'Connect', 'CompSolid']
