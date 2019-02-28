@@ -168,6 +168,13 @@ def getDirectChildren(container):
         return container.OriginFeatures
     raise ContainerUnsupportedError("getDirectChildren: unexpected container type!")
     
+def recursiveChildren(container):
+    for child in getDirectChildren(container):
+        yield child
+        if isContainer(child):
+            for subchild in recursiveChildren(child):
+                yield subchild
+
 def addObjectTo(container, feature, b_advance_tip = True):
     
     container = screen(container)
