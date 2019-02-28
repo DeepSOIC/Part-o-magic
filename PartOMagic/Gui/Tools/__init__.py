@@ -7,6 +7,7 @@ __all__ = [
 "MorphContainer",
 "TransferObject",
 "Duplicate",
+"SelectionTools",
 ]
 
 def importAll():
@@ -15,6 +16,7 @@ def importAll():
     from . import MorphContainer
     from . import TransferObject
     from . import Duplicate
+    from . import SelectionTools
 
 def reloadAll():
     try: #py2-3 compatibility: obtain reload() function
