@@ -408,6 +408,9 @@ def start():
     timer.connect(QtCore.SIGNAL("timeout()"), observerInstance.poll)
     timer.start()
     
+    global suspend_counter
+    suspend_counter = 0
+    
 def stop():
     global observerInstance
     if observerInstance is None:
@@ -418,7 +421,41 @@ def stop():
     global timer
     timer.stop()
     timer = None
+
+    global suspend_counter
+    suspend_counter = None
     
 def isRunning():
     global observerInstance
     return observerInstance is not None
+
+def suspend():
+    global observerInstance
+    global suspend_counter
+    if not isRunning():
+        return Keeper(None)
+    if suspend_counter == 0:
+        App.removeDocumentObserver(observerInstance)
+    suspend_counter += 1
+    return Keeper(_resume)
+
+def _resume():
+    """do not call! resume a suspend by calling .release method on keeper object returned by suspend."""
+    global suspend_counter
+    if suspend_counter == 0: return
+    suspend_counter -= 1
+    if suspend_counter == 0:
+        App.addDocumentObserver(observerInstance)
+    
+class Keeper(object):
+    undo_func = None
+    def __init__(self, undo_func):
+        self.undo_func = undo_func
+    
+    def release(self):
+        if self.undo_func is not None:
+            self.undo_func()
+            self.undo_func = None        
+
+    def __del__(self):
+        self.release()
