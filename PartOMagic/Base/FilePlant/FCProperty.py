@@ -111,6 +111,8 @@ class PropertyLink(PropertyLink_Abstract):
         v = self.node.find('Link').get('value')
         if v == '':
             return None
+        else:
+            return v
     
     @value.setter
     def value(self, new_val):
@@ -132,7 +134,7 @@ class PropertyLink(PropertyLink_Abstract):
     
     def replace(self, replace_task):
         if self.value in replace_task:
-            self.value = replacementdict[self.value]
+            self.value = replace_task[self.value]
             return 1
         else:
             return 0
