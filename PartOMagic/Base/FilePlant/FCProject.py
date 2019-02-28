@@ -7,6 +7,7 @@ from .Errors import *
 
 from .FCObject import DocumentObject, ViewProvider
 from .Misc import ReplaceTask, generateNewName, FC_version
+from . import ObjectMaker
 
 empty_project_document_xml = (
 """<?xml version='1.0' encoding='utf-8'?>
@@ -461,8 +462,9 @@ class FCProject(object):
 
         # and merge we do!
         emu_objs = [self.Object(name_map[name]) for name in namelist]
-        target_objs = [doc.addObject(emu_obj.TypeId, emu_obj.Name) for emu_obj in emu_objs]
+        target_objs = [ObjectMaker.makeObject(doc, emu_obj.TypeId, emu_obj.Name) for emu_obj in emu_objs]
         for i in range(len(namelist)):
+            print(emu_objs[i].Name,' -> ', target_objs[i].Name)
             assert(emu_objs[i].Name == target_objs[i].Name)
         for i in range(len(namelist)):
             emu_objs[i].updateFCObject(target_objs[i])
