@@ -51,7 +51,7 @@ class PropertyContainer(object):
     def getPropertyNode(self, prop_name):
         prop = self.datanode.find('Properties/Property[@name="{propname}"]'.format(propname= prop_name))
         if prop is None:
-            raise AttributeError("Object {obj} has no property named '{prop}'".format(obj= self.Name, prop= prop_name))
+            raise PropertyNotFoundError("Object {obj} has no property named '{prop}'".format(obj= self.Name, prop= prop_name))
         return prop
     
     @property
@@ -187,6 +187,18 @@ class DocumentObject(PropertyContainer):
             if not obj.hasExtension(ext_t):
                 obj.addExtension(ext_t, None)
         obj.restoreContent(self.dumpContent(exclude_extensions= True))
+        
+        try:
+            ee = self.Property('ExpressionEngine')
+            
+            #clear existing expressions
+            for path,expr in obj.ExpressionEngine:
+                obj.setExpression(path, None)
+            
+            for path,expr in ee.value:
+                obj.setExpression(path, expr)
+        except PropertyNotFoundError:
+            pass
         
         vp = obj.ViewObject
         if vp:

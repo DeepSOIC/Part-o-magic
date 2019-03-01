@@ -5,6 +5,8 @@ class NameCollisionError(FileplantError):
     pass
 class ObjectNotFoundError(KeyError):
     pass
+class PropertyNotFoundError(AttributeError):
+    pass
 
 
 def warn(message):
