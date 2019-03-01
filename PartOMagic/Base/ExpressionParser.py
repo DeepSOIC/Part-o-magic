@@ -19,6 +19,9 @@ def expressionDeps(expr, doc):
     startchars = set("+-*/(%^&\[<>;, =")
     endchars = set(".")
     
+    if expr is None:
+        return []
+    
     ids = [] #list of tuples: (identifier, (start, end_plus_1))
     start = 0
     finish = 0

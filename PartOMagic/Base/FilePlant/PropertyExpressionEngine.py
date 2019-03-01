@@ -41,18 +41,21 @@ class PropertyExpression(FCProperty.PropertyLink):
         for i in range(len(val)):
             deps = depsdeps[i]
             expr = self._getExpression(val[i])
-            for id, ch_range in deps[::-1]:
-                if replace_task.has(id):
-                    new_id = replace_task.lookup(id)
-                elif replace_task.has_label(id):
-                    new_id = replace_task.lookup_label(id)
-                else:
-                    new_id = None
-                if new_id: #new_id is None also if replacing
-                    f,t = ch_range
-                    expr = expr[0:f] + new_id + expr[t:]
-                    n_replaced += 1
-            new_val.append(self._setExpression(val[i], expr))
+            if expr is not None:
+                for id, ch_range in deps[::-1]:
+                    if replace_task.has(id):
+                        new_id = replace_task.lookup(id)
+                    elif replace_task.has_label(id):
+                        new_id = replace_task.lookup_label(id)
+                    else:
+                        new_id = None
+                    if new_id: #new_id is None also if replacing
+                        f,t = ch_range
+                        expr = expr[0:f] + new_id + expr[t:]
+                        n_replaced += 1
+                new_val.append(self._setExpression(val[i], expr))
+            else:
+                new_val.append(val[i])
         if n_replaced:
             self.value = new_val
         return n_replaced
@@ -99,19 +102,21 @@ class PropertyCells(PropertyExpression):
     @property
     def value(self):
         lnn = self.node.find('Cells')
-        return [it.attrib for it in lnn if it.tag == 'Expression']
+        return [it.attrib for it in lnn if it.tag == 'Cell']
     
     @value.setter
     def value(self, new_val):
         lnn = self.node.find('Cells')
         lnn.clear()
-        lnn.set('count', str(len(new_val)))
-        for path,expr in new_val:
-            lnn.append(ElementTree.fromstring('<Expression path="{path}" expression="{expr}"/>'.format(path= path, expr= expr)))
+        lnn.set('Count', str(len(new_val)))
+        for v in new_val:
+            cn = ElementTree.fromstring('<Cell/>')
+            cn.attrib.update(v)
+            lnn.append(cn)
 
     @staticmethod
     def _getExpression(value):
-        expr = value[content]
+        expr = value['content']
         if not expr.startswith('='):
             return None
         else:
@@ -119,7 +124,7 @@ class PropertyCells(PropertyExpression):
     
     @staticmethod
     def _setExpression(value, expr):
-        value[content] = expr
+        value['content'] = expr
         return value
     
     
