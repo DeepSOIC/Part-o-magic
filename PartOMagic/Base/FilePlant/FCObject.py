@@ -96,9 +96,13 @@ class PropertyContainer(object):
             n_renamed += prop._rename_file(rename_dict)
         return n_renamed
     
-    def dumpContent(self):
+    def dumpContent(self, exclude_extensions = False):
         rootnode = ElementTree.fromstring(content_base_xml)
         rootnode.extend(self.datanode)
+        if exclude_extensions:
+            exts = rootnode.find('Extensions')
+            if exts is not None:
+                rootnode.remove(exts)
         zipdata = io.BytesIO()
         with zipfile.ZipFile(zipdata, 'w') as zipout:
             fileorder = ['Persistence.xml'] + list(self.files())
@@ -109,7 +113,13 @@ class PropertyContainer(object):
                     data = self.project.readSubfile(fn)
                 zipout.writestr(fn, data)
         return zipdata.getvalue()
-        
+    
+    @property
+    def Extensions(self):
+        exts = self.datanode.find('Extensions')
+        if exts is None: return []
+        return [(ext.get('type'), ext.get('name')) for ext in exts if ext.tag == 'Extension']
+    
     @property
     def Label(self):
         return self.Property('Label').value
@@ -172,9 +182,20 @@ class DocumentObject(PropertyContainer):
             self.Label = self.Label.replace(old_name, new_name)
         
     def updateFCObject(self, obj):
-        obj.restoreContent(self.dumpContent())
-        if obj.ViewObject:
-            obj.ViewObject.restoreContent(self.ViewObject.dumpContent())
+        exts = self.Extensions
+        for ext_t, ext_n in exts:
+            if not obj.hasExtension(ext_t):
+                obj.addExtension(ext_t, None)
+        obj.restoreContent(self.dumpContent(exclude_extensions= True))
+        
+        vp = obj.ViewObject
+        if vp:
+            vp_emu = self.ViewObject
+            exts = vp_emu.Extensions
+            for ext_t, ext_n in exts:
+                if not vp.hasExtension(ext_t):
+                    vp.addExtension(ext_t, None)
+            vp.restoreContent(vp_emu.dumpContent(exclude_extensions= True))
 
 class ViewProvider(PropertyContainer):
     @property
