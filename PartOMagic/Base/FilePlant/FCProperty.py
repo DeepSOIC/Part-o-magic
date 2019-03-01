@@ -231,7 +231,9 @@ class PropertyLinkSub(PropertyLink):
             return []
     
     def replace(self, replace_task):
-        name,subs = self.value
+        v = self.value
+        if v is None: return 0
+        name,subs = v
         if name in replace_task:
             v = (replace_task[name], subs)
             self.value = v

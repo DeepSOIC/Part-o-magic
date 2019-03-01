@@ -42,10 +42,10 @@ class PropertyExpression(FCProperty.PropertyLink):
             deps = depsdeps[i]
             expr = self._getExpression(val[i])
             for id, ch_range in deps[::-1]:
-                if replacement_task.has(id):
-                    new_id = replacement_task.lookup(id)
-                elif replacement_task.has_label(id):
-                    new_id = replacement_task.lookup_label(id)
+                if replace_task.has(id):
+                    new_id = replace_task.lookup(id)
+                elif replace_task.has_label(id):
+                    new_id = replace_task.lookup_label(id)
                 else:
                     new_id = None
                 if new_id: #new_id is None also if replacing
