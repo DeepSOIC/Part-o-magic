@@ -22,8 +22,8 @@ class CommandSelectExpand(AACommand):
     
     def GetResources(self):
         import PartDesignGui
-        return {'CommandName': 'PartOMagic_Select_FullExpand',
-                'Pixmap'  : self.getIconPath("PartOMagic_Select_Expand.svg"),
+        return {'CommandName': 'PartOMagic_Select_ChildrenRecursive',
+                'Pixmap'  : self.getIconPath("PartOMagic_Select_ChildrenRecursive.svg"),
                 'MenuText': "Select children (recursive)",
                 'Accel': "",
                 'ToolTip': "Select children (recursive). (add all children of selected objects to selection, recursively; only container childship is considered)"}
@@ -68,7 +68,7 @@ class CommandSelectAll(AACommand):
     def GetResources(self):
         import PartDesignGui
         return {'CommandName': 'PartOMagic_Select_All',
-                'Pixmap'  : self.getIconPath("PartOMagic_Select_Expand.svg"),
+                'Pixmap'  : self.getIconPath("PartOMagic_Select_All.svg"),
                 'MenuText': "Select all (in active container)",
                 'Accel': "",
                 'ToolTip': "Select all (in active container). (select all objects in active container)"}
@@ -104,8 +104,8 @@ class CommandSelectMem(AACommand):
     buffer = []
     def GetResources(self):
         import PartDesignGui
-        return {'CommandName': 'PartOMagic_Select_Mem',
-                'Pixmap'  : self.getIconPath("PartOMagic_Select_Mem.svg"),
+        return {'CommandName': 'PartOMagic_Select_BSwap',
+                'Pixmap'  : self.getIconPath("PartOMagic_Select_BSwap.svg"),
                 'MenuText': "Selection buffer swap",
                 'Accel': "",
                 'ToolTip': "Selection buffer swap. (restores previously remembered selection, and remembers current selection)"}
@@ -117,7 +117,7 @@ class CommandSelectMem(AACommand):
             Gui.Selection.clearSelection()
             for it in buf:
                 try:
-                    it.Object #throws if the object was deleted
+                    it.Object #throws if the object has been deleted
                 except Exception:
                     continue
                 subs = it.SubElementNames

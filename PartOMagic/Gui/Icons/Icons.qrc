@@ -12,6 +12,11 @@
         <file>icons/PartOMagic_PDShapeFeature_Additive.svg</file>
         <file>icons/PartOMagic_PDShapeFeature_Subtractive.svg</file>
         <file>icons/PartOMagic_ReplaceObject.svg</file>
+        <file>icons\PartOMagic_Select_All.svg</file>
+        <file>icons\PartOMagic_Select_BSwap.svg</file>
+        <file>icons\PartOMagic_Select_Children.svg</file>
+        <file>icons\PartOMagic_Select_ChildrenRecursive.svg</file>
+        <file>icons\PartOMagic_Select_Invert.svg</file>
         <file>icons/PartOMagic_ShapeGroup.svg</file>
         <file>icons/PartOMagic_SnapView.svg</file>
         <file>icons/PartOMagic_TransferObject.svg</file>
