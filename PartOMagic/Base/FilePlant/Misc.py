@@ -1,16 +1,26 @@
 def generateNewName(wanted_name, existing_names, existing_names_2 = set()):
     """generateNewName(wanted_name, existing_names): returns a unique name (by adding digits to wanted_name). Suitable for file names (but not full paths)"""
+    import re
     split = wanted_name.rsplit('.',1)
     title = split[0]
     if len(split) == 2:
         ext = '.' + split[1]
     else:
         ext = ''
-    i = 0
+    
+    match = re.match(r'^(\D*)(\d*)$', title)
+    title,number = match.groups()
+    if len(number)>0:        
+        i = int(number)
+        numlen = len(number)
+    else:
+        i = 0
+        numlen = 3
+    
     f2 = wanted_name
     while f2 in existing_names or f2 in existing_names_2:
         i += 1
-        f2 = title + str(i).rjust(3, '0') + ext
+        f2 = title + str(i).rjust(numlen, '0') + ext
     return f2
 
 def FC_version():
