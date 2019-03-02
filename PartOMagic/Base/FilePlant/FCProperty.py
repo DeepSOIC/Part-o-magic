@@ -266,7 +266,7 @@ class PropertyLinkSubList(PropertyLink):
         lnn.clear() #removes attributes too, bastard =(
         lnn.set('count', str(len(new_val)))
         for it in new_val:
-            lnn.append(ElementTree.fromstring('<Link value="{val}" sub="{sub}"/>'.format(val= it[0], sub= it[1])))
+            lnn.append(ElementTree.fromstring('<Link obj="{val}" sub="{sub}"/>'.format(val= it[0], sub= it[1])))
 
     def getAsAttribute(self):
         return [(self.object.project.getObject(name), sub) for name,sub in self.value]
