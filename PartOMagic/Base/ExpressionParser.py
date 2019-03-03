@@ -55,6 +55,6 @@ def expressionDeps(expr, doc):
             if obj is not None:
                 ret.append(Relation(None, 'Expression', None, obj, expression_charrange= id_range))
             else:
-                printWarn(u"identifier in expression not recognized: {id}".format(id= id))
+                print(u"identifier in expression not recognized: {id}".format(id= id))
                 
         return ret
