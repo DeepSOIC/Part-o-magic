@@ -13,14 +13,18 @@ from PartOMagic.Gui import Observer
 def duplicateObjects(objects, top_objects, target_cnt):
     with Transaction("PoM Duplicate"):
         keeper = Observer.suspend()
-        namelist = [obj.Name for obj in objects]
+        
+        objset = set(objects)
         doc = objects[0].Document
+        namelist = [obj.Name for obj in doc.TopologicalSortedObjects if obj in objset][::-1]
+        
         tmp_prj = FCProject.fromFC(doc, namelist)
         map = tmp_prj.mergeToFC(doc)
         for obj in top_objects:
             new_top_obj = doc.getObject(map[obj.Name])
             Containers.addObjectTo(target_cnt, new_top_obj, b_advance_tip= True)
         keeper.release()
+        
 
 
 commands = []
