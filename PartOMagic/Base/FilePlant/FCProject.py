@@ -467,7 +467,11 @@ class FCProject(object):
             print(emu_objs[i].Name,' -> ', target_objs[i].Name)
             assert(emu_objs[i].Name == target_objs[i].Name)
         for i in range(len(namelist)):
+            print('updating ',namelist[i])
             emu_objs[i].updateFCObject(target_objs[i])
+        for i in range(len(namelist)):
+            print('updating expressions ',namelist[i])
+            emu_objs[i].updateFCObject_expressions(target_objs[i])
         
         return name_map
 

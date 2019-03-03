@@ -181,13 +181,26 @@ class DocumentObject(PropertyContainer):
         if update_label:
             self.Label = self.Label.replace(old_name, new_name)
         
-    def updateFCObject(self, obj):
+    def updateFCObject(self, obj, update_expr = False):
         exts = self.Extensions
         for ext_t, ext_n in exts:
             if not obj.hasExtension(ext_t):
                 obj.addExtension(ext_t, None)
         obj.restoreContent(self.dumpContent(exclude_extensions= True))
         
+        if update_expr:
+            self.updateFCObject_expressions(obj)
+        
+        vp = obj.ViewObject
+        if vp:
+            vp_emu = self.ViewObject
+            exts = vp_emu.Extensions
+            for ext_t, ext_n in exts:
+                if not vp.hasExtension(ext_t):
+                    vp.addExtension(ext_t, None)
+            vp.restoreContent(vp_emu.dumpContent(exclude_extensions= True))
+    
+    def updateFCObject_expressions(self, obj):
         try:
             ee = self.Property('ExpressionEngine')
             
@@ -198,16 +211,7 @@ class DocumentObject(PropertyContainer):
             for path,expr in ee.value:
                 obj.setExpression(path, expr)
         except PropertyNotFoundError:
-            pass
-        
-        vp = obj.ViewObject
-        if vp:
-            vp_emu = self.ViewObject
-            exts = vp_emu.Extensions
-            for ext_t, ext_n in exts:
-                if not vp.hasExtension(ext_t):
-                    vp.addExtension(ext_t, None)
-            vp.restoreContent(vp_emu.dumpContent(exclude_extensions= True))
+            pass    
 
 class ViewProvider(PropertyContainer):
     @property
