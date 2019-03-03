@@ -8,7 +8,7 @@ def generateNewName(wanted_name, existing_names, existing_names_2 = set()):
     else:
         ext = ''
     
-    match = re.match(r'^(\D*)(\d*)$', title)
+    match = re.match(r'^(.*?)(\d*)$', title)
     title,number = match.groups()
     if len(number)>0:        
         i = int(number)
