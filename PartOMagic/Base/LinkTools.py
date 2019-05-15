@@ -110,7 +110,7 @@ class Replacement(object):
     new_object = None
     new_sublist = None #None means "do not change the subelement"
     replaced = False
-    disabled = False #use to disable this replacement in replacement dialog (only works before dialog is created). This flag is initilized by checkSanity.
+    disabled = False #use to disable this replacement in replacement dialog (only works before dialog is created). This flag is initialized by checkSanity.
     disabled_reason = "" #this will appear in status field
     checked = True #use to define checkboxes in dialog (only works before dialog is created)
     

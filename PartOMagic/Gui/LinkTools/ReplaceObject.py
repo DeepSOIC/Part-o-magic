@@ -48,7 +48,7 @@ class CommandReplaceObject(AACommand):
                 raise CommandError(self, u"Nothing depends on {old}, nothing to replace.".format(old= old.Label))
             
             if n_checked == 0 and len(repls)>0:
-                msgbox("Replace", u"No regular replacable dependencies found, nothing uses {old}. Please pick wanted replacements manually in the dialog.".format(old= old.Label))
+                msgbox("Replace", u"No regular replaceable dependencies found, nothing uses {old}. Please pick wanted replacements manually in the dialog.".format(old= old.Label))
             
             
             from . import TaskReplace
