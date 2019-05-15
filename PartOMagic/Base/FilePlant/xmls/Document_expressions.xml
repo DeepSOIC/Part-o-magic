@@ -344,7 +344,7 @@
                 <Property name="CompoundTraversal" type="App::PropertyEnumeration" group="Lattice SubLink" doc="Sets how to unpack compounds if Looping is not &apos;Single&apos;." attr="0" ro="0" hide="0">
                     <Integer value="0" CustomEnum="true"/>
                     <CustomEnumList count="2">
-                        <Enum value="Compund children"/>
+                        <Enum value="Compound children"/>
                         <Enum value="Compound leaves"/>
                     </CustomEnumList>
                 </Property>
@@ -355,7 +355,7 @@
                 <Property name="Label" type="App::PropertyString">
                     <String value="Edge0 of Cylinder"/>
                 </Property>
-                <Property name="Looping" type="App::PropertyEnumeration" group="Lattice SubLink" doc="Sets wether to collect just the element, or all similar from array." attr="0" ro="0" hide="0">
+                <Property name="Looping" type="App::PropertyEnumeration" group="Lattice SubLink" doc="Sets whether to collect just the element, or all similar from array." attr="0" ro="0" hide="0">
                     <Integer value="0" CustomEnum="true"/>
                     <CustomEnumList count="4">
                         <Enum value="Single"/>
