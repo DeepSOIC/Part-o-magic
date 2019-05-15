@@ -369,7 +369,7 @@ class Observer(FrozenClass):
         self.TVs.pop(key)
         
     def updateVPs(self):
-        '''updates many viewprovider properties (except visibility, which is handled by TempoVis objets)'''
+        '''updates many viewprovider properties (except visibility, which is handled by TempoVis objects)'''
         ac = activeContainer()
         
         if ac.isDerivedFrom("App::Document"):

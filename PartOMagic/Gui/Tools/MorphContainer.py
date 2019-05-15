@@ -33,7 +33,7 @@ def morphContainer(src_container, dst_container):
             #workaround for origin not being claimed as child on Py-powered containers
             dst_container.Group = [dst_container.Origin] + dst_container.Group 
         elif dst_container.Origin is not None and dst_container.Origin in dst_container.Group:
-            #if converting Py cotainer into c++-one, undo the workaround
+            #if converting Py container into c++-one, undo the workaround
             content = dst_container.Group 
             content.remove(dst_container.Origin)
     

@@ -90,7 +90,7 @@ class PropertyContainer(object):
         return file_set
     
     def _rename_file(self, rename_dict):
-        """substitutes file references in properties. does not rename actual files. Returns number of occurences replaced."""
+        """substitutes file references in properties. does not rename actual files. Returns number of occurrences replaced."""
         n_renamed = 0
         for prop in self.Properties:
             n_renamed += prop._rename_file(rename_dict)

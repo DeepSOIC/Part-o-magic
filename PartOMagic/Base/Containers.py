@@ -149,7 +149,7 @@ def getDirectChildren(container):
     container = screen(container)
     
     if not isContainer(container): 
-        raise NotAContainerError("getDirectChildren: supplied object is not a contianer. It must be a container.")
+        raise NotAContainerError("getDirectChildren: supplied object is not a container. It must be a container.")
     if container.isDerivedFrom("App::Document"):
         # find all objects not contained by any Part or Body
         result = set(container.Objects)
