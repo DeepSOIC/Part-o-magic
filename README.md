@@ -1,5 +1,5 @@
 # Part-o-magic
-PoM is an experimental add-on module for FreeCAD v0.17. (It won't work with FC v0.16.) 
+PoM is an experimental add-on module for FreeCAD v0.17 and 0.18, and 0.19 as long as no Links are involved. For 0.19, new Part-o-magic may be released in the future.
 
 PoM's main goals are:
 
