@@ -14,6 +14,13 @@ __title__="MuxAssembly feature (converts assembly into compound)"
 __author__ = "DeepSOIC"
 __url__ = ""
 
+def has_property(obj, propname):
+    try:
+        obj.getPropertyByName(propname)
+    except AttributeError:
+        return False
+    else:
+        return True
 
 def compoundFromAssembly(root, flatten, exclude, recursive = True, visit_set = None):
     if visit_set is None:
@@ -24,7 +31,7 @@ def compoundFromAssembly(root, flatten, exclude, recursive = True, visit_set = N
         raise ValueError("Circular dependency")
     visit_set.add(root)
     
-    if hasattr(root, 'Shape'):
+    if has_property(root, 'Shape'):
         return root.Shape
     else:
         children = Containers.getDirectChildren(root)
@@ -34,14 +41,18 @@ def compoundFromAssembly(root, flatten, exclude, recursive = True, visit_set = N
                 continue
             if child.isDerivedFrom('App::Origin'):
                 continue #otherwise, origins create empty compounds - undesirable.
-            if hasattr(child, 'Shape'):
-                shapes.append(child.Shape)
+            if has_property(child, 'Shape'): #since realthunder, Part has Shape attribute, but not Shape property. We want to process Parts ourselves.
+                if not child.Shape.isNull():
+                    shapes.append(child.Shape)
             elif Containers.isContainer(child) and recursive:
                 cmp = compoundFromAssembly(child, flatten, exclude, recursive, visit_set)
                 if flatten:
                     shapes.extend(cmp.childShapes())
                 else:
                     shapes.append(cmp)
+            elif hasattr(obj, 'Shape'): #App::Link may have attribute but not property, and we totally want to include it.
+                if not child.Shape.isNull():
+                    shapes.append(child.Shape)
         transform = root.Placement if hasattr(root, 'Placement') else None
         ret = Part.makeCompound(shapes)
         if transform is not None:

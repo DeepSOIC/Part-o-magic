@@ -143,7 +143,7 @@ class Exporter:
         
         if selfobj.MeshAccuracy > 1e-7:
             for obj in objects_to_export:
-                if hasattr(obj, 'Shape'):
+                if hasattr(obj, 'Shape') and not obj.Shape.isNull():
                     obj.Shape.tessellate(selfobj.MeshAccuracy)
                 else:
                     App.Console.PrintWarning(u"Exporter {exporter}: object to export ({object}) has no b-rep shape. Can't re-tessellate."

@@ -42,7 +42,7 @@ class ShapeGroup:
             tip = selfobj.Group
         shapes = []
         for obj in tip:
-            if hasattr(obj, 'Shape'):
+            if hasattr(obj, 'Shape') and not obj.Shape.isNull():
                 shapes.append(obj.Shape)
             else:
                 App.Console.PrintWarning(u"Object {obj} has no shape, skipped for making a compound.\n".format(obj= obj.Label))
