@@ -82,8 +82,7 @@ def screen(feature):
     feature = getattr(feature.Document, feature.Name)
     return feature
 
-from Show.FrozenClass import FrozenClass
-class DelayedExecute(FrozenClass):
+class DelayedExecute(object):
     "DelayedExecute(func, delay = 30): sets up a timer, executes func, and self-destructs."
     def defineAttributes(self):
         self.func = None # function to run
@@ -92,7 +91,7 @@ class DelayedExecute(FrozenClass):
         self.delay = 0 # not really needed, for convenience/debug
         self.is_done = False
 
-        self._freeze()
+        #self._freeze()
 
     def __init__(self, func, delay= 30):
         self.defineAttributes()

@@ -224,8 +224,7 @@ def replaceNameInExpression(expr, old_name, new_name):
         return None
 
 
-from Show.FrozenClass import FrozenClass
-class WaitForNewContainer(FrozenClass):
+class WaitForNewContainer(object):
     """WaitForNewContainer(command, source_container): waits for new object to be added to document. 
     Runs command.Activated() when it happens. The new object is stored in attribute target_container."""
     def defineAttributes(self):
@@ -236,7 +235,7 @@ class WaitForNewContainer(FrozenClass):
         self.is_done = False
         self._trigger = None # storage for DelayedExecute object
 
-        self._freeze()
+        #self._freeze()
         
     def __init__(self, command, source_container):
         self.defineAttributes()
