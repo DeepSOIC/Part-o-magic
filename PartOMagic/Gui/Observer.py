@@ -4,7 +4,6 @@ from PartOMagic.Features.GenericContainer import GenericContainer
 import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Gui.TempoVis import TempoVis
-from AttachmentEditor.FrozenClass import FrozenClass
 from .Utils import msgbox
 
 print("loading Observer")
@@ -79,7 +78,7 @@ def addObjectTo(container, feature):
     
     return actual_container
 
-class Observer(FrozenClass):
+class Observer(object):
     def defineAttributes(self):
         self.activeObjects = {} # store for remembering active containers, to detect that 
         # active container was changed. Key is document name, value is 
@@ -96,8 +95,6 @@ class Observer(FrozenClass):
         self.edit_TVs = {} #key is document name, value is a tempovis associated with the feature being edited
         
         self.expandedness = {} #last seen expand state of objects. Dict: key = (document name, feature name), value = boolean
-        
-        self._freeze()
         
     def __init__(self):
         self.defineAttributes()

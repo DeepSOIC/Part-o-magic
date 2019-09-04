@@ -214,8 +214,7 @@ def CreateShapeGroup(name):
                   "    Gui.Selection.addSelection(f)")
     App.ActiveDocument.commitTransaction()
 
-from FrozenClass import FrozenClass
-class VisibilityObserver(FrozenClass):
+class VisibilityObserver(object):
     '''VisibilityObserver tracks changes to visibilities of provided list of objects, and notifies by calling a callback function.
 Constructor:
     observer = VisibilityObserver(list_of_objects, callback)
@@ -232,7 +231,6 @@ It is recommended to explicitly stop the observer using `observer.stop()`
     
     def __init__(self, list_of_objects, callback):
         self.__define_attributes()
-        self._freeze()
         
         self.list_of_objects = list_of_objects
         self.callback = callback

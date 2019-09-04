@@ -27,8 +27,6 @@ import FreeCAD as App
 if App.GuiUp:
     import FreeCADGui as Gui
 
-from FrozenClass import FrozenClass # from 'Show' module
-
 from PartOMagic.Base.Containers import getAllDependencies, getAllDependent, isContainer
 
 def is_in_3Dview(obj):
@@ -47,7 +45,7 @@ def is_in_3Dview(obj):
         App.Console.PrintWarning(u"Show.TempoVis.isIn3DView error: {err}".format(err= str(err)))
         return True #assume.
 
-class TempoVis(FrozenClass):
+class TempoVis(object):
     '''TempoVis - helper object to save visibilities of objects before doing
     some GUI editing, hiding or showing relevant stuff during edit, and
     then restoring all visibilities after editing.
@@ -66,8 +64,6 @@ class TempoVis(FrozenClass):
         self.restore_on_delete = False # if true, restore() gets called upon object deletion. It becomes False after explicit call to Restore, and set to true by many methods.
         
         self.links_are_lost = False # set to true after restore from JSON. Indicates to attempt to use ActiveDocument/ActiveViewer instead.
-        
-        self._freeze()
 
     def __init__(self, document):
         self.__define_attributes()
