@@ -1,4 +1,4 @@
-print("loading ListUsages")
+print("Part-o-magic: loading ListUsages")
 
 import FreeCAD as App
 import FreeCADGui as Gui

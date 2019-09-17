@@ -1,4 +1,4 @@
-print("loading Duplicate")
+print("Part-o-magic: loading Duplicate")
 
 import FreeCAD as App
 import FreeCADGui as Gui

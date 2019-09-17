@@ -7,7 +7,7 @@ __title__="Exporter feature"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("loading Exporter")
+print("Part-o-magic: loading Exporter")
 
 from PartOMagic.Base.Utils import addProperty
     

@@ -2,7 +2,7 @@ import FreeCAD as App
 
 from PartOMagic.Gui.Utils import screen
 
-print("loading Containers")
+print("Part-o-magic: loading Containers")
 
 def activeContainer():
     '''activeContainer(): returns active container.

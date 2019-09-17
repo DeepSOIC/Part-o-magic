@@ -1,4 +1,4 @@
-print("loading Icons")
+print("Part-o-magic: loading Icons")
 
 
 __all__ = [

@@ -6,7 +6,7 @@ import FreeCADGui as Gui
 from PartOMagic.Gui.TempoVis import TempoVis
 from .Utils import msgbox
 
-print("loading Observer")
+print("Part-o-magic: loading Observer")
 
 def getPartOf(feature):
     chain = GT.getContainerChain(feature)

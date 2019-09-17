@@ -52,7 +52,7 @@ and make exportedCommands() function at the same time.
 '''
 
 
-print("loading AACommand")
+print("Part-o-magic: loading AACommand")
 
 import FreeCAD as App
 from PartOMagic.Base.Containers import NoActiveContainerError

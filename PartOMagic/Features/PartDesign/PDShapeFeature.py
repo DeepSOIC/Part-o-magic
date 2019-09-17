@@ -7,7 +7,7 @@ __title__="PDShapeFeature container"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("loading PDShapeFeature")
+print("Part-o-magic: loading PDShapeFeature")
 
 from PartOMagic.Base.Utils import transformCopy, shallowCopy
 from PartOMagic.Base.Utils import PlacementsFuzzyCompare

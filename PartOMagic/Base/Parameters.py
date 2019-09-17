@@ -1,4 +1,4 @@
-print("Loading Parameters")
+print("Part-o-magic: Loading Parameters")
 
 import FreeCAD as App
 

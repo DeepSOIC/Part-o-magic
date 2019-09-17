@@ -1,4 +1,4 @@
-print("loading Tip")
+print("Part-o-magic: loading Tip")
 
 import FreeCAD as App
 import FreeCADGui as Gui

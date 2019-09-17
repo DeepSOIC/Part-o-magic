@@ -1,4 +1,4 @@
-print("loading Ghost")
+print("Part-o-magic: loading Ghost")
 
 import FreeCAD as App
 if App.GuiUp:
