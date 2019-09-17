@@ -1,4 +1,4 @@
-print("loading ShapeBinder")
+print("Part-o-magic: loading ShapeBinder")
 
 import FreeCAD as App
 if App.GuiUp:

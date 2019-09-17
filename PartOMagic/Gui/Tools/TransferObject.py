@@ -1,4 +1,4 @@
-print("loading TransferObject")
+print("Part-o-magic: loading TransferObject")
 
 import FreeCAD as App
 import FreeCADGui as Gui

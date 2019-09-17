@@ -1,4 +1,4 @@
-print("loading LeaveEnter")
+print("Part-o-magic: loading LeaveEnter")
 
 import FreeCAD as App
 import FreeCADGui as Gui

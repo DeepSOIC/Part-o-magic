@@ -1,4 +1,4 @@
-print("loading Gui")
+print("Part-o-magic: loading Gui")
 
 
 __all__ = [

@@ -1,4 +1,4 @@
-print("Loading GlobalToolbar")
+print("Part-o-magic: Loading GlobalToolbar")
 
 from . import CommandCollection1
 from .Tools import LeaveEnter

@@ -7,7 +7,7 @@ __title__="ShapeGroup container"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("loading ShapeGroup")
+print("Part-o-magic: loading ShapeGroup")
 
 def makeShapeGroup(name):
     '''makeShapeGroup(name): makes a ShapeGroup object.'''

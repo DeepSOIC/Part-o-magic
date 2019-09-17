@@ -7,7 +7,7 @@ __title__="Module container"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("loading Module")
+print("Part-o-magic: loading Module")
 
 from PartOMagic.Base.Utils import transformCopy_Smart
 

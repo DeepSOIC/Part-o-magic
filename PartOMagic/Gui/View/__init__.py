@@ -1,4 +1,4 @@
-print("loading View")
+print("Part-o-magic: loading View")
 
 
 __all__ = [

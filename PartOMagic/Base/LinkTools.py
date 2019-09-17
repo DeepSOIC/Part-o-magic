@@ -1,4 +1,4 @@
-print("loading LinkTools")
+print("Part-o-magic: loading LinkTools")
 
 import FreeCAD as App
 printErr = App.Console.PrintError

@@ -1,4 +1,4 @@
-print("Loading Compatibility")
+print("Part-o-magic: Loading Compatibility")
 import FreeCAD as App
 
 def get_fc_revision_nr():
