@@ -1,4 +1,4 @@
-print("Part-o-magic: Loading CommandCollection1")
+print("Part-o-magic: loading CommandCollection1")
 
 import PartOMagic.Gui as myGui
 myGui.Tools.importAll()

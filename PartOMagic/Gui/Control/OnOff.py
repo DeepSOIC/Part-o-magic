@@ -1,4 +1,4 @@
-print("Part-o-magic: Loading OnOff")
+print("Part-o-magic: loading OnOff")
 
 from PartOMagic.Gui.Utils import msgbox
 import PartOMagic.Base.Parameters as Params
