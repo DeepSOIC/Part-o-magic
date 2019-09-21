@@ -1,4 +1,4 @@
-print("Part-o-magic: loading Tools")
+print("Part-o-magic: loading LinkTools")
 
 
 __all__ = [

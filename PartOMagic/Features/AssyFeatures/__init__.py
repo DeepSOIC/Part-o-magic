@@ -1,4 +1,4 @@
-print("Part-o-magic: loading Features")
+print("Part-o-magic: loading AssyFeatures")
 
 
 __all__ = [

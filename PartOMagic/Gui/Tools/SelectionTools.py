@@ -1,4 +1,4 @@
-print("Part-o-magic: loading Duplicate")
+print("Part-o-magic: loading SelectionTools")
 
 import FreeCAD as App
 import FreeCADGui as Gui
