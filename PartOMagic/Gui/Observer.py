@@ -1,12 +1,21 @@
+print("Part-o-magic: loading Observer")
+
 from PartOMagic.Base import Containers as GT
 from PartOMagic.Base.Containers import activeContainer, setActiveContainer
 from PartOMagic.Features.GenericContainer import GenericContainer
-import FreeCAD as App
-import FreeCADGui as Gui
-from PartOMagic.Gui.TempoVis import TempoVis
+
+from PartOMagic.Base.Compatibility import tempovis_is_stacky
+if tempovis_is_stacky():
+    from Show import TempoVis
+else:
+    from PartOMagic.Gui.TempoVis import TempoVis
+
 from .Utils import msgbox
 
-print("Part-o-magic: loading Observer")
+
+import FreeCAD as App
+import FreeCADGui as Gui
+
 
 def getPartOf(feature):
     chain = GT.getContainerChain(feature)
@@ -145,6 +154,9 @@ class Observer(object):
         
     def slotSavedDocument(self, doc): #emulated - called by polling timer when LastModifiedDate of document changes
         if activeContainer().isDerivedFrom("App::Document"):
+            return
+        from PartOMagic.Base.Compatibility import tempovis_is_stacky
+        if tempovis_is_stacky():
             return
         from PySide import QtGui
         mb = QtGui.QMessageBox()

@@ -50,5 +50,13 @@ def scoped_links_are_supported():
     except Exception as err:
         return True #assume good
 
+def tempovis_is_stacky():
+    try:
+        import Show.SceneDetail
+    except ImportError:
+        return False
+    else:
+        return True
+
 class CompatibilityError(RuntimeError):
     pass
