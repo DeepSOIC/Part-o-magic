@@ -7,7 +7,6 @@ __title__="PDShapeFeature container"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("Part-o-magic: loading PDShapeFeature")
 
 from PartOMagic.Base.Utils import transformCopy, shallowCopy
 from PartOMagic.Base.Utils import PlacementsFuzzyCompare
@@ -59,7 +58,6 @@ class PDShapeFeature:
         selfobj.Shape = result_shape
             
     def advanceTip(self, selfobj, new_object):
-        print("advanceTip")
         from PartOMagic.Gui.Utils import screen
         old_tip = screen(selfobj.Tip)
         new_tip = old_tip

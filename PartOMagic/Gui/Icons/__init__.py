@@ -1,6 +1,3 @@
-print("Part-o-magic: loading Icons")
-
-
 __all__ = [
 "Icons",
 ]

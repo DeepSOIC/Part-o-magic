@@ -7,7 +7,6 @@ __title__="ShapeGroup container"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("Part-o-magic: loading ShapeGroup")
 
 def makeShapeGroup(name):
     '''makeShapeGroup(name): makes a ShapeGroup object.'''
@@ -140,7 +139,6 @@ class ViewProviderShapeGroup:
         return None
         
     def setEdit(self, selfvp, mode):
-        print("ShapeGroup enter edit mode {num}".format(num= mode))
         if mode == 0:
             try:
                 selfobj = selfvp.Object

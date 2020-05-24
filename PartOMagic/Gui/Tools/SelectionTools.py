@@ -1,5 +1,3 @@
-print("Part-o-magic: loading SelectionTools")
-
 import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Base import Containers

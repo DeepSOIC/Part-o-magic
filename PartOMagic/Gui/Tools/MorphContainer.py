@@ -74,9 +74,7 @@ def morphContainer(src_container, dst_container):
             if not prop in properties_to_avoid:
                 properties_to_copy.append(prop)
     
-    print("copying properties")
     for prop in properties_to_copy:
-        print("  "+prop)
         copyProperty(src_container, dst_container, prop)
         
     #Copy expressions
@@ -110,7 +108,6 @@ def substituteObjectInProperties(orig, new, within):
     """substituteObjectInProperties(orig, new, within): finds all links to orig in within, and redirects them to new. Skips containership links."""
     if hasattr(within, "isDerivedFrom") :
         within = [within]
-    print(u"replacing {orig} with {new} within {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
     for obj in within:
         for prop in obj.PropertiesList:
             if prop == "Group": continue #leave containership management to PoM/FreeCAD...
@@ -137,7 +134,6 @@ def substituteObjectInProperties(orig, new, within):
             if valchanged:
                 try:
                     setattr(obj, prop, val)
-                    print(u"  replaced in {obj}.{prop}".format(obj= obj.Name, prop= prop))
                 except Exception as err:
                     App.Console.PrintError(u"  not replaced in {obj}.{prop}. {err}\n".format(obj= obj.Name, prop= prop, err= err.message))
 
@@ -146,17 +142,11 @@ def substituteObjectInProperties(orig, new, within):
 def substituteObjectInExpressions(orig, new, within):
     if hasattr(within, "isDerivedFrom") :
         within = [within]
-    print(u"replacing {orig} with {new} within expressions in {n} objects...".format(orig= orig.Name, new= new.Name, n= len(within)))
     for obj in within:
         for prop, expr in obj.ExpressionEngine:
             oldexpr = expr
             newexpr = replaceNameInExpression(expr, orig.Name, new.Name)
             if newexpr is not None:
-                print(u"  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
-                      .format(obj= obj.Name,
-                              prop= prop,
-                              oldexpr= oldexpr,
-                              newexpr= newexpr))
                 try:
                     obj.setExpression(prop, newexpr)
                 except Exception as err:
@@ -166,7 +156,6 @@ def substituteObjectInSpreadsheets(orig, new, within):
     if hasattr(within, "isDerivedFrom") :
         within = [within]
     within = [obj for obj in within if obj.isDerivedFrom('Spreadsheet::Sheet')]
-    print(u"replacing {orig} with {new} within expressions in {n} spreadsheets...".format(orig= orig.Name, new= new.Name, n= len(within)))
     for obj in within:
         for prop in obj.PropertiesList:
             try:
@@ -177,11 +166,6 @@ def substituteObjectInSpreadsheets(orig, new, within):
             oldexpr = expr
             newexpr = replaceNameInExpression(expr, orig.Name, new.Name)
             if newexpr is not None:
-                print(u"  changing expression for {obj}.{prop} from '{oldexpr}' to '{newexpr}'"
-                      .format(obj= obj.Name,
-                              prop= prop,
-                              oldexpr= oldexpr,
-                              newexpr= newexpr))
                 try:
                     obj.set(prop, newexpr)
                 except Exception as err:

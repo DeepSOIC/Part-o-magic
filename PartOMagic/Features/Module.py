@@ -7,7 +7,6 @@ __title__="Module container"
 __author__ = "DeepSOIC"
 __url__ = ""
 
-print("Part-o-magic: loading Module")
 
 from PartOMagic.Base.Utils import transformCopy_Smart
 
@@ -41,7 +40,6 @@ class _Module:
             selfobj.Shape = Part.Shape()
             
     def advanceTip(self, selfobj, new_object):
-        print("advanceTip")
         from PartOMagic.Gui.Utils import screen
         old_tip = screen(selfobj.Tip)
         new_tip = old_tip

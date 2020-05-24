@@ -1,4 +1,3 @@
-print("Part-o-magic: loading Features.PartDesign")
 
 
 __all__ = [

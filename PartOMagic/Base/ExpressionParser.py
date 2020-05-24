@@ -1,4 +1,3 @@
-print("Part-o-magic: loading ExpressionParser")
 __doc__ = "ExpressionParser: minimalistic routines for extracting information from expressions"
 
 namechars = [chr(c) for c in range(ord('a'), ord('z')+1)]

@@ -1,6 +1,3 @@
-print("Part-o-magic: loading View")
-
-
 __all__ = [
 "SnapView",
 "XRay"

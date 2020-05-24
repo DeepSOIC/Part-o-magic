@@ -1,6 +1,3 @@
-print("Part-o-magic: loading Gui")
-
-
 __all__ = [
 "Utils",
 "Observer",

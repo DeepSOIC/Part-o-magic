@@ -1,6 +1,3 @@
-print("Part-o-magic: loading LinkTools")
-
-
 __all__ = [
 "ListUsages",
 "ReplaceObject",

@@ -21,8 +21,6 @@
 # *                                                                         *
 # ***************************************************************************/
 
-print("Part-o-magic: loading TempoVis")
-
 import FreeCAD as App
 if App.GuiUp:
     import FreeCADGui as Gui

@@ -1,4 +1,3 @@
-print("Part-o-magic: loading FCObject.py")
 import zipfile
 from xml.etree import ElementTree
 import io

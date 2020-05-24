@@ -1,4 +1,3 @@
-print("Part-o-magic: loading Control")
 
 
 __all__ = [

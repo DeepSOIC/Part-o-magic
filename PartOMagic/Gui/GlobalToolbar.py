@@ -1,4 +1,3 @@
-print("Part-o-magic: loading GlobalToolbar")
 
 from . import CommandCollection1
 from .Tools import LeaveEnter
@@ -17,7 +16,6 @@ def findToolbar(name, label, workbench, create = False):
     for i in range(10):
         g = 'Custom_'+str(i)
         if pp.HasGroup(g) and pp.GetGroup(g).GetString('Name') == label:
-            print("has custom!")
             return [tb_root, g]
     if create:
         return [tb_root, name]
@@ -44,11 +42,9 @@ def registerToolbar():
     #remove old version of the toolbar
     tb = findGlobalToolbar('PartOMagic', "Part-o-Magic global")
     if tb:
-        print("Delete")
         App.ParamGet(tb[0]).RemGroup(tb[1])
     tb = findGlobalToolbar('PartOMagic_2', "Part-o-Magic global")
     if tb:
-        print("Delete2")
         App.ParamGet(tb[0]).RemGroup(tb[1])
 
     

@@ -1,5 +1,3 @@
-print("Part-o-magic: loading TransferObject")
-
 import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Base import Containers

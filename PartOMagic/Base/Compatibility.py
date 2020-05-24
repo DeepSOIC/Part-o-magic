@@ -1,4 +1,3 @@
-print("Part-o-magic: loading Compatibility")
 import FreeCAD as App
 
 def get_fc_version():

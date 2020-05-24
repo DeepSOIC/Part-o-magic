@@ -1,6 +1,3 @@
-print("Part-o-magic: loading Tools")
-
-
 __all__ = [
 "LeaveEnter",
 "Tip",

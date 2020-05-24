@@ -1,5 +1,3 @@
-print("Part-o-magic: loading Observer")
-
 from PartOMagic.Base import Containers as GT
 from PartOMagic.Base.Containers import activeContainer, setActiveContainer
 from PartOMagic.Features.GenericContainer import GenericContainer
@@ -110,7 +108,6 @@ class Observer(object):
     
     #slots
     def slotCreatedObject(self, feature):
-        print("created object")
         ac = activeContainer()
         aw = Gui.activeWorkbench().GetClassName()
         #hack!! we delay call of addObject to fire from within onChanged, as doing it now 
@@ -123,8 +120,6 @@ class Observer(object):
           )
 
     def slotDeletedObject(self, feature):
-        print (u"deleted {feat}. container chain: {chain}"
-                .format(feat= feature.Name, chain= ".".join([cnt.Name for cnt in GT.getContainerChain(feature)])))
         ac = activeContainer()
         if feature in GT.getContainerChain(ac)+[ac]:
             # active container was deleted. Need to leave it ASAP, as long as we can access the chain
@@ -185,7 +180,6 @@ class Observer(object):
             n1 = oldContainer.Name
         if newContainer:
             n2 = newContainer.Name
-        print(u"container changed from {c1} to {c2}".format(c1= n1, c2= n2))
         
         if oldContainer is None: #happens when creating new document
             return
@@ -231,7 +225,6 @@ class Observer(object):
             self.edit_TVs[feature.Document.Name] = tv
         
     def slotFinishEditing(self, feature):
-        print(u"Finish Editing {f}".format(f= feature.Name))
         tv = self.edit_TVs.pop(App.ActiveDocument.Name, None)
         if tv is not None:
             tv.restore()
@@ -354,7 +347,6 @@ class Observer(object):
     
     def enterContainer(self, cnt):
         '''enterContainer(self, cnt): when cnt either directly is being activated, or one of its child containers is being activated. Assumes container of cnt is already entered.'''
-        print ("entering "+cnt.Name)
         if cnt.isDerivedFrom("App::Document"): # may happen when creating new document. Ignoring.
             return
         key = cnt.Document.Name+"."+cnt.Name
@@ -369,7 +361,6 @@ class Observer(object):
         tv.show(cnt)
         
     def leaveContainer(self, cnt):
-        print ("leaving "+cnt.Name)
         assert(not cnt.isDerivedFrom("App::Document"))
         key = cnt.Document.Name+"."+cnt.Name
         tv = self.TVs[key]

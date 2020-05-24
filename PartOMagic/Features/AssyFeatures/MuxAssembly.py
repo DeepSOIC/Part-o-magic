@@ -1,4 +1,3 @@
-print("Part-o-magic: loading MuxAssembly")
 
 import FreeCAD as App
 if App.GuiUp:

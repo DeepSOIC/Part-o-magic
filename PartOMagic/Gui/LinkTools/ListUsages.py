@@ -1,5 +1,3 @@
-print("Part-o-magic: loading ListUsages")
-
 import FreeCAD as App
 import FreeCADGui as Gui
 from PartOMagic.Gui.Utils import *

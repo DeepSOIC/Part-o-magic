@@ -1,5 +1,3 @@
-print("Part-o-magic: loading Utils")
-
 import sys
 
 #TODO: remove this:

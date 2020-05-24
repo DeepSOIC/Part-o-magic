@@ -1,4 +1,3 @@
-print("Part-o-magic: loading Part")
 
 import FreeCAD as App
 if App.GuiUp:

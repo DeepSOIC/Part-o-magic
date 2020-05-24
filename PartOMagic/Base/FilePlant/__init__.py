@@ -1,4 +1,3 @@
-print("Part-o-magic: loading FilePlant")
 
 
 __all__ = [
