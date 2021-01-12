@@ -11,7 +11,7 @@ class _CommandEnter(AACommand):
     def GetResources(self):
         import SketcherGui #needed for icons
         return {'CommandName': 'PartOMagic_Enter',
-                'Pixmap'  : self.getIconPath("Sketcher_EditSketch.svg"),
+                'Pixmap'  : self.getIconPath("PartOMagic_Enter.svg"),
                 'MenuText': "Enter object",
                 'Accel': "",
                 'ToolTip': "Enter object. (activate a container, or open a sketch for editing)"}
@@ -50,7 +50,7 @@ class _CommandLeave(AACommand):
     def GetResources(self):
         import SketcherGui #needed for icons
         return {'CommandName': 'PartOMagic_Leave',
-                'Pixmap'  : self.getIconPath("Sketcher_LeaveSketch.svg"),
+                'Pixmap'  : self.getIconPath("PartOMagic_Leave.svg"),
                 'MenuText': "Leave object",
                 'Accel': "",
                 'ToolTip': "Leave object. (close sketch editing, or close task dialog, or leave a container).",
