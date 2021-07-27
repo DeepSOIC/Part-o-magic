@@ -3,7 +3,7 @@ import sys
 #TODO: remove this:
 def getIconPath(icon_dot_svg):
     import PartOMagic.Gui.Icons.Icons
-    return "./icons/" + icon_dot_svg
+    return ":/icons/" + icon_dot_svg
 
 def msgbox(title, text):
     from PySide import QtGui
