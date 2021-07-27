@@ -10,6 +10,7 @@ def CreateShapeBinder(feature):
     App.ActiveDocument.openTransaction("Create Shapebinder")
     Gui.doCommand("f = App.ActiveDocument.addObject('PartDesign::ShapeBinder','ShapeBinder')")
     Gui.doCommand("f.Support = [App.ActiveDocument.{feat},('')]".format(feat= feature.Name))
+    Gui.doCommand("f.Label = '{{ref}} ({{selfname}})'.format(selfname= f.Name, ref= App.ActiveDocument.{feat}.Label)".format(feat= feature.Name))
     Gui.doCommand("f.recompute()")
     App.ActiveDocument.commitTransaction()
     Gui.doCommand("Gui.Selection.clearSelection()")
