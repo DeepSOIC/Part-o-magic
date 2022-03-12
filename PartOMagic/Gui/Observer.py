@@ -111,9 +111,10 @@ class Observer(object):
         ac = activeContainer()
         aw = Gui.activeWorkbench().GetClassName()
         #hack!! we delay call of addObject to fire from within onChanged, as doing it now 
-        #results in incorrect parenting of viewproviders. Yet it has to be done before recompute, o
-        #therwise the recompute fails.
-        #From there, another delayed call is registered - a call to advanceTip, which should be called after the new object is fully set up.
+        #results in incorrect parenting of viewproviders. Yet it has to be done
+        #before recompute, otherwise the recompute fails.
+        #From there, another delayed call is registered - a call to advanceTip
+        #which should be called after the new object is fully set up.
         self.addition_calls_queue.append(
           lambda self=self, feature=feature, ac=ac, aw=aw:
             self.appendToActiveContainer(feature, ac, aw)
@@ -285,7 +286,7 @@ class Observer(object):
             try:
                 self.activeContainerChanged(last_ac, ac)
             finally:
-                # re-query the ative containers, as they might have been altered by setActiveContainer.
+                # re-query the active containers, as they might have been altered by setActiveContainer.
                 activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
                 activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
                 self.activeObjects[App.ActiveDocument.Name] = (ac, activePart, activeBody)
