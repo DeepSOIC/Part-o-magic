@@ -108,7 +108,7 @@ def getAllDependent(feat):
 
 def isContainer(obj):
     '''isContainer(obj): returns True if obj is an object container, such as 
-    Group, Part, Body. The important characterisic of an object being a 
+    Group, Part, Body. The important characteristic of an object being a 
     container is that it can be activated to receive new objects. Documents 
     are considered containers, too.'''
     

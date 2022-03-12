@@ -110,7 +110,7 @@ class FCProject(object):
         return self._app_filelist + self._gui_filelist
         
     def fromStream(self, name, typeid, bs_app, bs_vp = None):
-        """Initializes this project from a stram of data of one object. 
+        """Initializes this project from a stream of data of one object. 
         Warning: this does not add an object to the project, - all existing objects will 
         be wiped, and the stramed object becomes the ONLY object of the project."""
         

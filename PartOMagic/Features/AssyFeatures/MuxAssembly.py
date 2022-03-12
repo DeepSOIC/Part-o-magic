@@ -73,7 +73,7 @@ class MUX(Ghost):
         
         selfobj.IAm = 'PartOMagic.MUX'
         
-        selfobj.addProperty('App::PropertyBool','FlattenCompound',"MUX","If true, compound nesting does not follow nesting of Parts. If False, compound nesting follows nexting of parts.")
+        selfobj.addProperty('App::PropertyBool','FlattenCompound',"MUX","If true, compound nesting does not follow nesting of Parts. If False, compound nesting follows nesting of parts.")
         selfobj.addProperty('App::PropertyLinkListGlobal', 'ExclusionList', "MUX", 'List of objects to exclude from compound')
         selfobj.addProperty('App::PropertyEnumeration', 'Traversal', "MUX", 'Sets if to look for shapes in nested containers')
         selfobj.Traversal = ['Direct children', 'Recursive']
