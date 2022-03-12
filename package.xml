@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
+  <name>Part-o-magic Workbench</name>
+  <description>Experiment on FreeCAD-wide automation of Part container management </description>
+  <version>1.0</version>
+  <date>2022-03-12</date>
+  <maintainer email="vv.titov@gmail.com">DeepSOIC</maintainer>
+  <license file="LICENSE">LGPLv2</license>
+  <url type="repository" branch="main">https://github.com/DeepSOIC/Part-o-magic</url>
+  <url type="bugtracker" branch="main">https://github.com/DeepSOIC/Part-o-magic/issues</url>
+  <icon>PartOMagic/Gui/Icons/icons/PartOMagic.svg</icon> <!-- If you include your icon here, you don't have to submit it to the main FreeCAD repo -->
+
+  <content>
+    <workbench>
+      <classname>PartomagicWorkbench</classname>
+      <subdirectory>./</subdirectory>
+    </workbench>
+    <tag></tag>
+    <tag></tag>
+  </content>
+
+</package>
