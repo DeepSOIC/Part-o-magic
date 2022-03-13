@@ -14,9 +14,9 @@
     <workbench>
       <classname>PartomagicWorkbench</classname>
       <subdirectory>./</subdirectory>
+      <tag></tag>
+      <tag></tag>
     </workbench>
-    <tag></tag>
-    <tag></tag>
   </content>
 
 </package>
