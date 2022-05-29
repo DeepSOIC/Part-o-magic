@@ -6,13 +6,13 @@
   <date>2022-03-12</date>
   <maintainer email="vv.titov@gmail.com">DeepSOIC</maintainer>
   <license file="LICENSE">LGPLv2</license>
-  <url type="repository" branch="main">https://github.com/DeepSOIC/Part-o-magic</url>
-  <url type="bugtracker" branch="main">https://github.com/DeepSOIC/Part-o-magic/issues</url>
+  <url type="repository" branch="master">https://github.com/DeepSOIC/Part-o-magic</url>
+  <url type="bugtracker">https://github.com/DeepSOIC/Part-o-magic/issues</url>
   <icon>PartOMagic/Gui/Icons/icons/PartOMagic.svg</icon> <!-- If you include your icon here, you don't have to submit it to the main FreeCAD repo -->
 
   <content>
     <workbench>
-      <classname>PartomagicWorkbench</classname>
+      <classname>PartOMagicWorkbench</classname>
       <subdirectory>./</subdirectory>
       <tag></tag>
       <tag></tag>
