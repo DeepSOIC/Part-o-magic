@@ -130,9 +130,7 @@ class Observer(object):
     def slotChangedObject(self, feature, prop_name):
         if feature.hasExtension('App::GeoFeatureGroupExtension') and prop_name == 'Group':
             return #avoid adding objects from within addObject call
-        while len(self.addition_calls_queue) > 0:
-            lmd = self.addition_calls_queue.pop(0)
-            lmd()
+        self.executeDelayedSorting()
         
     
     def slotRedoDocument(self,doc):
@@ -239,11 +237,17 @@ class Observer(object):
         if Gui.ActiveDocument.ActiveView is None:
             return # happens when editing a spreadsheet
             
+        self.executeDelayedSorting()
         self.trackActiveContainer()
         self.trackExpands()
         self.trackSaves()
         self.trackEditing()
-        
+    
+    def executeDelayedSorting(self):
+        while len(self.addition_calls_queue) > 0:
+            lmd = self.addition_calls_queue.pop(0)
+            lmd()
+    
     def executeDelayedOperations(self):
         # execute delayed onChange
         try:

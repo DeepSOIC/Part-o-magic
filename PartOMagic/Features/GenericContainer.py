@@ -78,9 +78,11 @@ class ViewProviderGenericContainer(object):
     def doTreeAutomation(self, old_active_container, new_active_cntainer, event):
         import FreeCADGui as Gui
         if event == +1:
-            Gui.ActiveDocument.toggleTreeItem(self.selfobj, 2 ) #expand
+            if not 'Expanded' in self.selfobj.State:
+                Gui.ActiveDocument.toggleTreeItem(self.selfobj, 2 ) #expand
         elif event == -1:
             if not (self.selfobj.isDerivedFrom('App::Part') or self.selfobj.isDerivedFrom('App::DocumentObjectGroup')):
-                Gui.ActiveDocument.toggleTreeItem(self.selfobj, 1 ) #collapse        
+                if 'Expanded' in self.selfobj.State:
+                    Gui.ActiveDocument.toggleTreeItem(self.selfobj, 1 ) #collapse        
 
 
