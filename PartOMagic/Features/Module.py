@@ -52,6 +52,7 @@ class _Module:
         if new_tip is old_tip: return
         if new_tip.Name.startswith("Clone"): return
         if new_tip.Name.startswith("ShapeBinder"): return
+        if new_tip.Name.startswith("Ghost"): return
         selfobj.Tip = new_tip
         
     def onDocumentRestored(self, selfobj):
