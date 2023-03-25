@@ -1,3 +1,4 @@
+
 import FreeCAD as App
 if App.GuiUp:
     import FreeCADGui as Gui
@@ -100,7 +101,7 @@ def copyProperty(src, dst, prop):
         try:
             setattr(dst, prop, getattr(src, prop))
         except Exception as err:
-            App.Console.PrintError(u"Failed to copy property {prop}: {err}\n".format(err= err.message, prop= prop))
+            App.Console.PrintError(u"Failed to copy property {prop}: {err}\n".format(err= str(err), prop= prop))
     else:
         App.Console.PrintWarning(u"Target property missing: {prop}\n".format(prop= prop))
 
@@ -135,7 +136,7 @@ def substituteObjectInProperties(orig, new, within):
                 try:
                     setattr(obj, prop, val)
                 except Exception as err:
-                    App.Console.PrintError(u"  not replaced in {obj}.{prop}. {err}\n".format(obj= obj.Name, prop= prop, err= err.message))
+                    App.Console.PrintError(u"  not replaced in {obj}.{prop}. {err}\n".format(obj= obj.Name, prop= prop, err= str(err)))
 
                 
 
@@ -150,7 +151,7 @@ def substituteObjectInExpressions(orig, new, within):
                 try:
                     obj.setExpression(prop, newexpr)
                 except Exception as err:
-                    App.Console.PrintError(err.message+'\n')
+                    App.Console.PrintError(str(err)+'\n')
 
 def substituteObjectInSpreadsheets(orig, new, within):
     if hasattr(within, "isDerivedFrom") :
@@ -169,7 +170,7 @@ def substituteObjectInSpreadsheets(orig, new, within):
                 try:
                     obj.set(prop, newexpr)
                 except Exception as err:
-                    App.Console.PrintError(err.message+'\n')
+                    App.Console.PrintError(str(err)+'\n')
 
 def replaceNameInExpression(expr, old_name, new_name):
     'If not found, returns None. If replaced, returns new expression.'
