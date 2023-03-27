@@ -23,7 +23,7 @@ class _Module:
     "The Module object"
     def __init__(self,obj):
         self.Type = "Module"
-        obj.addExtension('App::OriginGroupExtensionPython', self)
+        obj.addExtension('App::OriginGroupExtensionPython')
         try:
             obj.addProperty('App::PropertyLinkChild','Tip',"Module","Object to be exposed to the outside")
         except Exception:
@@ -81,7 +81,7 @@ class _ViewProviderModule:
     "A View Provider for the Module object"
 
     def __init__(self,vobj):
-        vobj.addExtension("Gui::ViewProviderOriginGroupExtensionPython", self)
+        vobj.addExtension("Gui::ViewProviderOriginGroupExtensionPython")
         vobj.Proxy = self
         
     def getIcon(self):
