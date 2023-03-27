@@ -56,6 +56,8 @@ class Ghost(object):
     
     def updateDeps(self, selfobj, check_only = False):
         """update PlacementLinks to match with container path"""
+        if selfobj.Base is None: # fixes error on ghots deletion
+            return
         toleave,toenter = Containers.getContainerRelativePath(Containers.getContainer(selfobj.Base), Containers.getContainer(selfobj))
         leave_deps = []
         if selfobj.UseForwardPlacements:
