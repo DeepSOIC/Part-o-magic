@@ -95,7 +95,16 @@ class ShapeGroup:
                 selfobj.removeProperty('Tip')
                 selfobj.addProperty(t+'Child','Tip', g, d)
                 selfobj.Tip = v
-        
+    
+    def getSubObjects(self, host, reason):
+        #implementing this fixes Export exporting inner content instead of shape
+        # in PD Body:
+        #if(reason==GS_SELECT && !showTip)
+        #    return Part::BodyBase::getSubObjects(reason);
+        if reason == 1 and host.ViewObject and host.ViewObject.DisplayMode == 'Group':
+            raise NotImplementedError
+        return []        
+
 class ViewProviderShapeGroup:
     "A View Provider for the ShapeGroup object"
 
