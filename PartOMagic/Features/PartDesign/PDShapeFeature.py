@@ -22,7 +22,7 @@ class PDShapeFeature:
     "The PDShapeFeature object"
     def __init__(self,obj):
         self.Type = 'PDShapeFeature'
-        obj.addExtension('App::OriginGroupExtensionPython', self)
+        obj.addExtension('App::OriginGroupExtensionPython')
         
         try:
             obj.addProperty('App::PropertyLinkChild','Tip',"PartDesign","Object to use to form the feature")
@@ -89,7 +89,7 @@ class ViewProviderPDShapeFeature:
     "A View Provider for the PDShapeFeature object"
 
     def __init__(self,vobj):
-        vobj.addExtension('Gui::ViewProviderGeoFeatureGroupExtensionPython', self)
+        vobj.addExtension('Gui::ViewProviderGeoFeatureGroupExtensionPython')
         vobj.Proxy = self
         
     def getIcon(self):

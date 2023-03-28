@@ -184,7 +184,7 @@ class DocumentObject(PropertyContainer):
         exts = self.Extensions
         for ext_t, ext_n in exts:
             if not obj.hasExtension(ext_t):
-                obj.addExtension(ext_t, None)
+                obj.addExtension(ext_t)
         obj.restoreContent(self.dumpContent(exclude_extensions= True))
         
         if update_expr:
@@ -196,7 +196,7 @@ class DocumentObject(PropertyContainer):
             exts = vp_emu.Extensions
             for ext_t, ext_n in exts:
                 if not vp.hasExtension(ext_t):
-                    vp.addExtension(ext_t, None)
+                    vp.addExtension(ext_t)
             vp.restoreContent(vp_emu.dumpContent(exclude_extensions= True))
     
     def updateFCObject_expressions(self, obj):
