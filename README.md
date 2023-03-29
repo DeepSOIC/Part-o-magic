@@ -1,6 +1,6 @@
 # Part-o-magic
 
-PoM is an experimental add-on module for FreeCAD v0.21, that changes behavior across whole FreeCAD to embrace Active Container, allowing one to easily focus on a piece of a large project.
+PoM is an experimental add-on module for FreeCAD v0.20-v0.21, that changes behavior across whole FreeCAD to embrace Active Container, allowing one to easily focus on a piece of a large project.
 
 PoM's main features are:
 
@@ -26,7 +26,7 @@ This turns off Part-o-magic's functions that affect the whole FreeCAD, but lets 
 
 # Install
 
-If you are on FreeCAD 0.21 - just install master branch of Part-o-magic with addon manager:
+If you are on FreeCAD 0.21 or 0.20 - just install master branch of Part-o-magic with addon manager:
 
 1. Launch FreeCAD. 
 2. In menu, pick Tools->Addon Manager. 
@@ -38,7 +38,7 @@ After restart, you should notice:
 * A small global toolbar with a selection of Part-o-magic tools should appear. 
 * Behavior of PartDesign workbench should change drastically - that is due to Observer running.
 
-If you are on FreeCAD 0.20 and older: install [release-1.0.0](https://github.com/DeepSOIC/Part-o-magic/releases/tag/v1.0.0).
+If you are on FreeCAD 0.19 and older: install [release-1.0.0](https://github.com/DeepSOIC/Part-o-magic/releases/tag/v1.0.0).
 
 Since this cannot be done with Addon Manager, you'll have to do it manually.
 
