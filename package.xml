@@ -7,6 +7,7 @@
   <maintainer email="vv.titov@gmail.com">DeepSOIC</maintainer>
   <license file="LICENSE">LGPLv2</license>
   <url type="repository" branch="master">https://github.com/DeepSOIC/Part-o-magic</url>
+  <url type="repository" branch="release-v1.0.0">https://github.com/DeepSOIC/Part-o-magic</url>
   <url type="bugtracker">https://github.com/DeepSOIC/Part-o-magic/issues</url>
   <icon>PartOMagic/Gui/Icons/icons/PartOMagic.svg</icon> <!-- If you include your icon here, you don't have to submit it to the main FreeCAD repo -->
 
