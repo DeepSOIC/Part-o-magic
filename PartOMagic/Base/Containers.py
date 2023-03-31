@@ -157,14 +157,14 @@ def getDirectChildren(container):
                 children = set(getDirectChildren(obj))
                 result = result - children
         return result
+    elif container.isDerivedFrom("App::Origin"):
+        return container.OriginFeatures + container.Group
     elif container.hasExtension("App::GroupExtension"):
         result = container.Group
         if container.hasExtension("App::OriginGroupExtension"):
             if container.Origin is not None:
                 result.append(container.Origin)
         return result
-    elif container.isDerivedFrom("App::Origin"):
-        return container.OriginFeatures
     raise ContainerUnsupportedError("getDirectChildren: unexpected container type!")
     
 def recursiveChildren(container):
