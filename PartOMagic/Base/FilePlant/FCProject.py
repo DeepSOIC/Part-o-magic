@@ -264,7 +264,7 @@ class FCProject(object):
     
     def listObjects(self):
         "listObjects(): returns list of object names"
-        return [obj.get('name') for obj in self.node_objectlist]
+        return [node.get('name') for node in self.node_objectlist.findall("Object")]
     
     def listObjectsOfType(self, type_id):
         "getObjectsOfType(type_id): returns list of object names with type equal to type_id (string). Note that exact comparison is done, isDerivedFrom is not supported"
