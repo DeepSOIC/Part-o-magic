@@ -15,3 +15,6 @@ def export(exportList,filename,tessellation=1):
     from . import FCProject
     prj = FCProject.fromFC(FreeCAD.ActiveDocument,[obj.Name for obj in exportList])
     prj.writeFile(filename)
+
+def open(filename):
+    FreeCAD.openDocument(filename)
