@@ -110,12 +110,14 @@ def isContainer(obj):
     '''isContainer(obj): returns True if obj is an object container, such as 
     Group, Part, Body. The important characteristic of an object being a 
     container is that it can be activated to receive new objects. Documents 
-    are considered containers, too.'''
+    are considered containers, too. Instances are NOT.'''
     
     obj = screen(obj)
     
     if obj.isDerivedFrom('App::Document'):
         return True
+    if obj.hasExtension('App::LinkExtension'):
+        return False # links (instances) are not considered containers, because they break the "object is only in one container" rule
     if obj.hasExtension('App::GeoFeatureGroupExtension'):
         return True
 #    if obj.hasExtension('App::GroupExtension'):
