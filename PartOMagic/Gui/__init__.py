@@ -10,6 +10,7 @@ __all__ = [
 "CommandCollection1",
 "GlobalToolbar",
 "View",
+"MonkeyPatches",
 ]
 
 def importAll():
@@ -24,6 +25,7 @@ def importAll():
     from . import CommandCollection1
     from . import GlobalToolbar
     from . import View
+    from . import MonkeyPatches
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, "importAll"):
