@@ -1,6 +1,10 @@
 # Part-o-magic
 
-PoM is an experimental add-on module for FreeCAD v0.20-v0.21, that changes behavior across whole FreeCAD to embrace Active Container, allowing one to easily focus on a piece of a large project.
+![figure](https://raw.githubusercontent.com/wiki/DeepSOIC/Part-o-magic/pictures/rotating-plate.png)
+
+PoM is an experimental add-on module, originally developed for FreeCAD v0.17-v0.20. 
+It changes behavior across whole FreeCAD to embrace Active Container, allowing one to easily focus on a piece of a large project.
+It also contains an assortment of tools to help dealing with complex muti-part designs.
 
 PoM's main features are:
 
@@ -16,17 +20,32 @@ When you are finished and deactivate it, everything is shown back again, while t
 
 * object replacement tool
 
-Beware. 
+* saving a subset of objects as a FreeCAD file
+
+**Beware.** 
 Part-o-magic is an epic hack. 
 It will collide (collides already) with similar functionality in FreeCAD as it is introduced. 
 If you experience problems: switch to Part-o-magic workbench, and disable Observer. 
 This turns off Part-o-magic's functions that affect the whole FreeCAD, but lets you still recompute your project with PoM features in it.
 
-![figure](https://raw.githubusercontent.com/wiki/DeepSOIC/Part-o-magic/pictures/rotating-plate.png)
+# Status
+
+FreeCAD's evolution (since v0.20) has somewhat diverged from Part-o-magic's concept of how things should work. But Part-o-magic way of modeling still works in 0.21 and 1.0, and a bunch of tools offered by PoM are still valuable.
+
+There are known limitations, as of FreeCAD v1.0:
+
+* PoM's FCStd file exporting, importing, and object duplication tools cannot deal with Link and XLink objects, and may not handle the toponaming data correctly.
+
+Part-o-magic's tools to disable Observer were made to allow you continue to use projects you made with PoM, even when FreeCAD progress renders PoM obsolete. So you can at least be a little bit confident that ShapeGroup feature won't quickly go bust.
+
 
 # Install
 
-If you are on FreeCAD 0.21 or 0.20 - just install master branch of Part-o-magic with addon manager:
+## Via Addon Manager:
+
+If you are on FreeCAD 0.19 and older: don't use addon manager, install [release-1.0.0](https://github.com/DeepSOIC/Part-o-magic/releases/tag/v1.0.0) manually.
+
+On FreeCAD 1.0, install master branch of Part-o-magic with addon manager:
 
 1. Launch FreeCAD. 
 2. In menu, pick Tools->Addon Manager. 
@@ -38,14 +57,13 @@ After restart, you should notice:
 * A small global toolbar with a selection of Part-o-magic tools should appear. 
 * Behavior of PartDesign workbench should change drastically - that is due to Observer running.
 
-If you are on FreeCAD 0.19 and older: install [release-1.0.0](https://github.com/DeepSOIC/Part-o-magic/releases/tag/v1.0.0).
+## ... or manually:
 
-Since this cannot be done with Addon Manager, you'll have to do it manually.
-
-1. download [source code zip file](https://github.com/DeepSOIC/Part-o-magic/archive/refs/tags/v1.0.0.zip)
-2. unpack the content of `Part-o-magic-1.0.0` folder within the zip into a folder named `Part-o-magic` in where FreeCAD can pick it up as a module (for example, on Windows, it's `%appdata%/FreeCAD/Mod`)
+1. download source code zip file
+2. unpack the content of `Part-o-magic-x.x.x` folder within the zip into a folder named `Part-o-magic` in where FreeCAD can pick it up as a module (for example, on Windows, it's `%appdata%/FreeCAD/Mod`)
 3. Done! Run FreecAD, you should see Part-o-Magic workbench in the list, and the global toolbar.
 4. (to verify you have the right PoM version) create a new project, and create a Module container from Part-o-magic workbench. If it is created without errors, you are running the correct version.
+
 
 # Uninstall
 
@@ -57,7 +75,7 @@ This turns off all the invasive automation stuff, but features of part-o-magic c
 
 If you completely uninstall the workbench (delete Mod/Part-o-magic folder), part-o-magic features you used in your projects will stop working.
 
-Important. 
+**Important**. 
 Part-o-magic messes with "DisplayModeBody" properties of PartDesign Body objects. 
 If you uninstall Part-o-magic, or disable Observer, it will cause somewhat unusual behavior of any projects that were saved with part-o-magic enabled and had any container objects present. 
 You can reset them manually with property editor, or run this simple snippet in Py console:
@@ -129,7 +147,7 @@ Created a Module, but later realized you want ShapeGroup instead? Of course, you
 
 * Enter and Leave. Work on almost everything (can be used to enter/leave containers, and edit objects (e.g. open a sketch)).
 
-* Exporter feature, for keeping exported files up to date with project.
+* Exporter feature, for keeping exported files (like STL) up to date with project.
 
 * an advanced Object Replacement tool, with container support, and UI to pick specific replacements.
 
@@ -139,8 +157,6 @@ Created a Module, but later realized you want ShapeGroup instead? Of course, you
 
 * Object duplication tool that can duplicate containers without causing a mess.
 
-# Should I use PoM?
+* container-aware selection tools like "select all children" 
 
-FreeCAD's evolution (as of v0.20) has somewhat diverged from Part-o-magic's concept of how things should work. But Part-o-magic way of modeling still works in 0.21, and a bunch of tools offered by PoM are still valuable.
 
-Part-o-magic's tools to disable Observer were made to allow you continue to use projects you made with PoM, even when FreeCAD progress renders PoM obsolete. So you can at least be a little bit confident that ShapeGroup feature won't quickly go bust.
