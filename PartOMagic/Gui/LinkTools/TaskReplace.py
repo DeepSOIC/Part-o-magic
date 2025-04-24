@@ -51,7 +51,7 @@ class TaskReplace(QtCore.QObject):
         Gui.Control.closeDialog()
     
     def cleanUp(self):
-        pass
+        self.form.treeR.removeEventFilter(self)
     
     def getStandardButtons(self):
         return int(QtGui.QDialogButtonBox.Ok) | int(QtGui.QDialogButtonBox.Close) | int(QtGui.QDialogButtonBox.Apply)
