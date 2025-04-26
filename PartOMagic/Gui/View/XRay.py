@@ -17,9 +17,22 @@ def XRay(obj):
         tv.restore()
     else:
         tv = Show.TempoVis(App.ActiveDocument)
-        tv.modifyVPProperty(obj, 'Transparency', 80)
-        tv.modifyVPProperty(obj, 'DisplayMode', 'Shaded')
-        tv.setUnpickable(obj)
+        failed = False
+        try:
+            tv.modifyVPProperty(obj, 'Transparency', 80)
+        except Exception:
+            failed = True
+        else:
+            try:
+                tv.modifyVPProperty(obj, 'DisplayMode', 'Shaded')
+            except Exception:
+                failed = True
+        if failed:
+            tv.forget() # workaround for tv saving the value and then failing to restore it
+            tv = Show.TempoVis(App.ActiveDocument)
+            tv.hide(obj)
+        else:
+            tv.setUnpickable(obj)
         library[obj] = tv
     
 
