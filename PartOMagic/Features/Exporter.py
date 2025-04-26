@@ -9,7 +9,16 @@ __url__ = ""
 
 
 from PartOMagic.Base.Utils import addProperty
-    
+from PartOMagic.Base.Parameters import Parameter
+
+class _paramSaveFullPath(Parameter):
+    "Sets if Exporter should save full path to the exported file, as a property"
+    path = "User parameter:BaseApp/Preferences/Mod/PartOMagic"
+    param = "ExporterSaveFullPath"
+    type = "Bool"
+    default = 0
+paramSaveFullPath = _paramSaveFullPath()
+
 def makeExporter(name):
     '''makeExporter(name): makes a Exporter object.'''
     obj = App.ActiveDocument.addObject("App::FeaturePython",name)
@@ -29,8 +38,9 @@ class Exporter:
         
     def initProperties(self, selfobj):
         addProperty(selfobj, 'App::PropertyLink','ObjectToExport',"Exporter","Object to use to form the feature")
-        addProperty(selfobj, 'App::PropertyString', 'FilePath', "Exporter", "Relative or absolute path to file to write. Hint: type '%Label%.step'.")
-        addProperty(selfobj, 'App::PropertyString', 'FullActualPath', "Exporter", "Path to the last file that was written", readonly= True)        
+        addProperty(selfobj, 'App::PropertyString', 'FilePath', "Exporter", "Relative or absolute path to file to write. Hint: type '{object_label}.step'.")
+        if paramSaveFullPath.get():
+            addProperty(selfobj, 'App::PropertyString', 'FullActualPath', "Exporter", "Path to the last file that was written", readonly= True)        
         
         if addProperty(
             selfobj, 'App::PropertyEnumeration', 'ExportingFrequency', "Exporter", "Set when to export the file. (double-click always works)",
@@ -172,8 +182,9 @@ class Exporter:
                 filepath = filepath.replace('%Label%', selfobj.ObjectToExport.Label).format(**vardict)
                 mod.export(objects_to_export, filepath)
                 print(u"Exported {file}".format(file= filepath))
-                if selfobj.FullActualPath != filepath: #check, to avoid touching all exporters upon every file save
-                    selfobj.FullActualPath = filepath
+                if paramSaveFullPath.get():
+                    if selfobj.FullActualPath != filepath: #check, to avoid touching all exporters upon every file save
+                        selfobj.FullActualPath = filepath
             elif selfobj.MultiMode == 'Write many files':
                 files_written = set()
                 for obj in objects_to_export:
@@ -184,8 +195,9 @@ class Exporter:
                             .format(exporter= selfobj.Label, fn= thisfilepath))
                     mod.export([obj], thisfilepath)
                     print(u"Exported {file}".format(file= thisfilepath))
-                if selfobj.FullActualPath != thisfilepath: #check, to avoid touching all exporters upon every file save
-                    selfobj.FullActualPath = thisfilepath
+                if paramSaveFullPath.get():
+                    if selfobj.FullActualPath != thisfilepath: #check, to avoid touching all exporters upon every file save
+                        selfobj.FullActualPath = thisfilepath
             else:
                 raise NotImplementedError(u"Unexpected MultiMode: {mode}".format(mode= repr(selfobj.MultiMode)))
         except KeyError as ke:
@@ -286,6 +298,7 @@ class ViewProviderExporter:
     
     def exportNow(self):
         try:
+            self.Object.Proxy.initProperties(self.Object)
             self.Object.Proxy.export(self.Object)
             self.Object.purgeTouched()
         except Exception as err:
