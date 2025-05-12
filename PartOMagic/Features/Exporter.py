@@ -92,12 +92,19 @@ class Exporter:
         if len(extension)<1:
             raise ValueError("File has no extension, can't determine export type.")
         modules = App.getExportType(extension)
+        if len(modules) == 0:
+            raise ValueError("no modules found for exporting files of type '{}'".format(extension))
         try:
             oldval = selfobj.UsingModule
         except Exception:
-            oldval = ''
-        if not oldval in modules:
-            selfobj.UsingModule = modules
+            oldval = None
+        selfobj.UsingModule = modules
+        if oldval in modules:
+            selfobj.UsingModule = oldval
+            print("oldval saved")
+        else:
+            print("oldval discard")
+            # defaults
             if extension == 'stl' and 'Mesh' in modules:
                 selfobj.UsingModule = 'Mesh'
     
