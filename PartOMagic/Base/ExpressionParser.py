@@ -15,8 +15,8 @@ def expressionDeps(expr, doc):
       self-references as objects, for example in '=Placement.Base.x' will list 'Placement' 
       as an object. """
     global namechars
-    startchars = set("+-*/(%^&\[<>;, =")
-    endchars = set(".")
+    startchars = set(r"+-*/(%^&\[<>;, =")
+    endchars = set(r".")
     
     if expr is None:
         return []
