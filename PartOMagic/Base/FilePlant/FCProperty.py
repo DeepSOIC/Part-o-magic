@@ -286,6 +286,22 @@ class PropertyLinkSubList(PropertyLink):
             self.value = new_val
         return n_replaced
 
+# <Property name="LinkedObject" type="App::PropertyXLink" status="256">
+#     <XLink file="" stamp="" name="Part"/>
+# </Property>
+
+class PropertyXLink(PropertyLink):
+    types = ['App::PropertyXLink']
+            
+    def inputs(self):
+        return []
+    
+    def replace(self, replace_task):
+        raise NotImplementedError()
+    
+    def files(self):
+        raise NotImplementedError()
+
 
 #<Property name="Label" type="App::PropertyString">
 #    <String value="linker"/>
@@ -303,7 +319,7 @@ class PropertyString(Property):
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-property_classes = [PropertyLink, PropertyLinkSub, PropertyLinkList, PropertyLinkSubList, PropertyString]
+property_classes = [PropertyLink, PropertyLinkSub, PropertyLinkList, PropertyLinkSubList, PropertyXLink, PropertyString]
 type2class = {}
 
 def register_property_implementation(cls):
