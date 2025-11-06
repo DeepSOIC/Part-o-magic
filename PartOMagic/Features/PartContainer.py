@@ -9,6 +9,7 @@ from PartOMagic.Base import Containers
 def CreatePart():
     with Transaction("Create Part"):
         Gui.doCommand("f = App.ActiveDocument.addObject('App::Part','Part')")
+        Gui.doCommand("PartOMagic.Gui.Observer.sortNow()")
         Gui.doCommand("PartOMagic.Gui.Observer.activateContainer(f)")
     Gui.doCommand("Gui.Selection.clearSelection()")
 

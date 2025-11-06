@@ -464,3 +464,9 @@ class Keeper(object):
 
     def __del__(self):
         self.release()
+
+def sortNow():
+    "sort new objects into containers now"
+    global observerInstance
+    if observerInstance is not None:
+        observerInstance.executeDelayedSorting()
