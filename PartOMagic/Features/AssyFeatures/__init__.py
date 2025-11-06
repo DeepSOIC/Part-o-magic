@@ -1,12 +1,10 @@
 
 
 __all__ = [
-"Instance",
 "MuxAssembly",
 ]
 
 def importAll():
-    from . import Instance
     from . import MuxAssembly
 
     for modstr in __all__:
