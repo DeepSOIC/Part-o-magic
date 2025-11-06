@@ -209,6 +209,16 @@ class Observer(object):
         #     Gui.ActiveDocument.resetEdit()
         #     GT.setActiveContainer(cnt)
         #     return
+        from PartOMagic.Base.Utils import PlacementsFuzzyCompare as cmp
+        plm : App.Placement = feature.getGlobalPlacement()
+        if cmp(plm, App.Placement()) == False:
+            plm_edit = App.Placement(Gui.ActiveDocument.EditingTransform)
+            if cmp(plm_edit, App.Placement()) == True:
+                # editing transform is zero while global placement is not. Suspicious, let's fix it. (fixes #73 wrong sketch view alignment)
+                Gui.ActiveDocument.EditingTransform = plm.toMatrix()
+                if feature.isDerivedFrom('Sketcher::SketchObject'):
+                    Gui.ActiveDocument.ActiveView.setCameraOrientation(plm.Rotation.Q)
+
         if feature.isDerivedFrom("PartDesign::Boolean"):
             # show all bodies nearby...
             part = GT.getContainer(cnt)
