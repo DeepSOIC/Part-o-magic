@@ -1,6 +1,7 @@
 import FreeCAD as App
 
 from PartOMagic.Gui.Utils import screen
+from PartOMagic.Gui.FakeDocument import defake
 
 def active3DView():
     "returns active 3d view, or None"
@@ -36,12 +37,17 @@ def activeContainer():
     elif activePart:
         return screen(activePart)
     else:
-        return App.ActiveDocument
+        doc = defake(App.ActiveDocument)
+        doc = getattr(doc, '_doc', doc) #unwrap FakeDocument
+        return doc
 
 def setActiveContainer(cnt):
     '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
     
-    cnt = screen(cnt)
+    cnt = defake(screen(cnt))
+    
+    import FreeCAD as App
+    import FreeCADGui as Gui
 
     if hasattr(App, "ActiveContainer"):
         App.setActiveContainer(cnt)
@@ -123,7 +129,7 @@ def isContainer(obj):
     container is that it can be activated to receive new objects. Documents 
     are considered containers, too. Instances are NOT.'''
     
-    obj = screen(obj)
+    obj = defake(screen(obj))
     
     if obj.isDerivedFrom('App::Document'):
         return True
@@ -158,7 +164,7 @@ def isMovableContainer(obj):
 
 def getDirectChildren(container):
     
-    container = screen(container)
+    container = defake(screen(container))
     
     if not isContainer(container): 
         raise NotAContainerError("getDirectChildren: supplied object is not a container. It must be a container.")
@@ -205,7 +211,7 @@ def canAccept(container: App.Document | App.DocumentObject, obj: App.DocumentObj
 
 def addObjectTo(container, feature, b_advance_tip = True, test_allowance = True):
     
-    container = screen(container)
+    container = defake(screen(container))
     feature = screen(feature)
     
     cnt_old = getContainer(feature)
@@ -243,6 +249,7 @@ def addObjectTo(container, feature, b_advance_tip = True, test_allowance = True)
     raise ContainerUnsupportedError("No idea how to add objects to containers of type {typ}".format(typ= container.TypeId))
     
 def moveObjectTo(feature, container):
+    container = defake(container)
     cnt_old = getContainer(feature)
     if cnt_old is container:
         return #nothing to do
@@ -310,6 +317,8 @@ def getContainerRelativePath(container_from, container_to):
     to leave. Second list is the list of containers to enter. All lists start from 
     the highest-level container (the ones directly after getCommonContainer).'''
 
+    container_from = defake(container_from)
+    container_to = defake(container_to)
     if not isContainer(container_from):
         raise NotAContainerError("container_from is not a container!")
     if not isContainer(container_to):
@@ -360,6 +369,9 @@ def getTransformation(container_from, container_to):
     '''getTransformation(container_from, container_to): returns a Placement, which will 
     transform a vector in local coordinates of container_from to local coordinates 
     of container_to.'''
+
+    container_from = defake(container_from)
+    container_to = defake(container_to)
     if not isContainer(container_from):
         raise NotAContainerError("container_from is not a container!")
     if not isContainer(container_to):
