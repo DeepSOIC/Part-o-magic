@@ -445,6 +445,9 @@ def isRunning():
     return observerInstance is not None
 
 def suspend():
+    """Suspends Observer (new objects will not be sorted, and so forth). 
+    Returns a keeper object that can be deleted or used in a with block to unsuspend.
+    Observer will drop everything that happens while it's suspended, it will not try to catch up once unsuspended."""
     global observerInstance
     global suspend_counter
     if not isRunning():
@@ -455,7 +458,7 @@ def suspend():
     return Keeper(_resume)
 
 def _resume():
-    """do not call! resume a suspend by calling .release method on keeper object returned by suspend."""
+    """do not call! Resume a suspend by calling .release method on keeper object returned by suspend."""
     global suspend_counter
     if suspend_counter == 0: return
     suspend_counter -= 1
@@ -467,10 +470,16 @@ class Keeper(object):
     def __init__(self, undo_func):
         self.undo_func = undo_func
     
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
+    
     def release(self):
         if self.undo_func is not None:
             self.undo_func()
-            self.undo_func = None        
+            self.undo_func = None
 
     def __del__(self):
         self.release()

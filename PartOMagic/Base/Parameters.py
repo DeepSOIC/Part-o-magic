@@ -39,3 +39,11 @@ class _paramEnablePartOMagic(Parameter):
     type = "Bool"
     default = 1
 EnablePartOMagic = _paramEnablePartOMagic()
+
+class _paramUseFileplantToDuplicate(Parameter):
+    "Sets if PartOMagic uses FilePlant to copy objects. If False, uses Document.copyObject function."
+    path = "User parameter:BaseApp/Preferences/Mod/PartOMagic"
+    param = "UseFileplantToDuplicate"
+    type = "Bool"
+    default = 0
+UseFileplantToDuplicate = _paramUseFileplantToDuplicate()
