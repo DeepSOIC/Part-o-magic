@@ -1,6 +1,8 @@
 from PartOMagic.Base import Containers as GT
 from PartOMagic.Base.Containers import activeContainer, setActiveContainer
 from PartOMagic.Features.GenericContainer import GenericContainer
+from PartOMagic.Gui import FakeDocument
+from PartOMagic.Gui.FakeDocument import defake
 
 from PartOMagic.Base.Compatibility import tempovis_is_stacky
 if tempovis_is_stacky():
@@ -53,6 +55,11 @@ def addObjectTo(container, feature):
 
     if container.isDerivedFrom("App::Document"):
         return container
+    
+    if not GT.getContainer(feature).isDerivedFrom('App::Document'):
+        # already sorted, keep it.
+        return GT.getContainer(feature)
+    App.Console.PrintWarning(f"PoM: megahack didn't do its job, using fallback method on {feature.Label}\n")
     
     # close editing before addition.
     #  Adding to container while editing causes editing to close anyway. But we want do do 
@@ -182,6 +189,8 @@ class Observer(object):
         
         if oldContainer is None: #happens when creating new document
             return
+        
+        print(oldContainer, newContainer)
             
         chain_from, chain_to = GT.getContainerRelativePath(oldContainer, newContainer)
         for cnt in chain_from[::-1]:
@@ -189,14 +198,14 @@ class Observer(object):
                 gc = GenericContainer(cnt)
                 gc.ViewObject.call(gc.ViewObject.activationChanged, oldContainer, newContainer, event= -1)
             except Exception as err:
-                App.Console.PrintError(u"Error deactivating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
+                App.Console.PrintError(u"Error deactivating container '{cnt}': {err}".format(cnt= cnt.Label, err= str(err)))
             self.leaveContainer(cnt)
         for cnt in chain_to:
             try:
                 gc = GenericContainer(cnt)
                 gc.ViewObject.call(gc.ViewObject.activationChanged, oldContainer, newContainer, event= +1)
             except Exception as err:
-                App.Console.PrintError(u"Error activating container '{cnt}': {err}".format(cnt= cnt.Label, err= err.message))
+                App.Console.PrintError(u"Error activating container '{cnt}': {err}".format(cnt= cnt.Label, err= str(err)))
             self.enterContainer(cnt)
         
         self.updateVPs()
@@ -290,7 +299,7 @@ class Observer(object):
                 #only part field changed
                 new_ac = activePart
             if new_ac is None:
-                new_ac = App.ActiveDocument
+                new_ac = defake(App.ActiveDocument)
             if new_ac is not last_ac: #unlikely it is false, since we have detected a change....
                 if not hasattr(App, 'ActiveContainer'):
                     setActiveContainer(new_ac)
@@ -314,7 +323,7 @@ class Observer(object):
             # LastModifiedDate has changed - document was just saved!
             self.lastMD[App.ActiveDocument.Name] = cur_lmd
             if last_lmd is not None: #filter out the apparent change that happens when there was no last-seen value
-                self.slotSavedDocument(App.ActiveDocument)
+                self.slotSavedDocument(defake(App.ActiveDocument))
         
     def trackEditing(self):
         #detect start/end of editing
@@ -423,6 +432,8 @@ def start():
     timer.setInterval(300)
     timer.connect(QtCore.SIGNAL("timeout()"), observerInstance.poll)
     timer.start()
+
+    FakeDocument.start()
     
     global suspend_counter
     suspend_counter = 0
@@ -437,6 +448,8 @@ def stop():
     global timer
     timer.stop()
     timer = None
+
+    FakeDocument.stop()
 
     global suspend_counter
     suspend_counter = None
@@ -455,6 +468,7 @@ def suspend():
         return Keeper(None)
     if suspend_counter == 0:
         App.removeDocumentObserver(observerInstance)
+        FakeDocument.stop()
     suspend_counter += 1
     return Keeper(_resume)
 
@@ -465,6 +479,7 @@ def _resume():
     suspend_counter -= 1
     if suspend_counter == 0:
         App.addDocumentObserver(observerInstance)
+        FakeDocument.start()
     
 class Keeper(object):
     undo_func = None

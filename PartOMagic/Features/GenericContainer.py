@@ -26,7 +26,7 @@ class ViewProviderGenericContainer(object):
     
     def __init__(self, container):
         self.selfvp = None if not hasattr(container, 'ViewObject') else container.ViewObject
-        self.selfobj = self.selfvp.Object
+        self.selfobj = container
 
     def call(self, method, *args, **kwargs):
         "call(method, *args): if the viewprovider's proxy overrides the method, call the override. Else call standard implementation."
