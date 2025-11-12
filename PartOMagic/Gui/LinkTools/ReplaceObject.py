@@ -14,7 +14,7 @@ class CommandReplaceObject(AACommand):
                 'Pixmap'  : self.getIconPath("PartOMagic_ReplaceObject.svg"),
                 'MenuText': "Replace object",
                 'Accel': "",
-                'ToolTip': "Replace object. Select new, old, and parent. Order matters. Parent is optional."}
+                'ToolTip': "Replace object. Select old, new, and parent. Order matters. Parent is optional."}
         
     def RunOrTest(self, b_run):
         sel = [it.Object for it in Gui.Selection.getSelectionEx()]
