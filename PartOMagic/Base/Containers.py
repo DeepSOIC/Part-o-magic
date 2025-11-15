@@ -176,7 +176,23 @@ def recursiveChildren(container):
             for subchild in recursiveChildren(child):
                 yield subchild
 
-def addObjectTo(container, feature, b_advance_tip = True):
+def canAccept(container: App.Document | App.DocumentObject, obj: App.DocumentObject, test_dep_loop = False) -> bool | Exception:
+    "check if container can accept obj. Raises either true, or an error instance if not."
+    if container.isDerivedFrom('App::Document'):
+        return True
+    if container.isDerivedFrom('App::Origin'):
+        return StaticContainerError("Origin can't accept objects")
+    #FIXME: insert body logic
+    if container is obj:
+        return CircularDependencyError(f"object can't contain itself ({obj.Label})")
+    if test_dep_loop:
+        if container in getAllDependencies(obj):
+            return CircularDependencyError(f"can't add object({obj.Label}) to container({container.Label}) because object depends on container")
+
+    return True
+
+
+def addObjectTo(container, feature, b_advance_tip = True, test_allowance = True):
     
     container = screen(container)
     feature = screen(feature)
@@ -189,8 +205,14 @@ def addObjectTo(container, feature, b_advance_tip = True):
     if cnt_old is container:
         return #nothing to do
         
-    if feature is container :
-        raise ContainerError(u"Attempting to add {feat} to itself. Feature can't contain itself.".format(feat= feature.Label))
+    if test_allowance:
+        allowed_or_err = canAccept(container, feature, test_dep_loop=True)
+        if allowed_or_err != True:
+            raise allowed_or_err
+    else:
+        # still test for self-containment
+        if feature is container :
+            raise CircularDependencyError(u"Attempting to add {feat} to itself. Feature can't contain itself.".format(feat= feature.Label))
 
     if container.hasExtension("App::GroupExtension"):
         #container.addObject(feature)
@@ -394,3 +416,11 @@ class GuiContainerError(ValueError):
     pass
 class NoActiveContainerError(GuiContainerError): #raised by activeContainer if in spreadsheet or drawing sheet is active
     pass
+class NotAllowedError(ContainerError):
+    pass
+class StaticContainerError(NotAllowedError):
+    "raised when trying to add objects to static containers such as Origin"
+class TypeNotAllowed(NotAllowedError):
+    "raised ehrn trying to add a Part Feature to PartDesign body, for example"
+class CircularDependencyError(NotAllowedError):
+    "object can't be added to a container because that would cause a circular dependency"
