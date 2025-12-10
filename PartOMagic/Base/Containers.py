@@ -2,6 +2,18 @@ import FreeCAD as App
 
 from PartOMagic.Gui.Utils import screen
 
+def active3DView():
+    "returns active 3d view, or None"
+    # as an expertiment, let's not use ActiveView, but just refer to the main 3d viewer.
+    # This should stop container changes, and together with them, the messup of scene, 
+    # when opening spreadsheets and the like.
+    import FreeCADGui as Gui
+    if Gui.ActiveDocument is None:
+        return None
+    vws = Gui.ActiveDocument.mdiViewsOfType('Gui::View3DInventor')
+    if len(vws) == 0:
+        return None
+    return vws[0]
 
 def activeContainer():
     '''activeContainer(): returns active container.
@@ -9,19 +21,16 @@ def activeContainer():
     If there is no active body, active Part is returned.
     If there is no active Part either, active Document is returned.
     If no active document, None is returned.'''
-    
-    import FreeCAD as App
-    import FreeCADGui as Gui
-    
+
     if hasattr(App, "ActiveContainer"):
         return App.ActiveContainer.Object
     
-    if Gui.ActiveDocument is None:
-        return None
-    if Gui.ActiveDocument.ActiveView is None:
-        raise NoActiveContainerError("ActiveDocument is not none, but viewer is None. Can't determine active container.")
-    activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
-    activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
+    vw = active3DView()
+    if vw is None:
+        raise NoActiveContainerError("No active 3d view, can't get active container.")
+    
+    activeBody = vw.getActiveObject("pdbody")
+    activePart = vw.getActiveObject("part")
     if activeBody:
         return screen(activeBody)
     elif activePart:
@@ -33,10 +42,7 @@ def setActiveContainer(cnt):
     '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
     
     cnt = screen(cnt)
-    
-    import FreeCAD as App
-    import FreeCADGui as Gui
-    
+
     if hasattr(App, "ActiveContainer"):
         App.setActiveContainer(cnt)
         return
@@ -44,16 +50,21 @@ def setActiveContainer(cnt):
     if not isContainer(cnt):
         raise NotAContainerError("Can't make '{feat}' active as container, because it's not a container (or an unknown type of container)."
                                  .format(feat= cnt.Label))
+    
+    vw = active3DView()
+    if vw is None:
+        raise NoActiveContainerError("No active 3d view, can't set active container.")
+        
     if cnt.isDerivedFrom("Part::BodyBase"):
-        Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", cnt)
+        vw.setActiveObject("pdbody", cnt)
         part = None
     else:
         part = cnt
-        Gui.ActiveDocument.ActiveView.setActiveObject("pdbody", None)
+        vw.setActiveObject("pdbody", None)
     if part:
         if part.isDerivedFrom("App::Document"):
             part = None
-    Gui.ActiveDocument.ActiveView.setActiveObject("part", part)
+    vw.setActiveObject("part", part)
 
 
 def getAllDependencies(feat):

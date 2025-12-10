@@ -244,8 +244,8 @@ class Observer(object):
 
         if App.ActiveDocument is None:
             return
-        if Gui.ActiveDocument.ActiveView is None:
-            return # happens when editing a spreadsheet
+        if GT.active3DView() is None:
+            return # happens when editing a spreadsheet with 3d view closed
             
         self.executeDelayedSorting()
         self.trackActiveContainer()
@@ -268,8 +268,9 @@ class Observer(object):
         
     def trackActiveContainer(self):
         #watch for changes in active object
-        activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
-        activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
+        vw = GT.active3DView()
+        activeBody = vw.getActiveObject("pdbody")
+        activePart = vw.getActiveObject("part")
         ac = activeContainer()
         if not App.ActiveDocument.Name in self.activeObjects:
             self.activeObjects[App.ActiveDocument.Name] = (None, None, None)
@@ -301,8 +302,8 @@ class Observer(object):
                 self.activeContainerChanged(last_ac, ac)
             finally:
                 # re-query the active containers, as they might have been altered by setActiveContainer.
-                activeBody = Gui.ActiveDocument.ActiveView.getActiveObject("pdbody")
-                activePart = Gui.ActiveDocument.ActiveView.getActiveObject("part")
+                activeBody = vw.getActiveObject("pdbody")
+                activePart = vw.getActiveObject("part")
                 self.activeObjects[App.ActiveDocument.Name] = (ac, activePart, activeBody)
     
     def trackSaves(self):
