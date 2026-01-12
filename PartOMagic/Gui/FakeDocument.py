@@ -99,6 +99,10 @@ def defake(cnt):
         return cnt._doc
     return cnt
 
+def poll():
+    "reinstall hooks if necessary"
+    if active:
+        fakeIt()
 
 def PoMsetActiveDocument(new_doc):
     "PoM's replacement for App.setActiveDocument"
