@@ -43,6 +43,27 @@ class FakeDocument(object):
             print(f"PoM.FakeDocument: adding new object {type} to {ac.Label}\n")
             return ac.newObject(type, *args, **kwargs)
     
+    def recompute(self, objects = None, force = False, *args, **kwargs) -> int:
+        print("PoM.FakeDocument: recompute called")
+        bypass = True
+        try:
+            from PartOMagic.Base import Recomputer
+            bypass = (
+                objects is not None
+                or not active
+                or defake(App.ActiveDocument) is not self._doc # we can maybe complicate things and recall active container for inactive document, but let's not go that far
+            )
+            if not bypass:
+                print("PoM.FakeDocument: scoped recompute!")
+                return Recomputer.scoped_recompute()
+        except Recomputer.DependencyLoopError:
+            # this one shouldn't trigger a fallback to standard recompute 
+            raise
+        except Exception as err:
+            App.Console.PrintError(f'PoM FakeDocument: scoped recompute error {str(err)}\n  fallback to normal recompute...\n')
+        print("PoM.FakeDocument: recompute bypass")
+        return self._doc.recompute(objects, force, *args, **kwargs)
+    
     def __getattr__(self, attrname):
         if attrname in MY_ATTRS:
             return super().__getattr__(attrname)
