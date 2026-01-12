@@ -5,7 +5,8 @@ __all__ = [
 'Parameters',
 'Utils',
 'LinkTools',
-'FilePlant'
+'FilePlant',
+'Recomputer'
 ]
 
 def importAll():
@@ -14,6 +15,7 @@ def importAll():
     from . import Utils
     from . import LinkTools
     from . import FilePlant
+    from . import Recomputer
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, 'importAll'):

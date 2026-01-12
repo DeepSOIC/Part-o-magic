@@ -73,15 +73,20 @@ def setActiveContainer(cnt):
     vw.setActiveObject("part", part)
 
 
-def getAllDependencies(feat):
+def getAllDependencies(feat_or_list: App.DocumentObject | list[App.DocumentObject]) -> set[App.DocumentObject]:
     '''getAllDependencies(feat): gets all features feat depends on, directly or indirectly. 
-    Returns a list, with deepest dependencies last. feat is not included in the list, except 
-    if the feature depends on itself (dependency loop).'''
+    Returns a set. feat is not included, unless feat depends on itself (dependency loop).'''
+    
+    if hasattr(feat_or_list, 'isDerivedFrom'):
+        #single object
+        if feat_or_list.isDerivedFrom("App::Document"):
+            return set(feat_or_list.Objects)
+        feats = [feat_or_list]
+    else:
+        feats = feat_or_list
+    # else: assume list
 
-    if feat.isDerivedFrom("App::Document"):
-        return feat.Objects
-
-    list_traversing_now = [feat]
+    list_traversing_now = feats
     set_of_deps = set()
     list_of_deps = []
     
@@ -91,12 +96,43 @@ def getAllDependencies(feat):
             for dep in feat.OutList:
                 if not (dep in set_of_deps):
                     set_of_deps.add(dep)
-                    list_of_deps.append(screen(dep))
+                    list_of_deps.append(dep)
                     list_to_be_traversed_next.append(dep)
         
         list_traversing_now = list_to_be_traversed_next
     
-    return list_of_deps
+    return set_of_deps
+
+def getAllDependent2(feat_or_list: App.DocumentObject | list[App.DocumentObject]) -> set[App.DocumentObject]:
+    '''getAllDependent2(feat): gets all features that depend on feat, directly or indirectly. 
+    Returns a set. feat is not included, unless feat depends on itself (dependency loop).'''
+
+    if hasattr(feat_or_list, 'isDerivedFrom'):
+        #single object
+        if feat_or_list.isDerivedFrom("App::Document"):
+            return set()
+        feats = [feat_or_list]
+    else:
+        feats = feat_or_list
+    # else: assume list
+
+    list_traversing_now = feats
+    set_of_deps = set()
+    list_of_deps = []
+    
+    while len(list_traversing_now) > 0:
+        list_to_be_traversed_next = []
+        for feat in list_traversing_now:
+            for dep in feat.InList:
+                if not (dep in set_of_deps):
+                    set_of_deps.add(dep)
+                    list_of_deps.append(dep)
+                    list_to_be_traversed_next.append(dep)
+        
+        list_traversing_now = list_to_be_traversed_next
+    
+    return set_of_deps
+
 
 def getAllDependent(feat):
     '''getAllDependent(feat): gets all features that depend on feat, directly or indirectly. 
