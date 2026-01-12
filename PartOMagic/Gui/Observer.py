@@ -145,7 +145,8 @@ class Observer(object):
     def slotUndoDocument(self,doc):
         pass
     def slotActivateDocument(self,doc):
-        pass
+        FakeDocument.poll()
+        
     def slotRelabelDocument(self,doc):
         pass
     def slotDeletedDocument(self,doc):
