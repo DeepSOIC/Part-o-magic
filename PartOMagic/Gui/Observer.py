@@ -146,12 +146,13 @@ class Observer(object):
         pass
     def slotActivateDocument(self,doc):
         FakeDocument.poll()
-        
+
     def slotRelabelDocument(self,doc):
         pass
     def slotDeletedDocument(self,doc):
         self.activeObjects.pop(doc.Name, None)
     def slotCreatedDocument(self,doc):
+        doc.RecomputesFrozen = True
         pass
         
     def slotSavedDocument(self, doc): #emulated - called by polling timer when LastModifiedDate of document changes
