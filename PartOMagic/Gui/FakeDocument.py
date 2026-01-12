@@ -55,7 +55,7 @@ class FakeDocument(object):
             )
             if not bypass:
                 print("PoM.FakeDocument: scoped recompute!")
-                return Recomputer.scoped_recompute()
+                return Recomputer.scoped_recompute(warn_noop= force)
         except Recomputer.DependencyLoopError:
             # this one shouldn't trigger a fallback to standard recompute 
             raise

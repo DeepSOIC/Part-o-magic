@@ -70,7 +70,7 @@ def find_features_to_recompute(scope: set[App.DocumentObject]) -> set[App.Docume
     touched = [obj for obj in scope if 'Touched' in obj.State or obj.MustExecute]
     return Containers.getAllDependent2(touched) & scope
 
-def scoped_recompute(scope : (set[App.DocumentObject] | App.Document | App.DocumentObject | None) = None):
+def scoped_recompute(scope : (set[App.DocumentObject] | App.Document | App.DocumentObject | None) = None, warn_noop : bool = False):
     if scope is None:
         scope = Containers.activeContainer()
     
@@ -95,6 +95,8 @@ def scoped_recompute(scope : (set[App.DocumentObject] | App.Document | App.Docum
         list1[0].Document.recompute(list1, True)
     else:
         print("PoM.scoped_recompute: list empty")
+        if warn_noop:
+            App.Console.PrintUserWarning("PoM scoped recompute: nothing to do")
         return 0
 
 
