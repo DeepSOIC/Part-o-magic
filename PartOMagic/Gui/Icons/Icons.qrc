@@ -1,6 +1,7 @@
 <RCC>
     <qresource>
         <file>icons/PartOMagic.svg</file>
+        <file alias="icons/preferences-partomagic.svg">icons/PartOMagic.svg</file>
         <file>icons/PartOMagic_DisableObserver.svg</file>
         <file>icons/PartOMagic_Duplicate.svg</file>
         <file>icons/PartOMagic_EnableObserver.svg</file>

@@ -11,7 +11,8 @@ __all__ = [
 "GlobalToolbar",
 "View",
 "MonkeyPatches",
-"FakeDocument"
+"FakeDocument",
+"Preferences",
 ]
 
 def importAll():
@@ -28,6 +29,7 @@ def importAll():
     from . import View
     from . import MonkeyPatches
     from . import FakeDocument
+    from . import Preferences
     for modstr in __all__:
         mod = globals()[modstr]
         if hasattr(mod, "importAll"):
