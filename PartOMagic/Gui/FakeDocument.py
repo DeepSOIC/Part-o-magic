@@ -21,7 +21,7 @@ class FakeDocument(object):
         super().__setattr__('_doc', doc)
 
     def addObject(self, type, *args, **kwargs):
-        if not active:
+        if not active or not Parameters.EnableSorting.get():
             return self._doc.addObject(type, *args, **kwargs)
                 
         ac = None
