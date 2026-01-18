@@ -1,5 +1,6 @@
 from PartOMagic.Base import Containers as GT
 from PartOMagic.Base.Containers import activeContainer, setActiveContainer
+from PartOMagic.Base import Parameters
 from PartOMagic.Features.GenericContainer import GenericContainer
 from PartOMagic.Gui import FakeDocument
 from PartOMagic.Gui.FakeDocument import defake
@@ -122,10 +123,11 @@ class Observer(object):
         #before recompute, otherwise the recompute fails.
         #From there, another delayed call is registered - a call to advanceTip
         #which should be called after the new object is fully set up.
-        self.addition_calls_queue.append(
-          lambda self=self, feature=feature, ac=ac, aw=aw:
-            self.appendToActiveContainer(feature, ac, aw)
-          )
+        if Parameters.EnableSorting.get():
+            self.addition_calls_queue.append(
+            lambda self=self, feature=feature, ac=ac, aw=aw:
+                self.appendToActiveContainer(feature, ac, aw)
+            )
 
     def slotDeletedObject(self, feature):
         ac = activeContainer()
@@ -376,6 +378,8 @@ class Observer(object):
         '''enterContainer(self, cnt): when cnt either directly is being activated, or one of its child containers is being activated. Assumes container of cnt is already entered.'''
         if cnt.isDerivedFrom("App::Document"): # may happen when creating new document. Ignoring.
             return
+        if Parameters.VisibilityAutomation.get() == False:
+            return
         key = cnt.Document.Name+"."+cnt.Name
         if key in self.TVs:
             # just in case old tempovis associated with the container wasn't removed for some reason.
@@ -388,6 +392,8 @@ class Observer(object):
         tv.show(cnt)
         
     def leaveContainer(self, cnt):
+        if Parameters.VisibilityAutomation.get() == False:
+            return
         assert(not cnt.isDerivedFrom("App::Document"))
         key = cnt.Document.Name+"."+cnt.Name
         tv = self.TVs[key]

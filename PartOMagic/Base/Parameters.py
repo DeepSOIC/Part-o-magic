@@ -65,3 +65,17 @@ class _paramUseFileplantToDuplicate(Parameter):
     type = "Bool"
     default = 0
 UseFileplantToDuplicate = _paramUseFileplantToDuplicate()
+
+class _paramEnableSorting(Parameter):
+    "add objects to active container?"
+    param = "EnableSorting"
+    type = "Bool"
+    default = 1
+EnableSorting = _paramEnableSorting()
+
+class _paramVisibilityAutomation(Parameter):
+    "hide stuff when entering?"
+    param = "VisibilityAutomation"
+    type = "Bool"
+    default = 1
+VisibilityAutomation = _paramVisibilityAutomation()
