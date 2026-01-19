@@ -1,5 +1,6 @@
 import FreeCAD as App
 import PartOMagic.Base.Containers as Containers
+from PartOMagic.Base import Parameters
 
 def dbg_print_objects(objects, hint):
     print(hint)
@@ -51,14 +52,34 @@ def topological_sort(objects: list[App.DocumentObject]) -> tuple[list[App.Docume
     else:
         return sorted_fromstart + sorted_fromend[::-1], set(), list() 
 
-def current_scope() -> set[App.DocumentObject]:
-    ac = Containers.activeContainer()
-    return container_scope(ac)
-
+def current_scope() -> tuple[set[App.DocumentObject], bool]:
+    scope = set(App.ActiveDocument.Objects)
+    full = True
+    if Parameters.ScopeLimitActiveContainer.get():
+        ac = Containers.activeContainer()
+        scope.intersection_update(container_scope(ac))
+        full = False
+    if Parameters.ScopeLimitVisible.get():
+        ac = Containers.activeContainer()
+        exclude = Containers.getContainerChain(ac)[1:]+[ac]
+        #FIXME: account for container visibility
+        scope.intersection_update([obj for obj in scope if obj.ViewObject.isVisible() and not obj in exclude]) # using isVisible() removes objects that are not in 3d-view, like Exporter.
+        full = False
+    if Parameters.ScopeIncludeSelected.get() and not full:
+        import FreeCADGui as Gui
+        scope.update(Gui.Selection.getSelection())
+    if Parameters.ScopeIncludeDependencies.get() and not full:
+        deps = Containers.getAllDependencies(scope)
+        scope.update(deps)
+    return scope, full
+    
 def container_scope(cnt) -> set[App.DocumentObject]:
     if cnt.isDerivedFrom('App::Document'):
-        return cnt.Objects
-    objects = Containers.getAllDependencies(cnt)
+        return set(cnt.Objects)
+    if Parameters.ScopeIncludeDependencies.get():
+        objects = Containers.getAllDependencies(cnt)
+    else:
+        objects = set(Containers.getDirectChildren(cnt))
     objects.add(cnt)
     return objects
 
@@ -68,30 +89,37 @@ def recompute_is_needed(scope: set[App.DocumentObject]):
 
 def find_features_to_recompute(scope: set[App.DocumentObject]) -> set[App.DocumentObject]:
     touched = [obj for obj in scope if 'Touched' in obj.State or obj.MustExecute]
-    return Containers.getAllDependent2(touched) & scope
+    to_recompute = Containers.getAllDependent2(touched)  # FIXME: getAllDependent may be optimized to work only within scope
+    to_recompute.update(touched)
+    return to_recompute & scope
 
 def scoped_recompute(scope : (set[App.DocumentObject] | App.Document | App.DocumentObject | None) = None, warn_noop : bool = False):
+    full = False
     if scope is None:
-        scope = Containers.activeContainer()
+        scope, full = current_scope()
     
     if hasattr(scope, 'isDerivedFrom'):
          if scope.isDerivedFrom('App::Document'):
-             print("PoM.scoped_recompute: full document, bypassing")
-             return scope.recompute(None, True, True)
+             full = True
          scope = container_scope(scope)
-    
-    objects = find_features_to_recompute(current_scope())
+
+    if full:
+        print("PoM.scoped_recompute: full document, bypassing")
+        return scope.recompute(None, True, True)
+
+    objects = find_features_to_recompute(scope)
+
+    dbg_print_objects(objects, "PoM.scoped_recompute: scope:")
+
     list1, blob, list2 = topological_sort(objects)
     if blob:
         App.Console.PrintLog("there is a dependency loop among these objects:\n") # topological_sort does not fully isolate dependency loops, it could be that there are two loops connectrd with valid dependencies
         for obj in blob:
             App.Console.PrintLog(f"  {obj.Label}")
-        raise 
+        raise DependencyLoopError(f"dependency loop in {objects.pop().Document.Name}")
 
     if list1:
-        print("PoM.scoped_recompute: recomputing")
-        for it in list1:
-            print("  " + it.Label)
+        dbg_print_objects(list1, "PoM.scoped_recompute: recomputing:")
         list1[0].Document.recompute(list1, True)
     else:
         print("PoM.scoped_recompute: list empty")
