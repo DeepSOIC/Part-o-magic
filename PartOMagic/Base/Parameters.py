@@ -103,3 +103,10 @@ class _paramVisibilityAutomation(Parameter):
     type = "Bool"
     default = 1
 VisibilityAutomation = _paramVisibilityAutomation()
+
+class _paramFakeDocument(Parameter):
+    "enable fake document hack?"
+    param = "FakeDocument"
+    type = "Bool"
+    default = 0
+FakeDocument = _paramFakeDocument()
