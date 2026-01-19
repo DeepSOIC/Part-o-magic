@@ -52,6 +52,7 @@ class FakeDocument(object):
                 objects is not None
                 or not active
                 or defake(App.ActiveDocument) is not self._doc # we can maybe complicate things and recall active container for inactive document, but let's not go that far
+                or not Parameters.ScopedRecompute.get()
             )
             if not bypass:
                 print("PoM.FakeDocument: scoped recompute!")
