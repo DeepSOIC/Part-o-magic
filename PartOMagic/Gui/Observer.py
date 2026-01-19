@@ -154,8 +154,8 @@ class Observer(object):
     def slotDeletedDocument(self,doc):
         self.activeObjects.pop(doc.Name, None)
     def slotCreatedDocument(self,doc):
-        doc.RecomputesFrozen = True
-        pass
+        if Parameters.ScopedRecompute.get():
+            doc.RecomputesFrozen = True
         
     def slotSavedDocument(self, doc): #emulated - called by polling timer when LastModifiedDate of document changes
         if activeContainer().isDerivedFrom("App::Document"):
@@ -524,3 +524,20 @@ def sortNow():
     global observerInstance
     if observerInstance is not None:
         observerInstance.executeDelayedSorting()
+
+
+
+scoped_recompute_enabled = Parameters.ScopedRecompute.get()
+
+def _slotScopedRecomputeChanged(p, old, val):
+    global scoped_recompute_enabled
+    new_enabled = Parameters.ScopedRecompute.get() and Parameters.FakeDocument.get() and Parameters.EnableObserver.get()
+    if scoped_recompute_enabled == new_enabled:
+        return
+    scoped_recompute_enabled = new_enabled
+    for docname, doc in App.listDocuments().items():
+        doc.RecomputesFrozen = scoped_recompute_enabled
+
+Parameters.ScopedRecompute.subscribe(_slotScopedRecomputeChanged)
+Parameters.FakeDocument.subscribe(_slotScopedRecomputeChanged)
+Parameters.EnableObserver.subscribe(_slotScopedRecomputeChanged)

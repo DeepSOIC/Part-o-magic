@@ -110,3 +110,9 @@ class _paramFakeDocument(Parameter):
     type = "Bool"
     default = 0
 FakeDocument = _paramFakeDocument()
+
+class _paramScopedRecompute(Parameter):
+    param = "ScopedRecompute"
+    type = "Bool"
+    default = 1
+ScopedRecompute = _paramScopedRecompute()
