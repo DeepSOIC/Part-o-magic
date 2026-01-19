@@ -441,7 +441,9 @@ def start():
     timer.connect(QtCore.SIGNAL("timeout()"), observerInstance.poll)
     timer.start()
 
-    FakeDocument.start()
+    if Parameters.FakeDocument.get():
+        FakeDocument.start()
+    Parameters.FakeDocument.subscribe(_slotFakeDocumentChanged)
     
     global suspend_counter
     suspend_counter = 0
@@ -458,6 +460,7 @@ def stop():
     timer = None
 
     FakeDocument.stop()
+    Parameters.FakeDocument.unsubscribe(_slotFakeDocumentChanged)
 
     global suspend_counter
     suspend_counter = None
@@ -487,7 +490,15 @@ def _resume():
     suspend_counter -= 1
     if suspend_counter == 0:
         App.addDocumentObserver(observerInstance)
-        FakeDocument.start()
+        if Parameters.FakeDocument.get():
+            FakeDocument.start()
+
+def _slotFakeDocumentChanged(p, old_val, val):
+    if isRunning():
+        if val:
+            FakeDocument.start()
+        else:
+            FakeDocument.stop()
     
 class Keeper(object):
     undo_func = None
