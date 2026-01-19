@@ -116,3 +116,28 @@ class _paramScopedRecompute(Parameter):
     type = "Bool"
     default = 1
 ScopedRecompute = _paramScopedRecompute()
+
+class _paramScopeLimitActiveContainer(Parameter):
+    param = "ScopeLimitActiveContainer"
+    type = "Bool"
+    default = 1
+ScopeLimitActiveContainer = _paramScopeLimitActiveContainer()
+
+class _paramScopeLimitVisible(Parameter):
+    param = "ScopeLimitVisible"
+    type = "Bool"
+    default = 0
+ScopeLimitVisible = _paramScopeLimitVisible()
+
+class _paramScopeIncludeSelected(Parameter):
+    param = "ScopeIncludeSelected"
+    type = "Bool"
+    default = 1
+ScopeIncludeSelected = _paramScopeIncludeSelected()
+
+class _paramScopeIncludeDependencies(Parameter):
+    param = "ScopeIncludeDependencies"
+    type = "Bool"
+    default = 1
+ScopeIncludeDependencies = _paramScopeIncludeDependencies()
+
