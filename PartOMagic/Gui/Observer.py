@@ -60,7 +60,9 @@ def addObjectTo(container, feature):
     if not GT.getContainer(feature).isDerivedFrom('App::Document'):
         # already sorted, keep it.
         return GT.getContainer(feature)
-    App.Console.PrintWarning(f"PoM: megahack didn't do its job, using fallback method on {feature.Label}\n")
+    
+    if Parameters.FakeDocument.get():
+        App.Console.PrintWarning(f"PoM: FakeDocument didn't do its job, using fallback method on {feature.Label}\n")
     
     # close editing before addition.
     #  Adding to container while editing causes editing to close anyway. But we want do do 
