@@ -154,7 +154,8 @@ class Observer(object):
     def slotDeletedDocument(self,doc):
         self.activeObjects.pop(doc.Name, None)
     def slotCreatedDocument(self,doc):
-        if Parameters.ScopedRecompute.get():
+        global _scoped_recompute_enabled
+        if _scoped_recompute_enabled:
             doc.RecomputesFrozen = True
         
     def slotSavedDocument(self, doc): #emulated - called by polling timer when LastModifiedDate of document changes
@@ -527,16 +528,19 @@ def sortNow():
 
 
 
-scoped_recompute_enabled = Parameters.ScopedRecompute.get()
+def scoped_recompute_enabled() -> bool :
+    return Parameters.ScopedRecompute.get() and Parameters.FakeDocument.get() and Parameters.EnableObserver.get()
+
+_scoped_recompute_enabled = scoped_recompute_enabled()
 
 def _slotScopedRecomputeChanged(p, old, val):
-    global scoped_recompute_enabled
-    new_enabled = Parameters.ScopedRecompute.get() and Parameters.FakeDocument.get() and Parameters.EnableObserver.get()
-    if scoped_recompute_enabled == new_enabled:
+    global _scoped_recompute_enabled
+    new_enabled = scoped_recompute_enabled()
+    if _scoped_recompute_enabled == new_enabled:
         return
-    scoped_recompute_enabled = new_enabled
+    _scoped_recompute_enabled = new_enabled
     for docname, doc in App.listDocuments().items():
-        doc.RecomputesFrozen = scoped_recompute_enabled
+        doc.RecomputesFrozen = _scoped_recompute_enabled
 
 Parameters.ScopedRecompute.subscribe(_slotScopedRecomputeChanged)
 Parameters.FakeDocument.subscribe(_slotScopedRecomputeChanged)
