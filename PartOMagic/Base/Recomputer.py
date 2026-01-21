@@ -109,17 +109,17 @@ def scoped_recompute(scope : (set[App.DocumentObject] | App.Document | App.Docum
 
     objects = find_features_to_recompute(scope)
 
-    dbg_print_objects(objects, "PoM.scoped_recompute: scope:")
+    # dbg_print_objects(objects, "PoM.scoped_recompute: scope:")
 
     list1, blob, list2 = topological_sort(objects)
     if blob:
         App.Console.PrintLog("there is a dependency loop among these objects:\n") # topological_sort does not fully isolate dependency loops, it could be that there are two loops connectrd with valid dependencies
         for obj in blob:
-            App.Console.PrintLog(f"  {obj.Label}")
+            App.Console.PrintLog(f"  {obj.Label}\n")
         raise DependencyLoopError(f"dependency loop in {objects.pop().Document.Name}")
 
     if list1:
-        dbg_print_objects(list1, "PoM.scoped_recompute: recomputing:")
+        # dbg_print_objects(list1, "PoM.scoped_recompute: recomputing:")
         list1[0].Document.recompute(list1, True)
     else:
         print("PoM.scoped_recompute: list empty")

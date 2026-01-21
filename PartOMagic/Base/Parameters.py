@@ -58,7 +58,6 @@ class Parameter(object):
 # sadly, this does not work... Would have been nice though
 class Observer(object):
     def onChange(self, param_grp, param_name):
-        print(f"PoM: {param_name} changed")
         from PartOMagic.Base import Parameters
         if hasattr(Parameters, param_name):
             getattr(Parameters, param_name).reset_volatile()
