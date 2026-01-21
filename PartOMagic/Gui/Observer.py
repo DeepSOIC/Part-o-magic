@@ -196,8 +196,6 @@ class Observer(object):
         
         if oldContainer is None: #happens when creating new document
             return
-        
-        print(oldContainer, newContainer)
             
         chain_from, chain_to = GT.getContainerRelativePath(oldContainer, newContainer)
         for cnt in chain_from[::-1]:
@@ -218,7 +216,6 @@ class Observer(object):
         self.updateVPs()
         
     def slotStartEditing(self, feature):
-        print(u"Start Editing {f}".format(f= feature.Name))
         cnt = GT.getContainer(feature)
         # if GT.activeContainer() is not cnt:
         #     print(u"Feature being edited is not in active container. Activating {cnt}...".format(cnt= cnt.Name))
