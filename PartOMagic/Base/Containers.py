@@ -38,16 +38,12 @@ def activeContainer():
         return screen(activePart)
     else:
         doc = defake(App.ActiveDocument)
-        doc = getattr(doc, '_doc', doc) #unwrap FakeDocument
         return doc
 
 def setActiveContainer(cnt):
     '''setActiveContainer(cnt): sets active container. To set no active container, supply ActiveDocument. None is not accepted.'''
     
     cnt = defake(screen(cnt))
-    
-    import FreeCAD as App
-    import FreeCADGui as Gui
 
     if hasattr(App, "ActiveContainer"):
         App.setActiveContainer(cnt)

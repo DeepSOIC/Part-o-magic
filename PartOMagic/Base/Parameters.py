@@ -55,7 +55,6 @@ class Parameter(object):
         else:
             return True
 
-# sadly, this does not work... Would have been nice though
 class Observer(object):
     def onChange(self, param_grp, param_name):
         from PartOMagic.Base import Parameters
