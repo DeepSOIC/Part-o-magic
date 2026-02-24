@@ -35,7 +35,7 @@ class FakeDocument(object):
             # print(f"PoM.FakeDocument: active container not in this doc\n")
             ac = self._doc
         if type in TYPE_EXCLUSIONS:
-            ac - self._doc
+            ac = self._doc
         if ac is self._doc:
             # print(f"PoM.FakeDocument: adding new object {type} to root\n")
             return self._doc.addObject(type, *args, **kwargs)
