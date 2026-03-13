@@ -100,6 +100,7 @@ commands.append(CommandSelectInvert())
 
 class CommandSelectMem(AACommand):
     buffer = []
+
     def GetResources(self):
         import PartDesignGui
         return {'CommandName': 'PartOMagic_Select_BSwap',
@@ -111,7 +112,7 @@ class CommandSelectMem(AACommand):
     def RunOrTest(self, b_run):
         if b_run: 
             sel = Gui.Selection.getSelectionEx()
-            buf = self.buffer
+            buf = self.__class__.buffer
             Gui.Selection.clearSelection()
             for it in buf:
                 try:
@@ -125,8 +126,28 @@ class CommandSelectMem(AACommand):
                         Gui.Selection.addSelection(it.Object, subs[isub], *pts[isub])
                 else:
                     Gui.Selection.addSelection(it.Object)
-            self.buffer = sel
+            self.__class__.buffer = sel
 commands.append(CommandSelectMem())
+
+class CommandSelectMemAppend(AACommand):
+    def GetResources(self):
+        import PartDesignGui
+        return {'CommandName': 'PartOMagic_Select_BSwapAppend',
+                'Pixmap'  : self.getIconPath("PartOMagic_Select_BSwapAppend.svg"),
+                'MenuText': "Append to selection buffer",
+                'Accel': "",
+                'ToolTip': "Append to Selection buffer. The buffer can be revealed with Buffer Swap command."}
+        
+    def RunOrTest(self, b_run):
+        sel = Gui.Selection.getSelectionEx()
+        if not sel:
+            raise CommandError(self, "nothing selected")
+        if b_run:             
+            CommandSelectMem.buffer.extend(sel) # FreeCAD seems to handle duplicates well all by itself
+            Gui.Selection.clearSelection()
+
+commands.append(CommandSelectMemAppend())
+
 AACommand.registerCommands(commands)
 
 
