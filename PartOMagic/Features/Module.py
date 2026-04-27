@@ -79,6 +79,7 @@ class _Module:
         
 class _ViewProviderModule:
     "A View Provider for the Module object"
+    oldMode = None
 
     def __init__(self,vobj):
         vobj.addExtension("Gui::ViewProviderOriginGroupExtensionPython")
@@ -106,12 +107,18 @@ class _ViewProviderModule:
         # event: -1 = show public stuff
         #        +1 = show private stuff
         if event == +1:
-            self.oldMode = vobj.DisplayMode
+            if vobj.DisplayMode != 'Group': # there is a second fake enter due to expandedness change. This is to avoid forgetting the old mode in this case.
+                print(f"oldmode set {vobj.DisplayMode}")
+                self.oldMode = vobj.DisplayMode
             vobj.DisplayMode = 'Group'
         elif event == -1:
-            if self.oldMode == 'Group':
+            if vobj.DisplayMode != 'Group': #suppress reaction to second leave due to tree automation
+                return
+            if self.oldMode in ['Group', None]:
+                print(f"oldmode absent {self.oldMode}")
                 self.oldMode = 'Flat Lines'
             vobj.DisplayMode = self.oldMode
+            self.oldMode = None
   
     def __getstate__(self):
         return None
